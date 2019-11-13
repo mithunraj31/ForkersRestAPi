@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mbel.dto.ProductionDto;
+import com.mbel.dto.ProductionSetDto;
 import com.mbel.model.Production;
+import com.mbel.model.ProductionSet;
 import com.mbel.service.ProductionService;
 
 @RestController
@@ -24,20 +26,36 @@ public class  ProductionController{
 	private ProductionService productionService;
 	
 	@PostMapping("/production")
-	public Production saveUser(@RequestBody ProductionDto newProduct){
+	public Production saveProduct(@RequestBody ProductionDto newProduct){
         return productionService.save(newProduct);
     }
 	
 	 @GetMapping("/products")
-	    public List<Production> all() {
+	    public List<Production> allProducts() {
 	      return productionService.getAllProducts();
 	}
 	 
 	 @GetMapping("/products/{productId}")
 	    public Optional<Production> productById(@PathVariable (value="productId")int productId) {
-	      return productionService.getProductsProductById(productId);
+	      return productionService.getProductsById(productId);
 	      
+	      }
+	 @PostMapping("/productionset")
+	  	public ProductionSet saveProductSet(@RequestBody ProductionSetDto newProductSet){
+	          return productionService.save(newProductSet);
 	      
 	}
+	 
+
+	 @GetMapping("/productset")
+	    public List<ProductionSet> allProductSet() {
+	      return productionService.getAllProductSet();
+	}
+	 
+	 @GetMapping("/productset/{productSetId}")
+	    public Optional<ProductionSet> productSetById(@PathVariable (value="productSetId")int productSetId) {
+	      return productionService.getProductSetById(productSetId);
+	      
+	      }
 }
 

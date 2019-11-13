@@ -1,31 +1,14 @@
-package com.mbel.model;
-
+package com.mbel.dto;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-@Entity
-@Table(name = "ProductionSet")
-public class ProductionSet {
-	
+import com.mbel.model.Production;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "product_set_id")
+
+public class ProductionSetDto {
+
     private int productSetId;
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "set_id")
     private int setId;
-    @JoinColumn(name = "productId")
     private int productComponentId;
-    @Column(name = "qty")
     private int quantity;
     
 
@@ -61,7 +44,6 @@ public class ProductionSet {
 		this.quantity = quantity;
 	}
 
-    
     
     
 }

@@ -8,8 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mbel.dao.ProductionDao;
+import com.mbel.dao.ProductionSetDao;
 import com.mbel.dto.ProductionDto;
+import com.mbel.dto.ProductionSetDto;
 import com.mbel.model.Production;
+import com.mbel.model.ProductionSet;
 import com.mbel.service.ProductionService;
 
 
@@ -17,11 +20,13 @@ import com.mbel.service.ProductionService;
 public class ProductionServiceImpl implements ProductionService {
 	@Autowired 
 	ProductionDao productionDao;
+	
+	@Autowired 
+	ProductionSetDao productionSetDao;
 
 	@Override
 	public Production save(ProductionDto product) {
 		Production newProduct = new Production();
-		newProduct.setProductId(product.getProductId());
 		newProduct.setProductName(product.getProductName());
 		newProduct.setDescription(product.getDescription());
 		newProduct.setPrice(product.getPrice());
@@ -44,8 +49,25 @@ public class ProductionServiceImpl implements ProductionService {
 	}
 
 	@Override
-	public Optional<Production> getProductsProductById(int productId) {
+	public Optional<Production> getProductsById(int productId) {
 		return productionDao.findById(productId);
+	}
+
+	@Override
+	public ProductionSet save(ProductionSetDto ProductSet) {
+		ProductionSet newProductSet = new ProductionSet();
+		newProductSet.setQuantity(ProductSet.getQuantity());
+		return productionSetDao.save(newProductSet);
+	}
+
+	@Override
+	public List<ProductionSet> getAllProductSet() {
+		 return productionSetDao.findAll();
+	}
+
+	@Override
+	public Optional<ProductionSet> getProductSetById(int productSetId) {
+		return productionSetDao.findById(productSetId);
 	}
 		
 	}

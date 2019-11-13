@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Optional;
 
 import com.mbel.dto.ProductionDto;
+import com.mbel.dto.ProductionSetDto;
 import com.mbel.model.Production;
+import com.mbel.model.ProductionSet;
 
 
 public interface ProductionService {
@@ -13,7 +15,13 @@ public interface ProductionService {
 
 	List<Production> getAllProducts();
 
-	 Optional<Production> getProductsProductById(int productId);
+	 Optional<Production> getProductsById(int productId);
+
+	ProductionSet save(ProductionSetDto newProductSet);
+	
+	List<ProductionSet> getAllProductSet();
+
+	 Optional<ProductionSet> getProductSetById(int productId);
 		 
 
 }
