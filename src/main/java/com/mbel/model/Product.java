@@ -1,15 +1,17 @@
 package com.mbel.model;
 
-import javax.persistence.*;
-
-import lombok.Data;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 @Entity
-@Table(name = "production")
-public class Production {
+@Table(name = "Product")
+public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -87,10 +89,11 @@ public class Production {
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
+	
 	public boolean isSet() {
 		return isSet;
 	}
-	public void setSet(boolean isSet) {
+	public void setIsSet(boolean isSet) {
 		this.isSet = isSet;
 	}
 	public boolean isActive() {

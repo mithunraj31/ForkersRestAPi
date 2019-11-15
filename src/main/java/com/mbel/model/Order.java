@@ -14,7 +14,7 @@ import javax.persistence.Table;
 @Table(name="Order")
 public class Order{
 	
-	  @Id
+	     @Id
 	    @GeneratedValue(strategy = GenerationType.AUTO)
 	    @Column(name = "order_id")
 	    private int OrderId;
