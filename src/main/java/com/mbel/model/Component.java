@@ -5,6 +5,7 @@ import com.mbel.model.Product;
 public class Component {
 	
 	private Product product;
+	
 	private int quantity;
 	 
 	public Product getProduct() {

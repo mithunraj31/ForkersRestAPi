@@ -11,11 +11,14 @@ import org.springframework.stereotype.Service;
 
 import com.mbel.dao.ProductDao;
 import com.mbel.dao.ProductSetDao;
+import com.mbel.dto.SaveComponentDto;
+import com.mbel.dto.SaveProductSetDto;
 import com.mbel.model.Product;
 import com.mbel.model.ProductSet;
+import com.mbel.model.ProductSetModel;
 
 
-@Service("ProductionService")
+@Service("ProductServiceImpl")
 public class ProductServiceImpl  {
 	@Autowired 
 	ProductDao productDao;
@@ -30,11 +33,10 @@ public class ProductServiceImpl  {
 
 	public List<Product> getAllProducts() {
 		List<Product>product =productDao.findAll();
-		for(Product iterate: product) {
-			if(iterate.isActive()== false) {
-				product.remove(iterate);
+		for(int i=0;i<product.size();i++) {
+			if(!product.get(i).isActive()) {
+				product.remove(product.get(i));
 			}
-
 		}
 		return product;
 	}
@@ -43,16 +45,43 @@ public class ProductServiceImpl  {
 		return productDao.findById(productId);
 	}
 
-	public ProductSet save(ProductSet productSet) {
-		return productSetDao.save(productSet);
+	public SaveProductSetDto saveProductSet(SaveProductSetDto productSet) {
+		Product product = new Product();
+		product.setProductName(productSet.getProductName());
+		product.setDescription(productSet.getDescription());
+		product.setPrice(productSet.getPrice());
+		product.setMoq(productSet.getMoq());
+		product.setLeadTime(productSet.getLeadTime());
+		product.setObicNo(productSet.getObicNo());
+		product.setQuantity(productSet.getQuantity());
+		product.setIsSet(productSet.isSet());
+		product.setActive(productSet.isActive());
+		product.setCreatedAtDateTime(LocalDateTime.now());
+		product.setUpdatedAtDateTime(LocalDateTime.now());
+		product.setUserId(productSet.getUserId());
+	    productDao.save(product);
+	    ProductSet newProductSet = new ProductSet();
+	    SaveProductSetDto component=new SaveProductSetDto();
+	    int length = productSet.getProducts().length;
+	    for(int i=0;i<length;i++)
+	    {
+	    	newProductSet.setSetId(product.getProductId());
+	    	component.setProducts(productSet.getProducts());
+	    	//newProductSet.setProductComponentId(component.get);
+	    	newProductSet.setQuantity(component.getQuantity());
+	    	productSetDao.save(newProductSet);
+	    	
+	    }
+			
+		return component;
 	}
 
 	public List<ProductSet> getAllProductSet() {
-		return productSetDao.findAll();
+		return productSetDao.getAll();
 	}
 
 	public Optional<ProductSet> getProductSetById(int productSetId) {
-		return productSetDao.findById(productSetId);
+		return null; //productSetDao.findById(productSetId);
 	}
 
 	public Optional<Product> getupdateById(int productId, @Valid Product productionDetails) {
@@ -80,20 +109,18 @@ public class ProductServiceImpl  {
 		return productDao.findById(productId);
 	}
 
-	public Optional<ProductSet> getupdateProductSetById(int productSetId, @Valid ProductSet productionSetDetails) {
-		Optional<ProductSet> productSet = productSetDao.findById(productSetId);
-		productSet.get().setQuantity(productionSetDetails.getQuantity());
-		productSet.get().setProduction(productionSetDetails.getProduction());
-		productSetDao.save(productSet.get());
-		return productSet;
-	}
-
-	public Optional<ProductSet> deleteProductSetById(int productSetId) {
-		Optional<ProductSet> productSet = productSetDao.findById(productSetId);
-		productSet.get().getProduction().setActive(false);
-		productSetDao.save(productSet.get());
-		return productSet;
-	}
+//	public Optional<ProductSet> getupdateProductSetById(int productSetId, @Valid ProductSet productionSetDetails) {
+//		Optional<ProductSet> productSet = productSetDao.findById(productSetId);
+//		productSet.get().setQuantity(productionSetDetails.getQuantity());
+//		productSetDao.save(productSet.get());
+//		return productSet;
+//	}
+//
+//	public Optional<ProductSet> deleteProductSetById(int productSetId) {
+//		Optional<ProductSet> productSet = productSetDao.findById(productSetId);
+//		productSetDao.save(productSet.get());
+//		return productSet;
+//	}
 
 
 }

@@ -1,26 +1,78 @@
-package com.mbel.dto;
+package com.mbel.model;
 
 import java.time.LocalDateTime;
 
 import com.mbel.model.Component;
 
-public class ProductSetDto {
+public class ProductSetModel {
+	
+	private int productSetId; 
+	
+	private int setId;
+	
+	private int quantity;
+	
+	private int  productComponentId;
+	
 	private int productId;
+	
     private String productName;
-    private String description;
-    private double price;
-    private int moq;
-    private int leadTime;
-    private String obicNo;
-    private int quantity;
-    private boolean isSet ;
-    private boolean active;
-    private LocalDateTime createdAtDateTime;
-    private LocalDateTime updatedAtDateTime;
-    private int userId;
     
-	private Component products [];
-    public int getProductId() {
+    private String description;
+    
+    private double price;
+    
+    private int moq;
+    
+    private int leadTime;
+    
+    private String obicNo;
+    
+    private int qty;
+    
+    private boolean isSet ;
+    
+    private boolean active;
+    
+    private LocalDateTime createdAtDateTime;
+    
+    private LocalDateTime updatedAtDateTime;
+    
+    private int userId;
+
+	public int getProductSetId() {
+		return productSetId;
+	}
+
+	public void setProductSetId(int productSetId) {
+		this.productSetId = productSetId;
+	}
+
+	public int getSetId() {
+		return setId;
+	}
+
+	public void setSetId(int setId) {
+		this.setId = setId;
+	}
+
+	public int getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
+	}
+
+	public int getProductComponentId() {
+		return productComponentId;
+	}
+
+	public void setProductComponentId(int productComponentId) {
+		this.productComponentId = productComponentId;
+	}
+
+	public int getProductId() {
 		return productId;
 	}
 
@@ -76,12 +128,12 @@ public class ProductSetDto {
 		this.obicNo = obicNo;
 	}
 
-	public int getQuantity() {
-		return quantity;
+	public int getQty() {
+		return qty;
 	}
 
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
+	public void setQty(int qty) {
+		this.qty = qty;
 	}
 
 	public boolean isSet() {
@@ -123,14 +175,10 @@ public class ProductSetDto {
 	public void setUserId(int userId) {
 		this.userId = userId;
 	}
-
-
-	public Component[] getProducts() {
-		return products;
+    
+	public ProductSetModel() {
+		
 	}
-
-	public void setProducts(Component[] products) {
-		this.products = products;
-	}
+ 
 	
 }

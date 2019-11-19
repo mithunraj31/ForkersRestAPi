@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mbel.dto.SaveComponentDto;
+import com.mbel.dto.SaveProductSetDto;
 import com.mbel.model.Product;
 import com.mbel.model.ProductSet;
+import com.mbel.model.ProductSetModel;
 import com.mbel.serviceImpl.ProductServiceImpl;
 
 @RestController
@@ -31,18 +34,18 @@ public class  ProductController{
 		return productServiceImpl.save(newProduct);
 	}
 
-	@GetMapping("/products")
+	@GetMapping("/product")
 	public List<Product> allProducts() {
 		return productServiceImpl.getAllProducts();
 	}
 
-	@GetMapping("/products/{productId}")
+	@GetMapping("/product/{productId}")
 	public Optional<Product> productById(@PathVariable (value="productId")int productId) {
 		return productServiceImpl.getProductsById(productId);
 
 	}
 
-	@PutMapping("/updateproducts/{productId}")
+	@PutMapping("/product/{productId}")
 	public Optional<Product> updateProductById(@PathVariable (value="productId")int productId,
 			@Valid @RequestBody Product productDetails) {
 		return productServiceImpl.getupdateById(productId,productDetails);
@@ -50,19 +53,19 @@ public class  ProductController{
 
 	}
 
-	@DeleteMapping("/deleteproducts/{productId}")
+	@DeleteMapping("/product/{productId}")
 	public Optional<Product> deleteProductById(@PathVariable (value="productId")int productId) {
 		return productServiceImpl.deleteProductById(productId);
 
 	}
 	@PostMapping("/productset")
-	public ProductSet saveProductSet(@RequestBody ProductSet newProductSet){
-		return productServiceImpl.save(newProductSet);
+	public SaveProductSetDto saveProductSet(@RequestBody SaveProductSetDto newProductSet){
+		return productServiceImpl.saveProductSet(newProductSet);
 
 	}
 
 
-	@GetMapping("/productionset")
+	@GetMapping("/productset")
 	public List<ProductSet> allProductSet() {
 		return productServiceImpl.getAllProductSet();
 	}
@@ -76,13 +79,13 @@ public class  ProductController{
 
 	public Optional<ProductSet> updateProductSetById(@PathVariable (value="productSetId")int productSetId,
 			@Valid @RequestBody ProductSet productionSetDetails) {
-		return productServiceImpl.getupdateProductSetById(productSetId,productionSetDetails);
+		return null ;// productServiceImpl.getupdateProductSetById(productSetId,productionSetDetails);
 
 	}
 
 	@DeleteMapping("/deleteproductset/{productSetId}")
 	public Optional<ProductSet> deleteProductSetById(@PathVariable (value="productSetId")int productSetId) {
-		return productServiceImpl.deleteProductSetById(productSetId);
+		return null ; //productServiceImpl.deleteProductSetById(productSetId);
 
 	}
 }
