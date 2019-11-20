@@ -66,7 +66,7 @@ public class  ProductController{
 
 
 	@GetMapping("/productset")
-	public List<ProductSet> allProductSet() {
+	public SaveComponentDto allProductSet() {
 		return productServiceImpl.getAllProductSet();
 	}
 
