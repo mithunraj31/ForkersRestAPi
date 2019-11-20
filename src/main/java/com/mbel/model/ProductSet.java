@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 @Entity
 @Table(name = "ProductSet")
@@ -24,6 +25,7 @@ public class ProductSet {
 	
 	@Column(name = "product_component_id")
 	private int  productComponentId;
+	
 
 	public ProductSet(){
 
@@ -61,7 +63,6 @@ public class ProductSet {
 	public void setProductComponentId(int productComponentId) {
 		this.productComponentId = productComponentId;
 	}
-
 
 
 

@@ -15,11 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mbel.dto.SaveComponentDto;
-import com.mbel.dto.SaveProductSetDto;
+import com.mbel.dto.FetchProductSetDto;
 import com.mbel.model.Product;
 import com.mbel.model.ProductSet;
-import com.mbel.model.ProductSetModel;
 import com.mbel.serviceImpl.ProductServiceImpl;
 
 @RestController
@@ -59,14 +57,14 @@ public class  ProductController{
 
 	}
 	@PostMapping("/productset")
-	public SaveProductSetDto saveProductSet(@RequestBody SaveProductSetDto newProductSet){
+	public FetchProductSetDto saveProductSet(@RequestBody FetchProductSetDto newProductSet){
 		return productServiceImpl.saveProductSet(newProductSet);
 
 	}
 
 
 	@GetMapping("/productset")
-	public List<ProductSet> allProductSet() {
+	public FetchProductSetDto allProductSet() {
 		return productServiceImpl.getAllProductSet();
 	}
 

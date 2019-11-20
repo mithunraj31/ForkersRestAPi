@@ -93,7 +93,7 @@ public class Product {
 	public boolean isSet() {
 		return isSet;
 	}
-	public void setIsSet(boolean isSet) {
+	public void setSet(boolean isSet) {
 		this.isSet = isSet;
 	}
 	public boolean isActive() {
