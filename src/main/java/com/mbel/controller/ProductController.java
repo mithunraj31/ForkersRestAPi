@@ -58,7 +58,7 @@ public class  ProductController{
 
 	}
 	@PostMapping("/productset")
-	public FetchProductSetDto saveProductSet(@RequestBody FetchProductSetDto newProductSet){
+	public FetchProductSetDto saveProductSet(@RequestBody SaveProductSetDto newProductSet){
 		return productServiceImpl.saveProductSet(newProductSet);
 
 	}
@@ -70,7 +70,7 @@ public class  ProductController{
 	}
 
 	@GetMapping("/productset/{productSetId}")
-	public Optional<ProductSet> productSetById(@PathVariable (value="productSetId")int productSetId) {
+	public FetchProductSetDto productSetById(@PathVariable (value="productSetId")int productSetId) {
 		return productServiceImpl.getProductSetById(productSetId);
 
 	}

@@ -1,37 +1,11 @@
 package com.mbel.dto;
 
-import java.util.List;
+public class SaveComponentDto {
 
-import com.mbel.model.Product;
-
-public class SaveComponentDto extends Product {
-
-
-	private int productSetId; 
-	
-	private int setId;
-
+  
+	private int productcomponentId;
 	private int qty;
 
-	private int  productComponentId;
-	
-	private List<Product> product; 
-
-	public int getProductSetId() {
-		return productSetId;
-	}
-
-	public void setProductSetId(int productSetId) {
-		this.productSetId = productSetId;
-	}
-
-	public int getSetId() {
-		return setId;
-	}
-
-	public void setSetId(int setId) {
-		this.setId = setId;
-	}
 
 	public int getQty() {
 		return qty;
@@ -41,21 +15,15 @@ public class SaveComponentDto extends Product {
 		this.qty = qty;
 	}
 
-	public int getProductComponentId() {
-		return productComponentId;
+	public int getProductcomponentId() {
+		return productcomponentId;
 	}
 
-	public void setProductComponentId(int productComponentId) {
-		this.productComponentId = productComponentId;
+	public void setProductcomponentId(int productcomponentId) {
+		this.productcomponentId = productcomponentId;
 	}
 
-	public List<Product> getProduct() {
-		return product;
-	}
 
-	public void setProduct(List<Product> product) {
-		this.product = product;
-	}
 
 
 }

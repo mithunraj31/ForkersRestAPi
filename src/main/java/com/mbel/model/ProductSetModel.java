@@ -1,7 +1,5 @@
 package com.mbel.model;
 
-import java.util.List;
-
 public class ProductSetModel {
 	
 	private Product product;
