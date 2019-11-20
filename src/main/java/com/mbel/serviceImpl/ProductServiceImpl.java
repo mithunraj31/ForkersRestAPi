@@ -57,7 +57,7 @@ public class ProductServiceImpl  {
 		product.setLeadTime(productSet.getLeadTime());
 		product.setObicNo(productSet.getObicNo());
 		product.setQuantity(productSet.getQuantity());
-		product.setSet(productSet.isSet());
+		product.setIsSet(productSet.isSet());
 		product.setActive(productSet.isActive());
 		product.setCreatedAtDateTime(LocalDateTime.now());
 		product.setUpdatedAtDateTime(LocalDateTime.now());
@@ -92,7 +92,7 @@ public class ProductServiceImpl  {
 		componentSet.setLeadTime((Integer)elements.get(0).get("package_lead"));
 		componentSet.setObicNo((String)elements.get(0).get("package_obic"));
 		componentSet.setQuantity((Integer)elements.get(0).get("package_qty"));
-		componentSet.setSet((boolean)elements.get(0).get("package_set"));
+		componentSet.setIsSet((boolean)elements.get(0).get("package_set"));
 		componentSet.setActive((boolean)elements.get(0).get("package_active"));
 		//componentSet.setCreatedAtDateTime((Integer)elements.get(0).get("package_created"));
 		//componentSet.setUpdatedAtDateTime((Integer)elements.get(0).get("package_update"));
@@ -112,7 +112,7 @@ public class ProductServiceImpl  {
 			component.setObicNo((String)a.get("obic_no"));
 			component.setQuantity((Integer)a.get("qty"));
 			component.setActive((boolean)a.get("active"));
-			component.setSet((boolean)a.get("is_set"));
+			component.setIsSet((boolean)a.get("is_set"));
 //			component.setCreatedAtDateTime((LocalDateTime)a.get("created_at_date_time"));
 //			component.setUpdatedAtDateTime((LocalDateTime)a.get("updated_at_date_time"));
 			component.setUserId((Integer)a.get("user_id"));
@@ -135,7 +135,7 @@ public class ProductServiceImpl  {
 		product.setLeadTime(productionDetails.getLeadTime());
 		product.setObicNo(productionDetails.getObicNo());
 		product.setQuantity(productionDetails.getQuantity());
-		product.setSet(productionDetails.isSet());
+		product.setIsSet(productionDetails.isSet());
 		product.setActive(productionDetails.isActive());
 		product.setUpdatedAtDateTime(LocalDateTime.now());
 		product.setUserId(productionDetails.getUserId());
