@@ -4,16 +4,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mbel.model.ProductSet;
 
 @Repository
 public interface ProductSetDao extends JpaRepository<ProductSet, Integer> {
-	
-	
-	
+
+
+
 	@Query(value="SELECT pst.product_set_id,pst.set_id,pst.qty as quantity,pst.product_component_id,ps.product_id as package_id,"
 			+ "ps.product_name as package_name,ps.description as package_desc,ps.price as package_price,"
 			+ "ps.moq as package_moq,ps.lead_time as package_lead,ps.obic_no as package_obic,"
@@ -25,11 +27,11 @@ public interface ProductSetDao extends JpaRepository<ProductSet, Integer> {
 			+ "JOIN product ps ON pst.set_id = ps.product_id "
 			+ "JOIN product pc ON pst.product_component_id = pc.product_id "
 			+ "ORDER BY pst.set_id", nativeQuery = true
-			
+
 			)
-	
+
 	public List<Map<Object,Object>> getAll();
-	
+
 	@Query(value="SELECT pst.product_set_id,pst.set_id,pst.qty as quantity,pst.product_component_id,ps.product_id as package_id,"
 			+ "ps.product_name as package_name,ps.description as package_desc,ps.price as package_price,"
 			+ "ps.moq as package_moq,ps.lead_time as package_lead,ps.obic_no as package_obic,"
@@ -42,9 +44,17 @@ public interface ProductSetDao extends JpaRepository<ProductSet, Integer> {
 			+ "JOIN product pc ON pst.product_component_id = pc.product_id "
 			+ "WHERE pst.set_id = ?1 "
 			+ "ORDER BY pst.set_id", nativeQuery = true
-			
+
 			)
-	
+
 	public List<Map<Object, Object>> getProductSetsById(int setId);
-	
+	@Transactional
+	@Modifying
+	@Query(value="DELETE FROM `product_set` WHERE  set_id = ?1 AND product_component_id =?2" , nativeQuery = true)
+
+	public void deleteBySet(int productId, int productcomponentId);
+
+	@Query(value="SELECT * FROM `product_set` WHERE  set_id = ?1"  , nativeQuery = true)
+	public List<Map<Object, Object>> getAllBySetId(int integer);
+
 }
