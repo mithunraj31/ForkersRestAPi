@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mbel.dto.FetchProductSetDto;
 import com.mbel.dto.SaveProductSetDto;
 import com.mbel.model.Product;
-import com.mbel.model.ProductSet;
 import com.mbel.serviceImpl.ProductServiceImpl;
 
 @RestController
@@ -65,26 +64,25 @@ public class  ProductController{
 
 
 	@GetMapping("/productset")
-	public FetchProductSetDto allProductSet() {
+	public List<FetchProductSetDto> allProductSet() {
 		return productServiceImpl.getAllProductSet();
 	}
 
-	@GetMapping("/productset/{productSetId}")
-	public FetchProductSetDto productSetById(@PathVariable (value="productSetId")int productSetId) {
-		return productServiceImpl.getProductSetById(productSetId);
+	@GetMapping("/productset/{productId}")
+	public FetchProductSetDto productSetById(@PathVariable (value="productId")int productId) {
+		return productServiceImpl.getProductSetById(productId);
 
 	}
-	@PutMapping("/updateproductset/{productSetId}")
-
-	public Optional<ProductSet> updateProductSetById(@PathVariable (value="productSetId")int productSetId,
-			@Valid @RequestBody ProductSet productionSetDetails) {
-		return null ;// productServiceImpl.getupdateProductSetById(productSetId,productionSetDetails);
+	@PutMapping("/productset/{productId}")
+	public FetchProductSetDto updateProductSetById(@PathVariable (value="productId")int productId,
+			@Valid @RequestBody SaveProductSetDto productSetDetails) {
+		return  productServiceImpl.getupdateProductSetById(productId, productSetDetails);
 
 	}
 
-	@DeleteMapping("/deleteproductset/{productSetId}")
-	public Optional<ProductSet> deleteProductSetById(@PathVariable (value="productSetId")int productSetId) {
-		return null ; //productServiceImpl.deleteProductSetById(productSetId);
+	@DeleteMapping("/productset/{productSetId}")
+	public FetchProductSetDto deleteProductSetById(@PathVariable (value="productSetId")int productId) {
+		return productServiceImpl.deleteProductSetById(productId);
 
 	}
 }
