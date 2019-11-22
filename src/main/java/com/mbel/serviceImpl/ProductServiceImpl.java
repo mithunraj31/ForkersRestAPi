@@ -37,12 +37,13 @@ public class ProductServiceImpl  {
 
 	public List<Product> getAllProducts() {
 		List<Product>product =productDao.findAll();
-		for(int i=0;i<product.size();i++) {
-			if(!product.get(i).isActive()) {
-				product.remove(product.get(i));
+		List<Product>activeProduct =new ArrayList<>();
+		for(Product pd :product ) {
+			if(pd.isActive()) {
+				activeProduct.add(pd);
 			}
 		}
-		return product;
+		return activeProduct;
 	}
 
 	public Optional<Product> getProductsById(int productId) {

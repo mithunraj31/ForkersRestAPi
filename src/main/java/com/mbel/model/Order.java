@@ -14,30 +14,55 @@ import javax.persistence.Table;
 @Table(name="Order")
 public class Order{
 	
-	     @Id
+	    @Id
 	    @GeneratedValue(strategy = GenerationType.AUTO)
 	    @Column(name = "order_id")
 	    private int OrderId;
+	     
 	    @Column(name = "sales_representative")
 	    private String salesRepresentative;
-	    @Column(name = "date")
-	    private LocalDate date;
+	    
+	    @Column(name = "due_date")
+	    private LocalDate dueDate;
+	    
 	    @Column(name = "customer_id")
 	    private int customerId;
+	    
 	    @Column(name = "sales_destination")
 	    private int salesDestination;
+	    
 	    @Column(name = "contractor_id")
 	    private int contractorId;
+	    
 	    @Column(name = "received_date")
 	    private LocalDateTime receivedDate;
+	    
 	    @Column(name = "proposal_no")
 	    private String proposalNo;
+	    
 	    @Column(name = "created_at")
 	    private LocalDateTime createdAt;
+	    
 	    @Column(name = "updated_at")
 	    private LocalDateTime updatedAt;
+	    
 	    @Column(name = "user_id")
 	    private int userId;
+	    
+	    @Column(name = "sales_user_id")
+	    private int salesUserId;
+	    
+	    @Column(name = "edit_reason")
+	    private String editReason;
+	    
+	    @Column(name = "active")
+	    private boolean active;
+	    
+	    @Column(name = "forecast")
+	    private boolean forecast;
+	    
+	    
+	    
 		public int getOrderId() {
 			return OrderId;
 		}
@@ -50,11 +75,11 @@ public class Order{
 		public void setSalesRepresentative(String salesRepresentative) {
 			this.salesRepresentative = salesRepresentative;
 		}
-		public LocalDate getDate() {
-			return date;
+		public LocalDate getDueDate() {
+			return dueDate;
 		}
-		public void setDate(LocalDate date) {
-			this.date = date;
+		public void setDueDate(LocalDate dueDate) {
+			this.dueDate = dueDate;
 		}
 		public int getCustomerId() {
 			return customerId;
@@ -103,6 +128,30 @@ public class Order{
 		}
 		public void setUserId(int userId) {
 			this.userId = userId;
+		}
+		public int getSalesUserId() {
+			return salesUserId;
+		}
+		public void setSalesUserId(int salesUserId) {
+			this.salesUserId = salesUserId;
+		}
+		public String getEditReason() {
+			return editReason;
+		}
+		public void setEditReason(String editReason) {
+			this.editReason = editReason;
+		}
+		public boolean isActive() {
+			return active;
+		}
+		public void setActive(boolean active) {
+			this.active = active;
+		}
+		public boolean isForecast() {
+			return forecast;
+		}
+		public void setForecast(boolean forecast) {
+			this.forecast = forecast;
 		}
 	    
 	

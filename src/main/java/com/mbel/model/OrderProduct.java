@@ -15,12 +15,48 @@ public class OrderProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "order_product_id")
+    
     private int orderProductId;
     @GeneratedValue(strategy = GenerationType.AUTO)
+    
     @Column(name = "order_id")
     private int orderId;
+    
     @JoinColumn(name = "productId")
     private int productId;
-    @Column(name = "qty")
+    
+    public int getOrderProductId() {
+		return orderProductId;
+	}
+
+	public void setOrderProductId(int orderProductId) {
+		this.orderProductId = orderProductId;
+	}
+
+	public int getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(int orderId) {
+		this.orderId = orderId;
+	}
+
+	public int getProductId() {
+		return productId;
+	}
+
+	public void setProductId(int productId) {
+		this.productId = productId;
+	}
+
+	public int getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
+	}
+
+	@Column(name = "qty")
     private int quantity;
 }

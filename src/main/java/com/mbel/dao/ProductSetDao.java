@@ -56,5 +56,7 @@ public interface ProductSetDao extends JpaRepository<ProductSet, Integer> {
 
 	@Query(value="SELECT * FROM `product_set` WHERE  set_id = ?1"  , nativeQuery = true)
 	public List<Map<Object, Object>> getAllBySetId(int integer);
+	
+	
 
 }

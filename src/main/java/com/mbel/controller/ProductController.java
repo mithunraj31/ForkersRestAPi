@@ -16,8 +16,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mbel.dto.FetchProductSetDto;
+import com.mbel.dto.PopulateOrderDto;
+import com.mbel.dto.SaveOrderSetDto;
 import com.mbel.dto.SaveProductSetDto;
+import com.mbel.model.Customer;
+import com.mbel.model.Order;
 import com.mbel.model.Product;
+import com.mbel.serviceImpl.CustomerServiceImpl;
+import com.mbel.serviceImpl.OrderServiceImpl;
 import com.mbel.serviceImpl.ProductServiceImpl;
 
 @RestController
@@ -25,7 +31,13 @@ import com.mbel.serviceImpl.ProductServiceImpl;
 
 public class  ProductController{
 	@Autowired
-	private ProductServiceImpl productServiceImpl;
+	private ProductServiceImpl productServiceImpl;   
+	
+	@Autowired
+	private CustomerServiceImpl customerServiceImpl;  
+	
+	@Autowired
+	private OrderServiceImpl orderServiceImpl;
 
 	@PostMapping("/product")
 	public Product saveProduct(@RequestBody Product newProduct){
@@ -80,9 +92,100 @@ public class  ProductController{
 
 	}
 
-	@DeleteMapping("/productset/{productSetId}")
-	public FetchProductSetDto deleteProductSetById(@PathVariable (value="productSetId")int productId) {
+	@DeleteMapping("/productset/{productId}")
+	public FetchProductSetDto deleteProductSetById(@PathVariable (value="productId")int productId) {
 		return productServiceImpl.deleteProductSetById(productId);
+
+	}
+	
+
+	@PostMapping("/customer")
+	public Customer saveProduct(@RequestBody Customer newCustomer){
+		return customerServiceImpl.save(newCustomer);
+	}
+
+	@GetMapping("/customer")
+	public List<Customer> allCustomer() {
+		return customerServiceImpl.getAllCustomers();
+	}
+
+	@GetMapping("/customer/{customerId}")
+	public Optional<Customer> customerById(@PathVariable (value="customerId")int customerId) {
+		return customerServiceImpl.getCustomerById(customerId);
+
+	}
+
+	@PutMapping("/customer/{customerId}")
+	public Customer updateCustomerById(@PathVariable (value="customerId")int customerId,
+			@Valid @RequestBody Customer customerDetails) {
+		return customerServiceImpl.getupdateCustomerById(customerId,customerDetails);
+
+
+	}
+
+	@DeleteMapping("/customer/{customerId}")
+	public String deleteCustomerById(@PathVariable (value="customerId")int customerId) {
+		return customerServiceImpl.deleteCustomerById(customerId);
+
+	}
+	
+	@PostMapping("/order")
+	public Order saveOrder(@RequestBody Order newOrder){
+		return orderServiceImpl.save(newOrder);
+	}
+
+	@GetMapping("/order")
+	public List<PopulateOrderDto> allOrder() {
+		return orderServiceImpl.getAllOrders();
+	}
+
+	@GetMapping("/order/{orderId}")
+	public PopulateOrderDto orderById(@PathVariable (value="orderId")int orderId) {
+		return orderServiceImpl.getOrderById(orderId);
+
+	}
+
+	@PutMapping("/order/{orderId}")
+	public Order updateOrderById(@PathVariable (value="orderId")int orderId,
+			@Valid @RequestBody Order orderDetails) {
+		return orderServiceImpl.getupdateOrderById(orderId,orderDetails);
+
+
+	}
+
+	@DeleteMapping("/order/{orderId}")
+	public Order deleteOrderById(@PathVariable (value="orderId")int orderId) {
+		return orderServiceImpl.deleteOrderById(orderId);
+
+	}
+	
+	@PostMapping("/orderset")
+	public Order saveOrderSet(@RequestBody SaveOrderSetDto newOrderSet){
+		return orderServiceImpl.saveOrderSet(newOrderSet);
+	}
+
+	@GetMapping("/orderset")
+	public List<PopulateOrderDto> allOrderSet() {
+		return orderServiceImpl.getAllOrders();
+	}
+
+	@GetMapping("/orderset/{orderId}")
+	public PopulateOrderDto orderSetById(@PathVariable (value="orderId")int orderId) {
+		return orderServiceImpl.getOrderById(orderId);
+
+	}
+
+	@PutMapping("/orderset/{orderId}")
+	public Order updateOrderSetById(@PathVariable (value="orderId")int orderId,
+			@Valid @RequestBody Order orderDetails) {
+		return orderServiceImpl.getupdateOrderById(orderId,orderDetails);
+
+
+	}
+
+	@DeleteMapping("/orderset/{orderId}")
+	public Order deleteOrderSetById(@PathVariable (value="orderId")int orderId) {
+		return orderServiceImpl.deleteOrderById(orderId);
 
 	}
 }
