@@ -7,18 +7,58 @@ import com.mbel.model.Order;
 
 public class PopulateOrderDto extends Order {
 	
-	private List<Customer> customers;
-
-	public List<Customer> getCustomers() {
-		return customers;
-	}
-
-	public void setCustomers(List<Customer> customers) {
-		this.customers = customers;
-	}
-
-
+	private Customer customer;
+	
+	private Customer salesDestinarion;
+	
+	private Customer contractor;
 	
 	
+	private List<FetchOrderdProducts> orderedProducts;
+
+    
+	public Customer getCustomer() {
+		return customer;
+	}
+
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
+	}
+
+
+	public Customer getSalesDestinarion() {
+		return salesDestinarion;
+	}
+
+
+	public void setSalesDestinarion(Customer salesDestinarion) {
+		this.salesDestinarion = salesDestinarion;
+	}
+
+
+	public Customer getContractor() {
+		return contractor;
+	}
+
+
+	public void setContractor(Customer contractor) {
+		this.contractor = contractor;
+	}
+
+
+	public List<FetchOrderdProducts> getOrderedProducts() {
+		return orderedProducts;
+	}
+
+
+	public void setOrderedProducts(List<FetchOrderdProducts> orderedProducts) {
+		this.orderedProducts = orderedProducts;
+	}
+
+
+
+
+
 	
 }

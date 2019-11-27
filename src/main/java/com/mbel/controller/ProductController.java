@@ -130,7 +130,7 @@ public class  ProductController{
 	}
 	
 	@PostMapping("/order")
-	public Order saveOrder(@RequestBody Order newOrder){
+	public Order saveOrder(@RequestBody SaveOrderSetDto newOrder){
 		return orderServiceImpl.save(newOrder);
 	}
 
@@ -147,7 +147,7 @@ public class  ProductController{
 
 	@PutMapping("/order/{orderId}")
 	public Order updateOrderById(@PathVariable (value="orderId")int orderId,
-			@Valid @RequestBody Order orderDetails) {
+			 @RequestBody @Valid SaveOrderSetDto orderDetails) {
 		return orderServiceImpl.getupdateOrderById(orderId,orderDetails);
 
 
@@ -159,35 +159,6 @@ public class  ProductController{
 
 	}
 	
-	@PostMapping("/orderset")
-	public Order saveOrderSet(@RequestBody SaveOrderSetDto newOrderSet){
-		return orderServiceImpl.saveOrderSet(newOrderSet);
-	}
-
-	@GetMapping("/orderset")
-	public List<PopulateOrderDto> allOrderSet() {
-		return orderServiceImpl.getAllOrders();
-	}
-
-	@GetMapping("/orderset/{orderId}")
-	public PopulateOrderDto orderSetById(@PathVariable (value="orderId")int orderId) {
-		return orderServiceImpl.getOrderById(orderId);
-
-	}
-
-	@PutMapping("/orderset/{orderId}")
-	public Order updateOrderSetById(@PathVariable (value="orderId")int orderId,
-			@Valid @RequestBody Order orderDetails) {
-		return orderServiceImpl.getupdateOrderById(orderId,orderDetails);
-
-
-	}
-
-	@DeleteMapping("/orderset/{orderId}")
-	public Order deleteOrderSetById(@PathVariable (value="orderId")int orderId) {
-		return orderServiceImpl.deleteOrderById(orderId);
-
-	}
 }
 
 

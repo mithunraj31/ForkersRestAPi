@@ -5,7 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 @Entity
 @Table(name = "OrderProduct")
@@ -22,7 +21,7 @@ public class OrderProduct {
     @Column(name = "order_id")
     private int orderId;
     
-    @JoinColumn(name = "productId")
+    @Column(name = "product_id")
     private int productId;
     
     public int getOrderProductId() {
