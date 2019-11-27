@@ -109,7 +109,7 @@ public class ProductServiceImpl  {
 			ProductSetModel productSetModel = new ProductSetModel();
 			Product component = new Product();
 			component=productDao.findById((Integer) productsetList.get(l).get("product_component_id")).get();
-			productSetModel.setProduct(component);
+			productSetModel.setProducts(component);
 			productSetModel.setQuantity((Integer)productsetList.get(l).get("qty"));
 			productList.add(productSetModel);
 		}
@@ -141,7 +141,7 @@ public class ProductServiceImpl  {
 			ProductSetModel productSetModel = new ProductSetModel();
 			Product component = new Product();
 			component=productDao.findById((Integer) productsetList.get(l).get("product_component_id")).get();
-			productSetModel.setProduct(component);
+			productSetModel.setProducts(component);
 			productSetModel.setQuantity((Integer)productsetList.get(l).get("qty"));
 			productList.add(productSetModel);
 		}
@@ -192,9 +192,7 @@ public class ProductServiceImpl  {
 		productDao.save(product);
 		int setValue  =productSetDetails.getProductset().size();
 		ProductSet productSet = new ProductSet();
-		for(int i=0;i<setValue;i++) {
-			 productSetDao.deleteBySet(productId,productSetDetails.getProductset().get(i).getProductcomponentId());
-		}
+			 productSetDao.deleteBySet(productId);
 		for(int i=0;i<setValue;i++) {
 			productSet.setSetId(productId);
 			productSet.setQuantity(productSetDetails.getProductset().get(i).getQty());

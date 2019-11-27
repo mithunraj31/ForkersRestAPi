@@ -50,9 +50,9 @@ public interface ProductSetDao extends JpaRepository<ProductSet, Integer> {
 	public List<Map<Object, Object>> getProductSetsById(int setId);
 	@Transactional
 	@Modifying
-	@Query(value="DELETE FROM `product_set` WHERE  set_id = ?1 AND product_component_id =?2" , nativeQuery = true)
+	@Query(value="DELETE FROM `product_set` WHERE  set_id = ?1" , nativeQuery = true)
 
-	public void deleteBySet(int productId, int productcomponentId);
+	public void deleteBySet(int productId);
 
 	@Query(value="SELECT * FROM `product_set` WHERE  set_id = ?1"  , nativeQuery = true)
 	public List<Map<Object, Object>> getAllBySetId(int integer);
