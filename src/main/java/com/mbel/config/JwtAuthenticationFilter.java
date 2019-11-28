@@ -18,6 +18,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.mbel.dao.UserDao;
+import com.mbel.model.UserEntity;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureException;
 
@@ -28,11 +31,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private TokenProvider jwtTokenUtil;
+    
+    @Autowired
+    private UserDao userDao;
+    
+    public static String username=null;
+    
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
         String header = req.getHeader(HEADER_STRING);
-        String username = null;
         String authToken = null;
         if (header != null && header.startsWith(TOKEN_PREFIX)) {
             authToken = header.replace(TOKEN_PREFIX,"");
@@ -49,6 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             logger.warn("couldn't find bearer string, will ignore the header");
         }
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        	
 
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
@@ -59,8 +68,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 logger.info("authenticated user " + username + ", setting security context");
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+            
         }
 
         chain.doFilter(req, res);
-    }
+        	
+        }
+
+
+	public UserEntity getUserdetails() {
+	   UserEntity user = userDao.findByEmail(username);
+	   return user;
+	}
+   
+
+	
 }

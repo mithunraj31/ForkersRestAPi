@@ -9,8 +9,11 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import com.mbel.config.JwtAuthenticationFilter;
 import com.mbel.dao.ProductDao;
 import com.mbel.dao.ProductSetDao;
 import com.mbel.dto.FetchProductSetDto;
@@ -27,11 +30,17 @@ public class ProductServiceImpl  {
 
 	@Autowired 
 	ProductSetDao productSetDao;
+	
+	  @Autowired
+	    private JwtAuthenticationFilter jwt;
+
 
 
 	public Product save(Product product) {
+		
 		product.setCreatedAtDateTime(LocalDateTime.now());
 		product.setUpdatedAtDateTime(LocalDateTime.now());
+		product.setUserId(jwt.getUserdetails().getUserId());
 		return productDao.save(product);
 	}
 
