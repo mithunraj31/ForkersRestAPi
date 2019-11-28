@@ -39,12 +39,12 @@ public class  ProductController{
 	@Autowired
 	private OrderServiceImpl orderServiceImpl;
 
-	@PostMapping("/product")
+	@PostMapping("/product/")
 	public Product saveProduct(@RequestBody Product newProduct){
 		return productServiceImpl.save(newProduct);
 	}
 
-	@GetMapping("/product")
+	@GetMapping("/product/")
 	public List<Product> allProducts() {
 		return productServiceImpl.getAllProducts();
 	}
@@ -68,14 +68,14 @@ public class  ProductController{
 		return productServiceImpl.deleteProductById(productId);
 
 	}
-	@PostMapping("/productset")
+	@PostMapping("/productset/")
 	public FetchProductSetDto saveProductSet(@RequestBody SaveProductSetDto newProductSet){
 		return productServiceImpl.saveProductSet(newProductSet);
 
 	}
 
 
-	@GetMapping("/productset")
+	@GetMapping("/productset/")
 	public List<FetchProductSetDto> allProductSet() {
 		return productServiceImpl.getAllProductSet();
 	}
@@ -99,7 +99,7 @@ public class  ProductController{
 	}
 	
 
-	@PostMapping("/customer")
+	@PostMapping("/customer/")
 	public Customer saveProduct(@RequestBody Customer newCustomer){
 		return customerServiceImpl.save(newCustomer);
 	}

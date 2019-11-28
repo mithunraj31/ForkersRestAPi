@@ -3,7 +3,7 @@ package com.mbel.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name="role_entity")
+@Table(name="role")
 public class RoleEntity {
 
     @Id
