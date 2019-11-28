@@ -22,7 +22,7 @@ import com.mbel.serviceImpl.UserService;
 
 
 
-@CrossOrigin(origins = "*", maxAge = 3600)
+//@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/mbel")
 public class AuthenticationController {

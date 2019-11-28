@@ -9,8 +9,6 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import com.mbel.config.JwtAuthenticationFilter;
@@ -72,7 +70,7 @@ public class ProductServiceImpl  {
 		product.setActive(productSet.isActive());
 		product.setCreatedAtDateTime(LocalDateTime.now());
 		product.setUpdatedAtDateTime(LocalDateTime.now());
-		product.setUserId(productSet.getUserId());
+		product.setUserId(jwt.getUserdetails().getUserId());
 		productDao.save(product);
 		int id  = product.getProductId();
 		int setValue  =productSet.getProductset().size();

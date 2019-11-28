@@ -10,6 +10,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.mbel.config.JwtAuthenticationFilter;
 import com.mbel.dao.CustomerDao;
 import com.mbel.dao.OrderDao;
 import com.mbel.dao.OrderProductDao;
@@ -23,6 +24,8 @@ import com.mbel.model.OrderProduct;
 import com.mbel.model.OrderProductModel;
 import com.mbel.model.Product;
 import com.mbel.model.ProductSetModel;
+
+
 
 
 @Service("OrderServiceImpl")
@@ -45,6 +48,9 @@ public class OrderServiceImpl  {
 
 	@Autowired 
 	ProductSetDao productSetDao;
+	
+	@Autowired
+	 JwtAuthenticationFilter jwt;
 
 	public List<Order> getActiveOrders() {
 		List<Order>order =orderDao.findAll();
@@ -68,7 +74,7 @@ public class OrderServiceImpl  {
 			populate.setDueDate(order.getDueDate());
 			populate.setActive(order.isActive());
 			populate.setForecast(order.isForecast());
-			populate.setUserId(order.getUserId());
+			populate.setUserId(jwt.getUserdetails().getUserId());
 			populate.setSalesDestination(order.getSalesDestination());
 			populate.setSalesRepresentative(order.getSalesRepresentative());
 			populate.setSalesUserId(order.getSalesUserId());
@@ -137,7 +143,7 @@ public class OrderServiceImpl  {
 		order.setUpdatedAt(LocalDateTime.now());
 		order.setActive(newOrderSet.isActive());
 		order.setForecast(newOrderSet.isForecast());
-		order.setUserId(newOrderSet.getUserId());
+		order.setUserId(jwt.getUserdetails().getUserId());
 		order.setSalesUserId(newOrderSet.getSalesUserId());
 		order.setEditReason(newOrderSet.getEditReason());
 		order.setContractorId(newOrderSet.getContractorId());
@@ -176,7 +182,7 @@ public class OrderServiceImpl  {
 		order.setCreatedAt(LocalDateTime.now());
 		order.setActive(true);
 		order.setForecast(true);
-		order.setUserId(newOrderSet.getUserId());
+		order.setUserId(jwt.getUserdetails().getUserId());
 		order.setSalesUserId(newOrderSet.getSalesUserId());
 		order.setEditReason(newOrderSet.getEditReason());
 		order.setContractorId(newOrderSet.getContractorId());

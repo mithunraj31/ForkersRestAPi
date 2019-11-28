@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.mbel.config.JwtAuthenticationFilter;
 import com.mbel.dao.CustomerDao;
 import com.mbel.model.Customer;
 
@@ -19,12 +20,16 @@ public class CustomerServiceImpl  {
 	@Autowired
 	 CustomerDao customerDao; 
 	
+	 @Autowired
+	 JwtAuthenticationFilter jwt;
+	
 	
 	public Customer save(Customer newCustomer) {
 		newCustomer.setCreatedAtDateTime(LocalDateTime.now());
-		newCustomer.setUpdatedAtDateTime(LocalDateTime.now());		
+		newCustomer.setUpdatedAtDateTime(LocalDateTime.now());	
+		newCustomer.setUserId(jwt.getUserdetails().getUserId());
 		return customerDao.save(newCustomer);
-		 
+		
 	}
 
 	public List<Customer> getAllCustomers() {
