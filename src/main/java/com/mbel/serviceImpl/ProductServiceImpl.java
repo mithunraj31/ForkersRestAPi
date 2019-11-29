@@ -39,6 +39,8 @@ public class ProductServiceImpl  {
 		product.setCreatedAtDateTime(LocalDateTime.now());
 		product.setUpdatedAtDateTime(LocalDateTime.now());
 		product.setUserId(jwt.getUserdetails().getUserId());
+		product.setActive(true);
+		product.setSet(false);
 		return productDao.save(product);
 	}
 
@@ -57,7 +59,7 @@ public class ProductServiceImpl  {
 		return productDao.findById(productId);
 	}
 
-	public FetchProductSetDto saveProductSet(SaveProductSetDto productSet) {
+	public Product saveProductSet(SaveProductSetDto productSet) {
 		Product product = new Product();
 		product.setProductName(productSet.getProductName());
 		product.setDescription(productSet.getDescription());
@@ -71,7 +73,7 @@ public class ProductServiceImpl  {
 		product.setCreatedAtDateTime(LocalDateTime.now());
 		product.setUpdatedAtDateTime(LocalDateTime.now());
 		product.setUserId(jwt.getUserdetails().getUserId());
-		productDao.save(product);
+		Product productsave=productDao.save(product);
 		int id  = product.getProductId();
 		int setValue  =productSet.getProductset().size();
 		for(int i=0;i<setValue;i++) {
@@ -82,7 +84,7 @@ public class ProductServiceImpl  {
 			productSetDao.save(newProductSet);
 
 		}
-		return getProductSetById(id);
+		return productsave;
 	}
 
 	public List<FetchProductSetDto> getAllProductSet() {
@@ -158,7 +160,7 @@ public class ProductServiceImpl  {
 		 
 	}
 
-	public Optional<Product> getupdateById(int productId, @Valid Product productionDetails) {
+	public Product getupdateById(int productId, @Valid Product productionDetails) {
 		Product product = productDao.findById(productId).get();
 		product.setProductName(productionDetails.getProductName());
 		product.setDescription(productionDetails.getDescription());
@@ -171,18 +173,16 @@ public class ProductServiceImpl  {
 		product.setActive(productionDetails.isActive());
 		product.setUpdatedAtDateTime(LocalDateTime.now());
 		product.setUserId(jwt.getUserdetails().getUserId());
-		productDao.save(product);
-		return productDao.findById(productId);
+		return productDao.save(product);
 	}
 
-	public Optional<Product> deleteProductById(int productId) {
+	public Product deleteProductById(int productId) {
 		Product product = productDao.findById(productId).get();
 		product.setActive(false);
-		productDao.save(product);
-		return productDao.findById(productId);
+		return productDao.save(product);
 	}
 
-	public FetchProductSetDto getupdateProductSetById(int productId, @Valid SaveProductSetDto productSetDetails) {
+	public Product getupdateProductSetById(int productId, @Valid SaveProductSetDto productSetDetails) {
 		Product product = productDao.findById(productId).get();
 		product.setProductName(productSetDetails.getProductName());
 		product.setDescription(productSetDetails.getDescription());
@@ -195,7 +195,7 @@ public class ProductServiceImpl  {
 		product.setActive(productSetDetails.isActive());
 		product.setUpdatedAtDateTime(LocalDateTime.now());
 		product.setUserId(jwt.getUserdetails().getUserId());
-		productDao.save(product);
+		Product productupdate=productDao.save(product);
 		int setValue  =productSetDetails.getProductset().size();
 			 productSetDao.deleteBySet(productId);
 		for(int i=0;i<setValue;i++) {
@@ -207,16 +207,15 @@ public class ProductServiceImpl  {
 		}
 
 
-		return getProductSetById(productId);
+		return productupdate;
 
 
 	}
 
-	public FetchProductSetDto deleteProductSetById(int productId) {
+	public Product deleteProductSetById(int productId) {
 		Product product = productDao.findById(productId).get();
 		product.setActive(false);
-		productDao.save(product);
-		return getProductSetById(productId);
+		return productDao.save(product);
 
 
 	}

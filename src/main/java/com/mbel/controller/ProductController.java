@@ -58,7 +58,7 @@ public class  ProductController{
 	}
 
 	@PutMapping("/product/{productId}")
-	public Optional<Product> updateProductById(@PathVariable (value="productId")int productId,
+	public Product updateProductById(@PathVariable (value="productId")int productId,
 			@Valid @RequestBody Product productDetails) {
 		return productServiceImpl.getupdateById(productId,productDetails);
 
@@ -66,12 +66,12 @@ public class  ProductController{
 	}
 
 	@DeleteMapping("/product/{productId}")
-	public Optional<Product> deleteProductById(@PathVariable (value="productId")int productId) {
+	public Product deleteProductById(@PathVariable (value="productId")int productId) {
 		return productServiceImpl.deleteProductById(productId);
 
 	}
 	@PostMapping("/productset/")
-	public FetchProductSetDto saveProductSet(@RequestBody SaveProductSetDto newProductSet){
+	public Product saveProductSet(@RequestBody SaveProductSetDto newProductSet){
 		return productServiceImpl.saveProductSet(newProductSet);
 
 	}
@@ -88,14 +88,14 @@ public class  ProductController{
 
 	}
 	@PutMapping("/productset/{productId}")
-	public FetchProductSetDto updateProductSetById(@PathVariable (value="productId")int productId,
+	public Product updateProductSetById(@PathVariable (value="productId")int productId,
 			@Valid @RequestBody SaveProductSetDto productSetDetails) {
 		return  productServiceImpl.getupdateProductSetById(productId, productSetDetails);
 
 	}
 
 	@DeleteMapping("/productset/{productId}")
-	public FetchProductSetDto deleteProductSetById(@PathVariable (value="productId")int productId) {
+	public Product deleteProductSetById(@PathVariable (value="productId")int productId) {
 		return productServiceImpl.deleteProductSetById(productId);
 
 	}
