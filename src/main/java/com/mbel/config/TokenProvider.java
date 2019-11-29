@@ -4,7 +4,6 @@ import static com.mbel.constants.Constants.ACCESS_TOKEN_VALIDITY_SECONDS;
 import static com.mbel.constants.Constants.AUTHORITIES_KEY;
 import static com.mbel.constants.Constants.SIGNING_KEY;
 
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -12,6 +11,7 @@ import java.util.Date;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,6 +19,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.mbel.dao.UserDao;
+import com.mbel.model.UserEntity;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -28,6 +30,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 @Component
 public class TokenProvider implements Serializable {
+	
+	 @Autowired
+	 UserDao userDao;
+
 
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
@@ -49,18 +55,23 @@ public class TokenProvider implements Serializable {
                 .getBody();
     }
 
-    private Boolean isTokenExpired(String token) {
+    public Boolean isTokenExpired(String token) {
         final Date expiration = getExpirationDateFromToken(token);
         return expiration.before(new Date());
     }
 
-    public String generateToken(Authentication authentication) {
+    public String generateToken(Authentication authentication, String email) {
+    	UserEntity user = userDao.findByEmail(email);
+          final String firstName = user.getFirstName();
+          final String lastName = user.getLastName();
         final String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
+                .claim("firstName", firstName)
+                .claim("lastName", lastName)
                 .signWith(SignatureAlgorithm.HS256, SIGNING_KEY)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY_SECONDS*1000))
@@ -89,5 +100,6 @@ public class TokenProvider implements Serializable {
 
         return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
     }
+    
 
 }
