@@ -16,6 +16,7 @@ import com.mbel.dao.OrderDao;
 import com.mbel.dao.OrderProductDao;
 import com.mbel.dao.ProductDao;
 import com.mbel.dao.ProductSetDao;
+import com.mbel.dao.UserDao;
 import com.mbel.dto.FetchOrderdProducts;
 import com.mbel.dto.PopulateOrderDto;
 import com.mbel.dto.SaveOrderSetDto;
@@ -49,6 +50,9 @@ public class OrderServiceImpl  {
 	@Autowired 
 	ProductSetDao productSetDao;
 	
+	@Autowired 
+	UserDao userDao;
+	
 	@Autowired
 	 JwtAuthenticationFilter jwt;
 
@@ -74,10 +78,10 @@ public class OrderServiceImpl  {
 			populate.setDueDate(order.getDueDate());
 			populate.setActive(order.isActive());
 			populate.setForecast(order.isForecast());
-			populate.setUserId(jwt.getUserdetails().getUserId());
+			populate.setUserId(jwt.getUserdetails());
 			populate.setSalesDestination(order.getSalesDestination());
 			populate.setSalesRepresentative(order.getSalesRepresentative());
-			populate.setSalesUserId(order.getSalesUserId());
+			populate.setSalesUserId(userDao.findById(order.getSalesUserId()).get());
 			populate.setEditReason(order.getEditReason());
 			populate.setContractorId(order.getContractorId());
 			populate.setCreatedAt(order.getCreatedAt());
@@ -103,10 +107,10 @@ public class OrderServiceImpl  {
 		populate.setDueDate(order.getDueDate());
 		populate.setActive(order.isActive());
 		populate.setForecast(order.isForecast());
-		populate.setUserId(order.getUserId());
+		populate.setUserId(jwt.getUserdetails());
 		populate.setSalesDestination(order.getSalesDestination());
 		populate.setSalesRepresentative(order.getSalesRepresentative());
-		populate.setSalesUserId(order.getSalesUserId());
+		populate.setSalesUserId(userDao.findById(order.getSalesUserId()).get());
 		populate.setEditReason(order.getEditReason());
 		populate.setContractorId(order.getContractorId());
 		populate.setCreatedAt(order.getCreatedAt());
@@ -147,7 +151,7 @@ public class OrderServiceImpl  {
 		order.setSalesUserId(newOrderSet.getSalesUserId());
 		order.setEditReason(newOrderSet.getEditReason());
 		order.setContractorId(newOrderSet.getContractorId());
-		orderDao.save(order);
+		Order orderupdate=orderDao.save(order);
 		int id  = order.getOrderId();
 		orderProductDao.deleteByOrderId(id);
 		int noOfProducts =newOrderSet.getProductset().size();
@@ -159,7 +163,7 @@ public class OrderServiceImpl  {
 			orderProductDao.save(orderProduct);
 
 		}
-		return newOrderSet;
+		return orderupdate;
 	}
 
 	public Order deleteOrderById(int orderId) {
@@ -186,7 +190,7 @@ public class OrderServiceImpl  {
 		order.setSalesUserId(newOrderSet.getSalesUserId());
 		order.setEditReason(newOrderSet.getEditReason());
 		order.setContractorId(newOrderSet.getContractorId());
-		orderDao.save(order);
+		Order ordersave=orderDao.save(order);
 		int id  = order.getOrderId();
 		int noOfProducts =newOrderSet.getProductset().size();
 		for(int i=0;i<noOfProducts;i++) {
@@ -197,7 +201,7 @@ public class OrderServiceImpl  {
 			orderProductDao.save(orderProduct);
 
 		}
-		return newOrderSet;
+		return ordersave;
 	} 
 	
 	

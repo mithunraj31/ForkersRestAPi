@@ -3,9 +3,9 @@ package com.mbel.dto;
 import java.util.List;
 
 import com.mbel.model.Customer;
-import com.mbel.model.Order;
+import com.mbel.model.OrderModel;
 
-public class PopulateOrderDto extends Order {
+public class PopulateOrderDto extends OrderModel {
 	
 	private Customer customer;
 	

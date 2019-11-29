@@ -20,7 +20,7 @@ import com.mbel.model.UserEntity;
 
 
 @Service(value = "userService")
-public class UserServiceImpl implements UserDetailsService, UserService {
+public class UserServiceImpl implements UserDetailsService {
 	
 	@Autowired
 	private UserDao userDao;
@@ -52,22 +52,15 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 		return list;
 	}
 
-	@Override
-	public void delete(long id) {
-		userDao.deleteById(id);
-	}
 
-	@Override
+
+	
 	public UserEntity findOne(String email) {
 		return userDao.findByEmail(email);
 	}
 
-	@Override
-	public UserEntity findById(Long id) {
-		return userDao.findById(id).get();
-	}
 
-	@Override
+	
     public UserEntity save(UserDto user) {
 		UserEntity newUser = new UserEntity();
 	    newUser.setFirstName(user.getFirstName());
