@@ -170,7 +170,7 @@ public class ProductServiceImpl  {
 		product.setSet(productionDetails.isSet());
 		product.setActive(productionDetails.isActive());
 		product.setUpdatedAtDateTime(LocalDateTime.now());
-		product.setUserId(productionDetails.getUserId());
+		product.setUserId(jwt.getUserdetails().getUserId());
 		productDao.save(product);
 		return productDao.findById(productId);
 	}

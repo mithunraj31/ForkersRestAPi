@@ -47,7 +47,7 @@ public class CustomerServiceImpl  {
 		customer.setCustomerName(customerDetails.getCustomerName());
 		customer.setType(customerDetails.getType());
 		customer.setUpdatedAtDateTime(LocalDateTime.now());
-		customer.setUserId(customerDetails.getUserId());
+		customer.setUserId(jwt.getUserdetails().getUserId());
 		customer.setTel(customerDetails.getTel());
 		customer.setZip(customerDetails.getZip());
 		return customerDao.save(customer);

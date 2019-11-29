@@ -104,7 +104,7 @@ public class  ProductController{
 		return customerServiceImpl.save(newCustomer);
 	}
 
-	@GetMapping("/customer")
+	@GetMapping("/customer/")
 	public List<Customer> allCustomer() {
 		return customerServiceImpl.getAllCustomers();
 	}
