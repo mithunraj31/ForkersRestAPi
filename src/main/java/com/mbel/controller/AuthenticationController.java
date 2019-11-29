@@ -18,7 +18,7 @@ import com.mbel.dto.UserDto;
 import com.mbel.model.AuthToken;
 import com.mbel.model.LoginUser;
 import com.mbel.model.UserEntity;
-import com.mbel.serviceImpl.UserService;
+import com.mbel.serviceImpl.UserServiceImpl;
 
 
 
@@ -34,7 +34,7 @@ public class AuthenticationController {
     private TokenProvider jwtTokenUtil;
     
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userServiceImpl;
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<?> register(@RequestBody LoginUser loginUser) throws AuthenticationException {
@@ -52,7 +52,7 @@ public class AuthenticationController {
     
     @RequestMapping(value="/register", method = RequestMethod.POST)
     public UserEntity saveUser(@RequestBody UserDto user){
-        return userService.save(user);
+        return userServiceImpl.save(user);
     }
 
 }
