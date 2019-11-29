@@ -69,7 +69,7 @@ public class ProductServiceImpl  {
 		product.setObicNo(productSet.getObicNo());
 		product.setQuantity(productSet.getQuantity());
 		product.setSet(true);
-		product.setActive(productSet.isActive());
+		product.setActive(true);
 		product.setCreatedAtDateTime(LocalDateTime.now());
 		product.setUpdatedAtDateTime(LocalDateTime.now());
 		product.setUserId(jwt.getUserdetails().getUserId());
