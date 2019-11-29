@@ -74,17 +74,15 @@ public class ProductServiceImpl  {
 		productDao.save(product);
 		int id  = product.getProductId();
 		int setValue  =productSet.getProductset().size();
-		int setId = 0 ;
 		for(int i=0;i<setValue;i++) {
 			ProductSet newProductSet = new ProductSet();
 			newProductSet.setSetId(id);
 			newProductSet.setQuantity(productSet.getProductset().get(i).getQty());
 			newProductSet.setProductComponentId(productSet.getProductset().get(i).getProductcomponentId());
 			productSetDao.save(newProductSet);
-			setId  = newProductSet.getProductSetId();
 
 		}
-		return getProductSetById(setId);
+		return getProductSetById(id);
 	}
 
 	public List<FetchProductSetDto> getAllProductSet() {
@@ -141,6 +139,7 @@ public class ProductServiceImpl  {
 			componentSet.setQuantity(proCheck.getQuantity());
 			componentSet.setSet(proCheck.isSet());
 			componentSet.setActive(proCheck.isActive());
+			componentSet.setUserId(proCheck.getUserId());
 			componentSet.setCreatedAtDateTime(proCheck.getCreatedAtDateTime());
 			componentSet.setUpdatedAtDateTime(proCheck.getUpdatedAtDateTime());
 			List<Map<Object, Object>> productsetList =productSetDao.getAllBySetId(proCheck.getProductId());
@@ -195,12 +194,12 @@ public class ProductServiceImpl  {
 		product.setSet(true);
 		product.setActive(productSetDetails.isActive());
 		product.setUpdatedAtDateTime(LocalDateTime.now());
-		product.setUserId(productSetDetails.getUserId());
+		product.setUserId(jwt.getUserdetails().getUserId());
 		productDao.save(product);
 		int setValue  =productSetDetails.getProductset().size();
-		ProductSet productSet = new ProductSet();
 			 productSetDao.deleteBySet(productId);
 		for(int i=0;i<setValue;i++) {
+			ProductSet productSet = new ProductSet();
 			productSet.setSetId(productId);
 			productSet.setQuantity(productSetDetails.getProductset().get(i).getQty());
 			productSet.setProductComponentId(productSetDetails.getProductset().get(i).getProductcomponentId());
