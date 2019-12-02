@@ -48,11 +48,22 @@ public class ProductServiceImpl  {
 		List<Product>product =productDao.findAll();
 		List<Product>activeProduct =new ArrayList<>();
 		for(Product pd :product ) {
-			if(pd.isActive()) {
+			if(pd.isActive() && (!pd.isSet())) {
 				activeProduct.add(pd);
 			}
 		}
 		return activeProduct;
+	}
+	
+	public List<Product> getAllActiveProductset() {
+		List<Product>product =productDao.findAll();
+		List<Product>activeProductSet =new ArrayList<>();
+		for(Product pd :product ) {
+			if(pd.isActive() && pd.isSet()) {
+				activeProductSet.add(pd);
+			}
+		}
+		return activeProductSet;
 	}
 
 	public Optional<Product> getProductsById(int productId) {
@@ -89,13 +100,7 @@ public class ProductServiceImpl  {
 
 	public List<FetchProductSetDto> getAllProductSet() {
 		List<FetchProductSetDto> fetchList =new ArrayList<>();
-		List<Product> proCheck = getAllProducts();
-		List<Product> proSet = new ArrayList<>(); 
-		for(int j=0;j<proCheck.size();j++) {
-			if(proCheck.get(j).isSet()) {
-				proSet.add(proCheck.get(j));
-			}
-		}
+		List<Product> proSet = getAllActiveProductset();
 		for(int i=0;i<proSet.size();i++) {
 			List<ProductSetModel> productList = new ArrayList<>();
 			FetchProductSetDto componentSet= new FetchProductSetDto();
@@ -111,7 +116,6 @@ public class ProductServiceImpl  {
 			componentSet.setActive(proSet.get(i).isActive());
 			componentSet.setCreatedAtDateTime(proSet.get(i).getCreatedAtDateTime());
 			componentSet.setUpdatedAtDateTime(proSet.get(i).getUpdatedAtDateTime());
-			if(proSet.get(i).isSet()) {
 			List<Map<Object, Object>> productsetList =productSetDao.getAllBySetId(proSet.get(i).getProductId());
 			for(int l=0;l< productsetList.size();l++ ) {
 			ProductSetModel productSetModel = new ProductSetModel();
@@ -120,7 +124,6 @@ public class ProductServiceImpl  {
 			productSetModel.setProduct(component);
 			productSetModel.setQuantity((Integer)productsetList.get(l).get("qty"));
 			productList.add(productSetModel);
-		}
 			}
 			componentSet.setProducts(productList);
 			fetchList.add(componentSet);

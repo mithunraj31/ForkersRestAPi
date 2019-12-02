@@ -201,44 +201,5 @@ public class OrderServiceImpl  {
 	} 
 	
 	
-//	public FetchOrderdProducts getOrderedProducts(int productId, Integer amount) {
-//	Product proCheck = productServiceImpl.getProductsById(productId).get();
-//			List<ProductSetModel> productList = new ArrayList<>();
-//			OrderProductModel componentSet= new OrderProductModel();
-//			FetchOrderdProducts orderproduct =new FetchOrderdProducts();
-//				orderproduct.setProductId(proCheck.getProductId());
-//				orderproduct.setProductName(proCheck.getProductName());
-//				orderproduct.setDescription(proCheck.getDescription());
-//				orderproduct.setPrice(proCheck.getPrice());
-//				orderproduct.setMoq(proCheck.getMoq());
-//				orderproduct.setLeadTime(proCheck.getLeadTime());
-//				orderproduct.setObicNo(proCheck.getObicNo());
-//				orderproduct.setQuantity(proCheck.getQuantity());
-//				orderproduct.setSet(proCheck.isSet());
-//				orderproduct.setActive(proCheck.isActive());
-//				orderproduct.setCreatedAtDateTime(proCheck.getCreatedAtDateTime());
-//				orderproduct.setUpdatedAtDateTime(proCheck.getUpdatedAtDateTime());
-//				if(proCheck.isSet()) {
-//			List<Map<Object, Object>> productsetList =productSetDao.getAllBySetId(proCheck.getProductId());
-//			for(int l=0;l< productsetList.size();l++ ) {
-//			ProductSetModel productSetModel = new ProductSetModel();
-//			Product productComponents = new Product();
-//			productComponents=productDao.findById((Integer) productsetList.get(l).get("product_component_id")).get();
-//			productSetModel.setProduct(productComponents);
-//			productSetModel.setQuantity((Integer)productsetList.get(l).get("qty"));
-//			productList.add(productSetModel);
-//			}
-//			orderproduct.setProduct(productList);
-//			orderproduct.setQuantity(amount);
-//			componentSet.setProduct(orderproduct);
-//			
-//		}
-//			return componentSet;
-//		 
-//	}
-
-	
-
-
 }
 
