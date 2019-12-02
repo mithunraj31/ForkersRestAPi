@@ -1,33 +1,31 @@
 package com.mbel.dto;
 
-import com.mbel.model.OrderProductModel;
-import com.mbel.model.ProductSetModel;
-
 public class FetchOrderdProducts   {
 	
+	private FetchProductSetDto product;
 	
-	
-	private OrderProductModel products;
-	
-	private ProductSetModel product;
-	
+	private int quantity;
 
 
-	public ProductSetModel getProduct() {
+
+	public FetchProductSetDto getProduct() {
 		return product;
 	}
 
-	public void setProduct(ProductSetModel product) {
+	public void setProduct(FetchProductSetDto product) {
 		this.product = product;
 	}
 
-	public OrderProductModel getProducts() {
-		return products;
+	public int getQuantity() {
+		return quantity;
 	}
 
-	public void setProducts(OrderProductModel products) {
-		this.products = products;
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
 	}
+
+
+
 
 	
 	

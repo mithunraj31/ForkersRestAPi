@@ -2,7 +2,7 @@ package com.mbel.model;
 
 public class ProductSetModel {
 	
-	private Product products;
+	private Product product;
 	
 	private int quantity;
 
@@ -15,13 +15,14 @@ public class ProductSetModel {
 		this.quantity = quantity;
 	}
 
-	public Product getProducts() {
-		return products;
+	public Product getProduct() {
+		return product;
 	}
 
-	public void setProducts(Product products) {
-		this.products = products;
+	public void setProduct(Product product) {
+		this.product = product;
 	}
+
 
 
 }

@@ -2,21 +2,12 @@ package com.mbel.model;
 
 import java.util.List;
 
-public class OrderProductModel extends Product {
+public class OrderProductModel  {
 	
 	private List<ProductSetModel> product;
 	
-	private int amount;
+	private int quantity;
 
-
-
-	public int getAmount() {
-		return amount;
-	}
-
-	public void setAmount(int amount) {
-		this.amount = amount;
-	}
 
 	public List<ProductSetModel> getProduct() {
 		return product;
@@ -24,6 +15,14 @@ public class OrderProductModel extends Product {
 
 	public void setProduct(List<ProductSetModel> product) {
 		this.product = product;
+	}
+
+	public int getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
 	}
 
 

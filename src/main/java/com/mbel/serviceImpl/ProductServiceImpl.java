@@ -111,15 +111,17 @@ public class ProductServiceImpl  {
 			componentSet.setActive(proSet.get(i).isActive());
 			componentSet.setCreatedAtDateTime(proSet.get(i).getCreatedAtDateTime());
 			componentSet.setUpdatedAtDateTime(proSet.get(i).getUpdatedAtDateTime());
+			if(proSet.get(i).isSet()) {
 			List<Map<Object, Object>> productsetList =productSetDao.getAllBySetId(proSet.get(i).getProductId());
 			for(int l=0;l< productsetList.size();l++ ) {
 			ProductSetModel productSetModel = new ProductSetModel();
 			Product component = new Product();
 			component=productDao.findById((Integer) productsetList.get(l).get("product_component_id")).get();
-			productSetModel.setProducts(component);
+			productSetModel.setProduct(component);
 			productSetModel.setQuantity((Integer)productsetList.get(l).get("qty"));
 			productList.add(productSetModel);
 		}
+			}
 			componentSet.setProducts(productList);
 			fetchList.add(componentSet);
 		}
@@ -144,14 +146,16 @@ public class ProductServiceImpl  {
 			componentSet.setUserId(proCheck.getUserId());
 			componentSet.setCreatedAtDateTime(proCheck.getCreatedAtDateTime());
 			componentSet.setUpdatedAtDateTime(proCheck.getUpdatedAtDateTime());
+			if(proCheck.isSet()) {
 			List<Map<Object, Object>> productsetList =productSetDao.getAllBySetId(proCheck.getProductId());
 			for(int l=0;l< productsetList.size();l++ ) {
 			ProductSetModel productSetModel = new ProductSetModel();
 			Product component = new Product();
 			component=productDao.findById((Integer) productsetList.get(l).get("product_component_id")).get();
-			productSetModel.setProducts(component);
+			productSetModel.setProduct(component);
 			productSetModel.setQuantity((Integer)productsetList.get(l).get("qty"));
 			productList.add(productSetModel);
+			}
 		}
 			componentSet.setProducts(productList);
 			return componentSet;

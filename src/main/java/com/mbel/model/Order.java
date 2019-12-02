@@ -19,8 +19,6 @@ public class Order{
 	    @Column(name = "order_id")
 	    private int OrderId;
 	     
-	    @Column(name = "sales_representative")
-	    private String salesRepresentative;
 	    
 	    @Column(name = "due_date")
 	    private LocalDate dueDate;
@@ -69,12 +67,7 @@ public class Order{
 		public void setOrderId(int orderId) {
 			OrderId = orderId;
 		}
-		public String getSalesRepresentative() {
-			return salesRepresentative;
-		}
-		public void setSalesRepresentative(String salesRepresentative) {
-			this.salesRepresentative = salesRepresentative;
-		}
+		
 		public LocalDate getDueDate() {
 			return dueDate;
 		}

@@ -11,12 +11,6 @@ public class OrderModel{
 	    
 	    private LocalDate dueDate;
 	    
-	    private int customerId;
-	    
-	    private int salesDestination;
-	    
-	    private int contractorId;
-	    
 	    private LocalDateTime receivedDate;
 	    
 	    private String proposalNo;
@@ -54,24 +48,6 @@ public class OrderModel{
 		}
 		public void setDueDate(LocalDate dueDate) {
 			this.dueDate = dueDate;
-		}
-		public int getCustomerId() {
-			return customerId;
-		}
-		public void setCustomerId(int customerId) {
-			this.customerId = customerId;
-		}
-		public int getSalesDestination() {
-			return salesDestination;
-		}
-		public void setSalesDestination(int salesDestination) {
-			this.salesDestination = salesDestination;
-		}
-		public int getContractorId() {
-			return contractorId;
-		}
-		public void setContractorId(int contractorId) {
-			this.contractorId = contractorId;
 		}
 		public LocalDateTime getReceivedDate() {
 			return receivedDate;
