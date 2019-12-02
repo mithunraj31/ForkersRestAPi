@@ -7,8 +7,6 @@ public class OrderModel{
 	
 	    private int OrderId;
 	     
-	    private String salesRepresentative;
-	    
 	    private LocalDate dueDate;
 	    
 	    private LocalDateTime receivedDate;
@@ -36,12 +34,6 @@ public class OrderModel{
 		}
 		public void setOrderId(int orderId) {
 			OrderId = orderId;
-		}
-		public String getSalesRepresentative() {
-			return salesRepresentative;
-		}
-		public void setSalesRepresentative(String salesRepresentative) {
-			this.salesRepresentative = salesRepresentative;
 		}
 		public LocalDate getDueDate() {
 			return dueDate;

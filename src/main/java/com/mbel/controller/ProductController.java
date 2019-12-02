@@ -35,11 +35,6 @@ public class  ProductController{
 	@Autowired
 	private ProductServiceImpl productServiceImpl;   
 	
-	@Autowired
-	private CustomerServiceImpl customerServiceImpl;  
-	
-	@Autowired
-	private OrderServiceImpl orderServiceImpl;
 
 	@PostMapping("/product/")
 	public Product saveProduct(@RequestBody Product newProduct){
@@ -101,66 +96,7 @@ public class  ProductController{
 	}
 	
 
-	@PostMapping("/customer/")
-	public Customer saveProduct(@RequestBody Customer newCustomer){
-		return customerServiceImpl.save(newCustomer);
-	}
 
-	@GetMapping("/customer/")
-	public List<Customer> allCustomer() {
-		return customerServiceImpl.getAllCustomers();
-	}
-
-	@GetMapping("/customer/{customerId}")
-	public Optional<Customer> customerById(@PathVariable (value="customerId")int customerId) {
-		return customerServiceImpl.getCustomerById(customerId);
-
-	}
-
-	@PutMapping("/customer/{customerId}")
-	public Customer updateCustomerById(@PathVariable (value="customerId")int customerId,
-			@Valid @RequestBody Customer customerDetails) {
-		return customerServiceImpl.getupdateCustomerById(customerId,customerDetails);
-
-
-	}
-
-	@DeleteMapping("/customer/{customerId}")
-	public String deleteCustomerById(@PathVariable (value="customerId")int customerId) {
-		return customerServiceImpl.deleteCustomerById(customerId);
-
-	}
-	
-	@PostMapping("/order")
-	public Order saveOrder(@RequestBody SaveOrderSetDto newOrder){
-		return orderServiceImpl.save(newOrder);
-	}
-
-	@GetMapping("/order")
-	public List<PopulateOrderDto> allOrder() {
-		return orderServiceImpl.getAllOrders();
-	}
-
-	@GetMapping("/order/{orderId}")
-	public PopulateOrderDto orderById(@PathVariable (value="orderId")int orderId) {
-		return orderServiceImpl.getOrderById(orderId);
-
-	}
-
-	@PutMapping("/order/{orderId}")
-	public Order updateOrderById(@PathVariable (value="orderId")int orderId,
-			 @RequestBody @Valid SaveOrderSetDto orderDetails) {
-		return orderServiceImpl.getupdateOrderById(orderId,orderDetails);
-
-
-	}
-
-	@DeleteMapping("/order/{orderId}")
-	public Order deleteOrderById(@PathVariable (value="orderId")int orderId) {
-		return orderServiceImpl.deleteOrderById(orderId);
-
-	}
-	
 }
 
 

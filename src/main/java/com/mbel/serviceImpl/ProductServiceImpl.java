@@ -176,8 +176,6 @@ public class ProductServiceImpl  {
 		product.setLeadTime(productionDetails.getLeadTime());
 		product.setObicNo(productionDetails.getObicNo());
 		product.setQuantity(productionDetails.getQuantity());
-		product.setSet(productionDetails.isSet());
-		product.setActive(productionDetails.isActive());
 		product.setUpdatedAtDateTime(LocalDateTime.now());
 		product.setUserId(jwt.getUserdetails().getUserId());
 		return productDao.save(product);
