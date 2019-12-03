@@ -6,15 +6,16 @@ import com.mbel.model.Order;
 
 public class SaveOrderSetDto extends Order {
 
-	private List<SaveOrderComponentDto> productset;
+	private List<SaveOrderComponentDto> orderedProducts;
 
-	public List<SaveOrderComponentDto> getProductset() {
-		return productset;
+	public List<SaveOrderComponentDto> getOrderedProducts() {
+		return orderedProducts;
 	}
 
-	public void setProductset(List<SaveOrderComponentDto> productset) {
-		this.productset = productset;
+	public void setOrderedProducts(List<SaveOrderComponentDto> orderedProducts) {
+		this.orderedProducts = orderedProducts;
 	}
+
 
 
 

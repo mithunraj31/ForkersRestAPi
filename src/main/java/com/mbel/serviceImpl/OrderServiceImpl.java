@@ -152,12 +152,12 @@ public class OrderServiceImpl  {
 		Order orderupdate=orderDao.save(order);
 		int id  = order.getOrderId();
 		orderProductDao.deleteByOrderId(id);
-		int noOfProducts =newOrderSet.getProductset().size();
+		int noOfProducts =newOrderSet.getOrderedProducts().size();
 		for(int i=0;i<noOfProducts;i++) {
 			OrderProduct orderProduct =new OrderProduct(); 
 			orderProduct.setOrderId(id);
-			orderProduct.setProductId(newOrderSet.getProductset().get(i).getProductcomponentId());
-			orderProduct.setQuantity(newOrderSet.getProductset().get(i).getQty());
+			orderProduct.setProductId(newOrderSet.getOrderedProducts().get(i).getProductId());
+			orderProduct.setQuantity(newOrderSet.getOrderedProducts().get(i).getQuantity());
 			orderProductDao.save(orderProduct);
 
 		}
@@ -188,12 +188,12 @@ public class OrderServiceImpl  {
 		order.setContractorId(newOrderSet.getContractorId());
 		Order ordersave=orderDao.save(order);
 		int id  = order.getOrderId();
-		int noOfProducts =newOrderSet.getProductset().size();
+		int noOfProducts =newOrderSet.getOrderedProducts().size();
 		for(int i=0;i<noOfProducts;i++) {
 			OrderProduct orderProduct =new OrderProduct(); 
 			orderProduct.setOrderId(id);
-			orderProduct.setProductId(newOrderSet.getProductset().get(i).getProductcomponentId());
-			orderProduct.setQuantity(newOrderSet.getProductset().get(i).getQty());
+			orderProduct.setProductId(newOrderSet.getOrderedProducts().get(i).getProductId());
+			orderProduct.setQuantity(newOrderSet.getOrderedProducts().get(i).getQuantity());
 			orderProductDao.save(orderProduct);
 
 		}
