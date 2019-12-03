@@ -197,7 +197,7 @@ public class ProductServiceImpl  {
 		product.setObicNo(productSetDetails.getObicNo());
 		product.setQuantity(productSetDetails.getQuantity());
 		product.setSet(true);
-		product.setActive(productSetDetails.isActive());
+		product.setActive(true);
 		product.setUpdatedAtDateTime(LocalDateTime.now());
 		product.setUserId(jwt.getUserdetails().getUserId());
 		Product productupdate=productDao.save(product);
