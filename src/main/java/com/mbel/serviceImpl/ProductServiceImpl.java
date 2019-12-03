@@ -93,8 +93,8 @@ public class ProductServiceImpl  {
 		for(int i=0;i<setValue;i++) {
 			ProductSet newProductSet = new ProductSet();
 			newProductSet.setSetId(id);
-			newProductSet.setQuantity(productSet.getProducts().get(i).getQty());
-			newProductSet.setProductComponentId(productSet.getProducts().get(i).getProductcomponentId());
+			newProductSet.setQuantity(productSet.getProducts().get(i).getQuantity());
+			newProductSet.setProductComponentId(productSet.getProducts().get(i).getProductId());
 			productSetDao.save(newProductSet);
 		}
 
@@ -216,8 +216,8 @@ public class ProductServiceImpl  {
 		for(int i=0;i<setValue;i++) {
 			ProductSet productSet = new ProductSet();
 			productSet.setSetId(productId);
-			productSet.setQuantity(productSetDetails.getProducts().get(i).getQty());
-			productSet.setProductComponentId(productSetDetails.getProducts().get(i).getProductcomponentId());
+			productSet.setQuantity(productSetDetails.getProducts().get(i).getQuantity());
+			productSet.setProductComponentId(productSetDetails.getProducts().get(i).getProductId());
 			productSetDao.save(productSet);
 		}
 

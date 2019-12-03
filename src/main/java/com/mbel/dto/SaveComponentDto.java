@@ -3,24 +3,25 @@ package com.mbel.dto;
 public class SaveComponentDto {
 
 	private int productSetId;
-	private int productcomponentId;
-	private int qty;
+	private int productId;
+	private int quantity;
 
 
-	public int getQty() {
-		return qty;
+
+	public int getProductId() {
+		return productId;
 	}
 
-	public void setQty(int qty) {
-		this.qty = qty;
+	public void setProductId(int productId) {
+		this.productId = productId;
 	}
 
-	public int getProductcomponentId() {
-		return productcomponentId;
+	public int getQuantity() {
+		return quantity;
 	}
 
-	public void setProductcomponentId(int productcomponentId) {
-		this.productcomponentId = productcomponentId;
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
 	}
 
 	public int getProductSetId() {
