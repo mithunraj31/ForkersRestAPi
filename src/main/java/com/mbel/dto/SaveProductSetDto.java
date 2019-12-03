@@ -6,15 +6,16 @@ import com.mbel.model.Product;
 
 public class SaveProductSetDto extends Product {
 
-	private List<SaveComponentDto> productset;
+	private List<SaveComponentDto> products;
 
-	public List<SaveComponentDto> getProductset() {
-		return productset;
+	public List<SaveComponentDto> getProducts() {
+		return products;
 	}
 
-	public void setProductset(List<SaveComponentDto> productset) {
-		this.productset = productset;
+	public void setProducts(List<SaveComponentDto> products) {
+		this.products = products;
 	}
+
 
 
 

@@ -86,12 +86,12 @@ public class ProductServiceImpl  {
 		product.setUserId(jwt.getUserdetails().getUserId());
 		Product productsave=productDao.save(product);
 		int id  = product.getProductId();
-		int setValue  =productSet.getProductset().size();
+		int setValue  =productSet.getProducts().size();
 		for(int i=0;i<setValue;i++) {
 			ProductSet newProductSet = new ProductSet();
 			newProductSet.setSetId(id);
-			newProductSet.setQuantity(productSet.getProductset().get(i).getQty());
-			newProductSet.setProductComponentId(productSet.getProductset().get(i).getProductcomponentId());
+			newProductSet.setQuantity(productSet.getProducts().get(i).getQty());
+			newProductSet.setProductComponentId(productSet.getProducts().get(i).getProductcomponentId());
 			productSetDao.save(newProductSet);
 
 		}
@@ -201,13 +201,13 @@ public class ProductServiceImpl  {
 		product.setUpdatedAtDateTime(LocalDateTime.now());
 		product.setUserId(jwt.getUserdetails().getUserId());
 		Product productupdate=productDao.save(product);
-		int setValue  =productSetDetails.getProductset().size();
+		int setValue  =productSetDetails.getProducts().size();
 			 productSetDao.deleteBySet(productId);
 		for(int i=0;i<setValue;i++) {
 			ProductSet productSet = new ProductSet();
 			productSet.setSetId(productId);
-			productSet.setQuantity(productSetDetails.getProductset().get(i).getQty());
-			productSet.setProductComponentId(productSetDetails.getProductset().get(i).getProductcomponentId());
+			productSet.setQuantity(productSetDetails.getProducts().get(i).getQty());
+			productSet.setProductComponentId(productSetDetails.getProducts().get(i).getProductcomponentId());
 			productSetDao.save(productSet);
 		}
 
