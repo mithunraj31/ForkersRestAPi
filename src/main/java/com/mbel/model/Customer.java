@@ -13,7 +13,7 @@ import javax.persistence.Table;
 @Table(name="Customer")
 public class Customer {
 	@Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "customer_id")
 	private int customerId; 
 
@@ -25,7 +25,7 @@ public class Customer {
 
 	@Column(name = "address")
 	private String address;
-	
+
 	@Column(name = "tel")
 	private String tel;
 
@@ -37,12 +37,15 @@ public class Customer {
 
 	@Column(name = "created_at_date_time")
 	private LocalDateTime createdAtDateTime;
-	
+
 	@Column(name = "updated_at_date_time")
 	private LocalDateTime updatedAtDateTime;
-	
+
 	@Column(name = "user_id")
 	private int userId;
+
+	@Column(name = "active")
+	private boolean active;
 
 	public int getCustomerId() {
 		return customerId;
@@ -122,6 +125,14 @@ public class Customer {
 
 	public void setUserId(int userId) {
 		this.userId = userId;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 
 

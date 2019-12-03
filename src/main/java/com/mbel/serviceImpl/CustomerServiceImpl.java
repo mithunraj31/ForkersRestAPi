@@ -1,6 +1,7 @@
 package com.mbel.serviceImpl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,12 +33,21 @@ public class CustomerServiceImpl  {
 		newCustomer.setCreatedAtDateTime(LocalDateTime.now());
 		newCustomer.setUpdatedAtDateTime(LocalDateTime.now());	
 		newCustomer.setUserId(jwt.getUserdetails().getUserId());
+		newCustomer.setActive(true);
 		return customerDao.save(newCustomer);
 		
 	}
 
 	public List<Customer> getAllCustomers() {
-		return customerDao.findAll();
+		List<Customer> activeCustomer = new ArrayList<>();
+		List<Customer> customer = customerDao.findAll();
+		for(Customer pd :customer ) {
+			if(pd.isActive()) {
+				activeCustomer.add(pd);
+			}
+		}
+		return activeCustomer;
+		
 	}
 
 	public Optional<Customer> getCustomerById(int customerId) {
@@ -54,11 +64,14 @@ public class CustomerServiceImpl  {
 		customer.setUserId(jwt.getUserdetails().getUserId());
 		customer.setTel(customerDetails.getTel());
 		customer.setZip(customerDetails.getZip());
+		customer.setActive(true);
 		return customerDao.save(customer);
 	}
 
 	public ResponseEntity<Map<String, String>> deleteCustomerById(int customerId) {
-		 customerDao.deleteById(customerId); 
+		Customer customer = customerDao.findById(customerId).get();
+		customer.setActive(false);
+		 customerDao.save(customer); 
 		 Map<String, String> response = new HashMap<>();
 		 response.put("message", "Customer has been deleted");
 		 response.put("customerId", String.valueOf(customerId));
