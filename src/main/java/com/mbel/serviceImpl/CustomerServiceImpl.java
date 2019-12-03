@@ -1,12 +1,16 @@
 package com.mbel.serviceImpl;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.mbel.config.JwtAuthenticationFilter;
@@ -53,9 +57,13 @@ public class CustomerServiceImpl  {
 		return customerDao.save(customer);
 	}
 
-	public String deleteCustomerById(int customerId) {
-		 customerDao.deleteById(customerId);
-		 return "deleted";
+	public ResponseEntity<Map<String, String>> deleteCustomerById(int customerId) {
+		 customerDao.deleteById(customerId); 
+		 Map<String, String> response = new HashMap<>();
+		 response.put("message", "Customer has been deleted");
+		 response.put("customerId", String.valueOf(customerId));
+		 
+		 return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
 	}
 
 
