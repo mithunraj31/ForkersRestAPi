@@ -20,6 +20,8 @@ import com.mbel.model.Product;
 import com.mbel.model.ProductSet;
 import com.mbel.model.ProductSetModel;
 
+import io.jsonwebtoken.lang.Objects;
+
 
 @Service("ProductServiceImpl")
 public class ProductServiceImpl  {
@@ -86,6 +88,7 @@ public class ProductServiceImpl  {
 		product.setUserId(jwt.getUserdetails().getUserId());
 		Product productsave=productDao.save(product);
 		int id  = product.getProductId();
+		if(productSet.getProducts() != null) {
 		int setValue  =productSet.getProducts().size();
 		for(int i=0;i<setValue;i++) {
 			ProductSet newProductSet = new ProductSet();
@@ -93,6 +96,7 @@ public class ProductServiceImpl  {
 			newProductSet.setQuantity(productSet.getProducts().get(i).getQty());
 			newProductSet.setProductComponentId(productSet.getProducts().get(i).getProductcomponentId());
 			productSetDao.save(newProductSet);
+		}
 
 		}
 		return productsave;
@@ -116,14 +120,20 @@ public class ProductServiceImpl  {
 			componentSet.setActive(proSet.get(i).isActive());
 			componentSet.setCreatedAtDateTime(proSet.get(i).getCreatedAtDateTime());
 			componentSet.setUpdatedAtDateTime(proSet.get(i).getUpdatedAtDateTime());
+			if((Integer)proSet.get(i).getProductId()!= null) {
 			List<Map<Object, Object>> productsetList =productSetDao.getAllBySetId(proSet.get(i).getProductId());
+			if(productsetList != null) {
 			for(int l=0;l< productsetList.size();l++ ) {
 			ProductSetModel productSetModel = new ProductSetModel();
 			Product component = new Product();
+			if((Integer) productsetList.get(l).get("product_component_id") != 0) {
 			component=productDao.findById((Integer) productsetList.get(l).get("product_component_id")).get();
 			productSetModel.setProduct(component);
 			productSetModel.setQuantity((Integer)productsetList.get(l).get("qty"));
 			productList.add(productSetModel);
+			}
+			}
+			}
 			}
 			componentSet.setProducts(productList);
 			fetchList.add(componentSet);
