@@ -9,7 +9,7 @@ public class PopulateOrderDto extends OrderModel {
 	
 	private Customer customer;
 	
-	private Customer salesDestinarion;
+	private Customer salesDestination;
 	
 	private Customer contractor;
 	
@@ -27,13 +27,14 @@ public class PopulateOrderDto extends OrderModel {
 	}
 
 
-	public Customer getSalesDestinarion() {
-		return salesDestinarion;
+
+	public Customer getSalesDestination() {
+		return salesDestination;
 	}
 
 
-	public void setSalesDestinarion(Customer salesDestinarion) {
-		this.salesDestinarion = salesDestinarion;
+	public void setSalesDestination(Customer salesDestination) {
+		this.salesDestination = salesDestination;
 	}
 
 

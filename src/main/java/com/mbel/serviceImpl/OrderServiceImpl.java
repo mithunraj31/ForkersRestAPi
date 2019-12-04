@@ -77,13 +77,13 @@ public class OrderServiceImpl  {
 			populate.setDueDate(order.getDueDate());
 			populate.setActive(order.isActive());
 			populate.setForecast(order.isForecast());
-			populate.setUserId(jwt.getUserdetails());
-			populate.setSalesUserId(userDao.findById(order.getSalesUserId()).get());
+			populate.setUser(jwt.getUserdetails());
+			populate.setSalesUser(userDao.findById(order.getSalesUserId()).get());
 			populate.setEditReason(order.getEditReason());
 			populate.setCreatedAt(order.getCreatedAt());
 			populate.setUpdatedAt(order.getUpdatedAt());
 			populate.setCustomer(customerDao.findById(order.getCustomerId()).get());
-			populate.setSalesDestinarion(customerDao.findById(order.getSalesDestination()).get());
+			populate.setSalesDestination(customerDao.findById(order.getSalesDestinationId()).get());
 			populate.setContractor(customerDao.findById(order.getContractorId()).get());
 			populate.setOrderedProducts(getAllProducts(order.getOrderId()));
 			populateList.add(populate);
@@ -102,13 +102,13 @@ public class OrderServiceImpl  {
 		populate.setDueDate(order.getDueDate());
 		populate.setActive(order.isActive());
 		populate.setForecast(order.isForecast());
-		populate.setUserId(jwt.getUserdetails());
-		populate.setSalesUserId(userDao.findById(order.getSalesUserId()).get());
+		populate.setUser(jwt.getUserdetails());
+		populate.setSalesUser(userDao.findById(order.getSalesUserId()).get());
 		populate.setEditReason(order.getEditReason());
 		populate.setCreatedAt(order.getCreatedAt());
 		populate.setUpdatedAt(order.getUpdatedAt());
 		populate.setCustomer(customerDao.findById(order.getCustomerId()).get());
-		populate.setSalesDestinarion(customerDao.findById(order.getSalesDestination()).get());
+		populate.setSalesDestination(customerDao.findById(order.getSalesDestinationId()).get());
 		populate.setContractor(customerDao.findById(order.getContractorId()).get());
 		populate.setOrderedProducts(getAllProducts(orderId));
 		return populate;
@@ -136,12 +136,12 @@ public class OrderServiceImpl  {
 	public Order getupdateOrderById(int orderId, @Valid SaveOrderSetDto newOrderSet) {
 		Order order = orderDao.findById(orderId).get();
 		order.setContractorId(newOrderSet.getContractorId());
-		order.setSalesDestination(newOrderSet.getSalesDestination());
+		order.setSalesDestinationId(newOrderSet.getSalesDestinationId());
 		order.setDueDate(newOrderSet.getDueDate());
 		order.setCustomerId(newOrderSet.getCustomerId());
 		order.setProposalNo(newOrderSet.getProposalNo());
 		order.setReceivedDate(newOrderSet.getReceivedDate());
-		order.setSalesDestination(newOrderSet.getSalesDestination());
+		order.setSalesDestinationId(newOrderSet.getSalesDestinationId());
 		order.setUpdatedAt(LocalDateTime.now());
 		order.setActive(newOrderSet.isActive());
 		order.setForecast(newOrderSet.isForecast());
@@ -173,7 +173,7 @@ public class OrderServiceImpl  {
 	public Order save(SaveOrderSetDto newOrderSet) {
 		Order order = new Order();
 		order.setContractorId(newOrderSet.getContractorId());
-		order.setSalesDestination(newOrderSet.getSalesDestination());
+		order.setSalesDestinationId(newOrderSet.getSalesDestinationId());
 		order.setDueDate(newOrderSet.getDueDate());
 		order.setCustomerId(newOrderSet.getCustomerId());
 		order.setProposalNo(newOrderSet.getProposalNo());

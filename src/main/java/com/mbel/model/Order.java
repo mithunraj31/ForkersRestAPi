@@ -26,14 +26,14 @@ public class Order{
 	    @Column(name = "customer_id")
 	    private int customerId;
 	    
-	    @Column(name = "sales_destination")
-	    private int salesDestination;
+	    @Column(name = "sales_destination_id")
+	    private int salesDestinationId;
 	    
 	    @Column(name = "contractor_id")
 	    private int contractorId;
 	    
 	    @Column(name = "received_date")
-	    private LocalDateTime receivedDate;
+	    private LocalDate receivedDate;
 	    
 	    @Column(name = "proposal_no")
 	    private String proposalNo;
@@ -80,11 +80,12 @@ public class Order{
 		public void setCustomerId(int customerId) {
 			this.customerId = customerId;
 		}
-		public int getSalesDestination() {
-			return salesDestination;
+		
+		public int getSalesDestinationId() {
+			return salesDestinationId;
 		}
-		public void setSalesDestination(int salesDestination) {
-			this.salesDestination = salesDestination;
+		public void setSalesDestinationId(int salesDestinationId) {
+			this.salesDestinationId = salesDestinationId;
 		}
 		public int getContractorId() {
 			return contractorId;
@@ -92,10 +93,11 @@ public class Order{
 		public void setContractorId(int contractorId) {
 			this.contractorId = contractorId;
 		}
-		public LocalDateTime getReceivedDate() {
+		
+		public LocalDate getReceivedDate() {
 			return receivedDate;
 		}
-		public void setReceivedDate(LocalDateTime receivedDate) {
+		public void setReceivedDate(LocalDate receivedDate) {
 			this.receivedDate = receivedDate;
 		}
 		public String getProposalNo() {

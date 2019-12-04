@@ -5,11 +5,11 @@ import java.time.LocalDateTime;
 
 public class OrderModel{
 	
-	    private int OrderId;
+	    private int orderId;
 	     
 	    private LocalDate dueDate;
 	    
-	    private LocalDateTime receivedDate;
+	    private LocalDate receivedDate;
 	    
 	    private String proposalNo;
 	    
@@ -17,87 +17,105 @@ public class OrderModel{
 	    
 	    private LocalDateTime updatedAt;
 	    
-	    private UserEntity userId;
+	    private UserEntity user;
 	    
-	    private UserEntity salesUserId;
+	    private UserEntity salesUser;
 	    
 	    private String editReason;
 	    
 	    private boolean active;
 	    
 	    private boolean forecast;
-	    
-	    
-	    
+
 		public int getOrderId() {
-			return OrderId;
+			return orderId;
 		}
+
 		public void setOrderId(int orderId) {
-			OrderId = orderId;
+			this.orderId = orderId;
 		}
+
 		public LocalDate getDueDate() {
 			return dueDate;
 		}
+
 		public void setDueDate(LocalDate dueDate) {
 			this.dueDate = dueDate;
 		}
-		public LocalDateTime getReceivedDate() {
+
+		public LocalDate getReceivedDate() {
 			return receivedDate;
 		}
-		public void setReceivedDate(LocalDateTime receivedDate) {
+
+		public void setReceivedDate(LocalDate receivedDate) {
 			this.receivedDate = receivedDate;
 		}
+
 		public String getProposalNo() {
 			return proposalNo;
 		}
+
 		public void setProposalNo(String proposalNo) {
 			this.proposalNo = proposalNo;
 		}
+
 		public LocalDateTime getCreatedAt() {
 			return createdAt;
 		}
+
 		public void setCreatedAt(LocalDateTime createdAt) {
 			this.createdAt = createdAt;
 		}
+
 		public LocalDateTime getUpdatedAt() {
 			return updatedAt;
 		}
+
 		public void setUpdatedAt(LocalDateTime updatedAt) {
 			this.updatedAt = updatedAt;
 		}
 
-		
-		public UserEntity getUserId() {
-			return userId;
+		public UserEntity getUser() {
+			return user;
 		}
-		public void setUserId(UserEntity userId) {
-			this.userId = userId;
+
+		public void setUser(UserEntity user) {
+			this.user = user;
 		}
-		public UserEntity getSalesUserId() {
-			return salesUserId;
+
+		public UserEntity getSalesUser() {
+			return salesUser;
 		}
-		public void setSalesUserId(UserEntity salesUserId) {
-			this.salesUserId = salesUserId;
+
+		public void setSalesUser(UserEntity salesUser) {
+			this.salesUser = salesUser;
 		}
+
 		public String getEditReason() {
 			return editReason;
 		}
+
 		public void setEditReason(String editReason) {
 			this.editReason = editReason;
 		}
+
 		public boolean isActive() {
 			return active;
 		}
+
 		public void setActive(boolean active) {
 			this.active = active;
 		}
+
 		public boolean isForecast() {
 			return forecast;
 		}
+
 		public void setForecast(boolean forecast) {
 			this.forecast = forecast;
 		}
 	    
-	
+	    
+	    
 	
 }
