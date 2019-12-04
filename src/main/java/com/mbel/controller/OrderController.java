@@ -30,12 +30,12 @@ public class  OrderController{
 	@Autowired
 	private OrderServiceImpl orderServiceImpl;
 	
-	@PostMapping("/order")
+	@PostMapping("/order/")
 	public Order saveOrder(@RequestBody SaveOrderSetDto newOrder){
 		return orderServiceImpl.save(newOrder);
 	}
 
-	@GetMapping("/order")
+	@GetMapping("/order/")
 	public List<PopulateOrderDto> allOrder() {
 		return orderServiceImpl.getAllOrders();
 	}
