@@ -2,11 +2,18 @@ package com.mbel.serviceImpl;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -70,4 +77,28 @@ public class UserServiceImpl implements UserDetailsService {
 		newUser.setRoleId(user.getRoleId());
         return userDao.save(newUser);
     }
+
+	public Optional<UserEntity> findById(int userId) {
+		return userDao.findById(userId);
+	}
+
+	public UserEntity getupdateUserById(int userId, @Valid UserEntity userEntity) {
+		UserEntity user = userDao.findById(userId).get();
+		user.setEmail(userEntity.getEmail());
+		user.setLastName(userEntity.getLastName());
+		user.setFirstName(userEntity.getFirstName());
+		user.setRoleId(userEntity.getRoleId());
+		user.setUserId(userId);
+		return userDao.save(user);
+	}
+
+	public ResponseEntity<Map<String, String>> deleteUserById(int userId) {
+		userDao.deleteById(userId);
+		 Map<String, String> response = new HashMap<>();
+		 response.put("message", "user has been deleted");
+		 response.put("userId", String.valueOf(userId));
+		 
+		 return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
+	
+	}
 }

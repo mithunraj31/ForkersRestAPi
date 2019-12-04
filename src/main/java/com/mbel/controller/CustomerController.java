@@ -18,16 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mbel.dto.FetchProductSetDto;
-import com.mbel.dto.PopulateOrderDto;
-import com.mbel.dto.SaveOrderSetDto;
-import com.mbel.dto.SaveProductSetDto;
 import com.mbel.model.Customer;
-import com.mbel.model.Order;
-import com.mbel.model.Product;
 import com.mbel.serviceImpl.CustomerServiceImpl;
-import com.mbel.serviceImpl.OrderServiceImpl;
-import com.mbel.serviceImpl.ProductServiceImpl;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
