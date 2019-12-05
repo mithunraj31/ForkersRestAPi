@@ -1,13 +1,12 @@
 package com.mbel.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class OrderModel{
 	
 	    private int orderId;
 	     
-	    private LocalDate dueDate;
+	    private LocalDateTime dueDate;
 	    
 	    private LocalDateTime receivedDate;
 	    
@@ -35,11 +34,11 @@ public class OrderModel{
 			this.orderId = orderId;
 		}
 
-		public LocalDate getDueDate() {
+		public LocalDateTime getDueDate() {
 			return dueDate;
 		}
 
-		public void setDueDate(LocalDate dueDate) {
+		public void setDueDate(LocalDateTime dueDate) {
 			this.dueDate = dueDate;
 		}
 

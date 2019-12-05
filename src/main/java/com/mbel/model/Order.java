@@ -1,6 +1,5 @@
 package com.mbel.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import javax.persistence.Column;
@@ -23,7 +22,7 @@ public class Order{
 	     
 	    @NotNull(message="* Please Enter dueDate")
 	    @Column(name = "due_date")
-	    private LocalDate dueDate;
+	    private LocalDateTime dueDate;
 	    
 	    @NotNull(message="* Please Enter customerId")
 	    @Column(name = "customer_id")
@@ -76,10 +75,10 @@ public class Order{
 			OrderId = orderId;
 		}
 		
-		public LocalDate getDueDate() {
+		public LocalDateTime getDueDate() {
 			return dueDate;
 		}
-		public void setDueDate(LocalDate dueDate) {
+		public void setDueDate(LocalDateTime dueDate) {
 			this.dueDate = dueDate;
 		}
 		public int getCustomerId() {
