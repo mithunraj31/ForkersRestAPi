@@ -8,6 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name="Customer")
@@ -17,21 +19,28 @@ public class Customer {
 	@Column(name = "customer_id")
 	private int customerId; 
 
+	@NotEmpty(message="* Please Enter Customer Name")
 	@Column(name = "customer_name")
 	private String customerName;
 
+	@NotEmpty(message="* Please Enter zip")
+	@Size(min=7, max=7)
 	@Column(name = "zip")
 	private String zip;
 
+	@NotEmpty(message="* Please Enter address")
 	@Column(name = "address")
 	private String address;
 
+	@NotEmpty(message="* Please Enter tel")
 	@Column(name = "tel")
 	private String tel;
 
+	@NotEmpty(message="* Please Enter contactName")
 	@Column(name = "contact_name")
 	private String contactName;
 
+	@NotEmpty(message="* Please Enter type")
 	@Column(name = "type")
 	private String type;
 

@@ -8,6 +8,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,13 +37,13 @@ public class  UserController{
 	}
 
 	@GetMapping("/user/{userId}")
-	public Optional<UserEntity> userById(@PathVariable (value="userId")int userId) {
+	public Optional<UserEntity> userById(@PathVariable (value="userId")@NonNull int userId) {
 		return userServiceImpl.findById(userId);
 
 	}
 
 	@PutMapping("/user/{userId}")
-	public UserEntity updateUserById(@PathVariable (value="userId")int userId,
+	public UserEntity updateUserById(@PathVariable (value="userId")@NonNull int userId,
 			@Valid @RequestBody UserEntity userEntity) {
 		return userServiceImpl.getupdateUserById(userId,userEntity);
 
@@ -50,7 +51,7 @@ public class  UserController{
 	}
 
 	@DeleteMapping("/user/{userId}")
-	public ResponseEntity<Map<String, String>> deleteUserById(@PathVariable (value="userId")int userId) {
+	public ResponseEntity<Map<String, String>> deleteUserById(@PathVariable (value="userId")@NonNull int userId) {
 		return userServiceImpl.deleteUserById(userId);
 
 	}

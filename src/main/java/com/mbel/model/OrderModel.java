@@ -9,7 +9,7 @@ public class OrderModel{
 	     
 	    private LocalDate dueDate;
 	    
-	    private LocalDate receivedDate;
+	    private LocalDateTime receivedDate;
 	    
 	    private String proposalNo;
 	    
@@ -43,11 +43,11 @@ public class OrderModel{
 			this.dueDate = dueDate;
 		}
 
-		public LocalDate getReceivedDate() {
+		public LocalDateTime getReceivedDate() {
 			return receivedDate;
 		}
 
-		public void setReceivedDate(LocalDate receivedDate) {
+		public void setReceivedDate(LocalDateTime receivedDate) {
 			this.receivedDate = receivedDate;
 		}
 

@@ -9,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name="Order")
@@ -19,22 +21,27 @@ public class Order{
 	    @Column(name = "order_id")
 	    private int OrderId;
 	     
-	    
+	    @NotNull(message="* Please Enter dueDate")
 	    @Column(name = "due_date")
 	    private LocalDate dueDate;
 	    
+	    @NotNull(message="* Please Enter customerId")
 	    @Column(name = "customer_id")
 	    private int customerId;
 	    
+	    @NotNull(message="* Please Enter salesDestinationId")
 	    @Column(name = "sales_destination_id")
 	    private int salesDestinationId;
 	    
+	    @NotNull(message="* Please Enter contractorId")
 	    @Column(name = "contractor_id")
 	    private int contractorId;
 	    
+	    @NotNull(message="* Please Enter receivedDate")
 	    @Column(name = "received_date")
-	    private LocalDate receivedDate;
+	    private LocalDateTime receivedDate;
 	    
+	    @NotEmpty(message="* Please Enter proposalNo")
 	    @Column(name = "proposal_no")
 	    private String proposalNo;
 	    
@@ -47,6 +54,7 @@ public class Order{
 	    @Column(name = "user_id")
 	    private int userId;
 	    
+	    @NotNull(message="* Please Enter salesUserId")
 	    @Column(name = "sales_user_id")
 	    private int salesUserId;
 	    
@@ -94,10 +102,11 @@ public class Order{
 			this.contractorId = contractorId;
 		}
 		
-		public LocalDate getReceivedDate() {
+		
+		public LocalDateTime getReceivedDate() {
 			return receivedDate;
 		}
-		public void setReceivedDate(LocalDate receivedDate) {
+		public void setReceivedDate(LocalDateTime receivedDate) {
 			this.receivedDate = receivedDate;
 		}
 		public String getProposalNo() {

@@ -8,6 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "Product")
@@ -17,30 +19,50 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "product_id")
     private int productId;
+    
+    @NotEmpty(message="* Please Enter productName")
     @Column(name = "product_name")
     private String productName;
+    
+    @NotEmpty(message="* Please Enter description")
     @Column(name = "description")
     private String description;
+    
+    @NotNull(message="* Please Enter price")
     @Column(name = "price")
     private double price;
+    
+    @NotNull(message="* Please Enter moq")
     @Column(name = "moq")
     private int moq;
+    
+    @NotNull(message="* Please Enter leadTime")
     @Column(name = "lead_time")
     private int leadTime;
+    
+    @NotEmpty(message="* Please Enter obicNo")
     @Column(name = "obic_no")
     private String obicNo;
+    
+    @NotNull(message="* Please Enter quantity")
     @Column(name = "qty")
     private int quantity;
+    
     @Column(name = "is_set")
     private boolean isSet ;
+    
     @Column(name = "active")
     private boolean active;
+    
     @Column(name = "created_at_date_time")
     private LocalDateTime createdAtDateTime;
+    
     @Column(name = "updated_at_date_time")
     private LocalDateTime updatedAtDateTime;
+    
     @Column(name = "user_id")
     private int userId;
+    
 	public int getProductId() {
 		return productId;
 	}

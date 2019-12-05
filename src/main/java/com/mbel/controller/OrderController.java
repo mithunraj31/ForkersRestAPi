@@ -3,6 +3,7 @@ package com.mbel.controller;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -31,7 +32,7 @@ public class  OrderController{
 	private OrderServiceImpl orderServiceImpl;
 	
 	@PostMapping("/order/")
-	public Order saveOrder(@RequestBody SaveOrderSetDto newOrder){
+	public Order saveOrder(@Valid @RequestBody SaveOrderSetDto newOrder){
 		return orderServiceImpl.save(newOrder);
 	}
 
@@ -41,13 +42,13 @@ public class  OrderController{
 	}
 
 	@GetMapping("/order/{orderId}")
-	public PopulateOrderDto orderById(@PathVariable (value="orderId")int orderId) {
+	public PopulateOrderDto orderById(@PathVariable (value="orderId")@NotNull int orderId) {
 		return orderServiceImpl.getOrderById(orderId);
 
 	}
 
 	@PutMapping("/order/{orderId}")
-	public Order updateOrderById(@PathVariable (value="orderId")int orderId,
+	public Order updateOrderById(@PathVariable (value="orderId")@NotNull int orderId,
 			 @RequestBody @Valid SaveOrderSetDto orderDetails) {
 		return orderServiceImpl.getupdateOrderById(orderId,orderDetails);
 
@@ -55,7 +56,7 @@ public class  OrderController{
 	}
 
 	@DeleteMapping("/order/{orderId}")
-	public Order deleteOrderById(@PathVariable (value="orderId")int orderId) {
+	public Order deleteOrderById(@PathVariable (value="orderId")@NotNull int orderId) {
 		return orderServiceImpl.deleteOrderById(orderId);
 
 	}
