@@ -77,7 +77,7 @@ public class OrderServiceImpl  {
 			populate.setDueDate(order.getDueDate());
 			populate.setActive(true);
 			populate.setForecast(true);
-			populate.setUser(jwt.getUserdetails());
+			populate.setUser(userDao.findById(order.getUserId()).get());
 			populate.setSalesUser(userDao.findById(order.getSalesUserId()).get());
 			populate.setEditReason(order.getEditReason());
 			populate.setCreatedAt(order.getCreatedAt());
@@ -102,7 +102,7 @@ public class OrderServiceImpl  {
 		populate.setDueDate(order.getDueDate());
 		populate.setActive(order.isActive());
 		populate.setForecast(order.isForecast());
-		populate.setUser(jwt.getUserdetails());
+		populate.setUser(userDao.findById(order.getUserId()).get());
 		populate.setSalesUser(userDao.findById(order.getSalesUserId()).get());
 		populate.setEditReason(order.getEditReason());
 		populate.setCreatedAt(order.getCreatedAt());
