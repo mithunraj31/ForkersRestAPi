@@ -27,10 +27,6 @@ public class IncomingShipment {
 	@Column(name = "arrival_date")
 	private LocalDateTime arrivalDate;
 
-	@NotNull(message="* Please Enter Product Id")
-	@Column(name = "product_id")
-	private int productId;
-
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;
 	
@@ -67,13 +63,6 @@ public class IncomingShipment {
 		this.arrivalDate = arrivalDate;
 	}
 
-	public int getProductId() {
-		return productId;
-	}
-
-	public void setProductId(int productId) {
-		this.productId = productId;
-	}
 
 	public LocalDateTime getCreatedAt() {
 		return createdAt;

@@ -48,7 +48,6 @@ public class IncomingShipmentServiceImpl  {
 		incomingShipment.setArrivalDate(newIncomingShipment.getArrivalDate());
 		incomingShipment.setCreatedAt(LocalDateTime.now());
 		incomingShipment.setIncomingShipmentIncomingShipmentId(newIncomingShipment.getIncomingShipmentIncomingShipmentId());
-		incomingShipment.setProductId(newIncomingShipment.getProductId());
 		incomingShipment.setShipmentNo(newIncomingShipment.getShipmentNo());
 		incomingShipment.setUpdatedAt(LocalDateTime.now());
 		incomingShipment.setUserId(jwt.getUserdetails().getUserId());
@@ -74,12 +73,10 @@ public class IncomingShipmentServiceImpl  {
 			PopulateIncomingShipmentDto incomingDto = new PopulateIncomingShipmentDto();
 			incomingDto.setArrivalDate(incoming.getArrivalDate());
 			incomingDto.setCreatedAt(incoming.getCreatedAt());
-			incomingDto.setIncomingShipmentId(incoming.getIncomingShipmentId());
-			incomingDto.setIncomingShipmentIncomingShipmentId(incoming.getIncomingShipmentIncomingShipmentId());
+			incomingDto.setIncomingShipmentId(incoming.getIncomingShipmentId());			
 			incomingDto.setProducts(getAllProduct(incoming.getIncomingShipmentId()));
-			incomingDto.setProductId(incoming.getProductId());
 			incomingDto.setUpdatedAt(incoming.getUpdatedAt());
-			incomingDto.setUserId(userDao.findById(incoming.getUserId()).get());
+			incomingDto.setUser(userDao.findById(incoming.getUserId()).get());
 			incomingDto.setShipmentNo(incoming.getShipmentNo());
 			incomingShipmentDtoList.add(incomingDto);
 		}
@@ -107,11 +104,9 @@ public class IncomingShipmentServiceImpl  {
 		incomingDto.setArrivalDate(incoming.getArrivalDate());
 		incomingDto.setCreatedAt(incoming.getCreatedAt());
 		incomingDto.setIncomingShipmentId(incoming.getIncomingShipmentId());
-		incomingDto.setIncomingShipmentIncomingShipmentId(incoming.getIncomingShipmentIncomingShipmentId());
 		incomingDto.setProducts(getAllProduct(incoming.getIncomingShipmentId()));
-		incomingDto.setProductId(incoming.getProductId());
 		incomingDto.setUpdatedAt(incoming.getUpdatedAt());
-		incomingDto.setUserId(userDao.findById(incoming.getUserId()).get());
+		incomingDto.setUser(userDao.findById(incoming.getUserId()).get());
 		incomingDto.setShipmentNo(incoming.getShipmentNo());
 		
 		return incomingDto;
@@ -132,7 +127,6 @@ public class IncomingShipmentServiceImpl  {
 		IncomingShipment incomingShipment = incomingShipmentDao.findById(incomingShipmentId).get();
 		incomingShipment.setArrivalDate(incomingShipmentDetails.getArrivalDate());
 		incomingShipment.setIncomingShipmentIncomingShipmentId(incomingShipmentDetails.getIncomingShipmentIncomingShipmentId());
-		incomingShipment.setProductId(incomingShipmentDetails.getProductId());
 		incomingShipment.setUpdatedAt(LocalDateTime.now());
 		incomingShipment.setUserId(jwt.getUserdetails().getUserId());
 		incomingShipment.setShipmentNo(incomingShipmentDetails.getShipmentNo());

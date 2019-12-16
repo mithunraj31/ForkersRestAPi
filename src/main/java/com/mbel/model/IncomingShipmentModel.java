@@ -20,9 +20,8 @@ public class IncomingShipmentModel {
 	
 	private LocalDateTime updatedAt;
 
-	private UserEntity userId;
+	private UserEntity user;
 
-	private int incomingShipmentIncomingShipmentId;
 
 	public int getIncomingShipmentId() {
 		return incomingShipmentId;
@@ -65,21 +64,16 @@ public class IncomingShipmentModel {
 		this.updatedAt = updatedAt;
 	}
 
-	public UserEntity getUserId() {
-		return userId;
+
+	public UserEntity getUser() {
+		return user;
 	}
 
-	public void setUserId(UserEntity userId) {
-		this.userId = userId;
+
+	public void setUser(UserEntity user) {
+		this.user = user;
 	}
 
-	public int getIncomingShipmentIncomingShipmentId() {
-		return incomingShipmentIncomingShipmentId;
-	}
-
-	public void setIncomingShipmentIncomingShipmentId(int incomingShipmentIncomingShipmentId) {
-		this.incomingShipmentIncomingShipmentId = incomingShipmentIncomingShipmentId;
-	}
 
 	public String getShipmentNo() {
 		return shipmentNo;
