@@ -49,6 +49,7 @@ public class IncomingShipmentServiceImpl  {
 		incomingShipment.setCreatedAt(LocalDateTime.now());
 		incomingShipment.setIncomingShipmentIncomingShipmentId(newIncomingShipment.getIncomingShipmentIncomingShipmentId());
 		incomingShipment.setProductId(newIncomingShipment.getProductId());
+		incomingShipment.setShipmentNo(newIncomingShipment.getShipmentNo());
 		incomingShipment.setUpdatedAt(LocalDateTime.now());
 		incomingShipment.setUserId(jwt.getUserdetails().getUserId());
 		IncomingShipment incomeShipment= incomingShipmentDao.save(incomingShipment);
@@ -79,6 +80,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingDto.setProductId(incoming.getProductId());
 			incomingDto.setUpdatedAt(incoming.getUpdatedAt());
 			incomingDto.setUserId(userDao.findById(incoming.getUserId()).get());
+			incomingDto.setShipmentNo(incoming.getShipmentNo());
 			incomingShipmentDtoList.add(incomingDto);
 		}
 		
@@ -110,6 +112,7 @@ public class IncomingShipmentServiceImpl  {
 		incomingDto.setProductId(incoming.getProductId());
 		incomingDto.setUpdatedAt(incoming.getUpdatedAt());
 		incomingDto.setUserId(userDao.findById(incoming.getUserId()).get());
+		incomingDto.setShipmentNo(incoming.getShipmentNo());
 		
 		return incomingDto;
 	}
@@ -132,6 +135,7 @@ public class IncomingShipmentServiceImpl  {
 		incomingShipment.setProductId(incomingShipmentDetails.getProductId());
 		incomingShipment.setUpdatedAt(LocalDateTime.now());
 		incomingShipment.setUserId(jwt.getUserdetails().getUserId());
+		incomingShipment.setShipmentNo(incomingShipmentDetails.getShipmentNo());
 		IncomingShipment incomingShipmentUpdate= incomingShipmentDao.save(incomingShipment);
 		 incomingShipmentProductDao.deleteByShipmentId(incomingShipmentId);
 			int size = incomingShipmentDetails.getProduct().size();

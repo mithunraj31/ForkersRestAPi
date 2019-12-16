@@ -2,9 +2,15 @@ package com.mbel.model;
 
 import java.time.LocalDateTime;
 
+/**
+ * @author mithunraj
+ *
+ */
 public class IncomingShipmentModel {	
 
 	private int incomingShipmentId; 
+	
+	private String shipmentNo; 
 
 	private LocalDateTime arrivalDate;
 
@@ -21,6 +27,7 @@ public class IncomingShipmentModel {
 	public int getIncomingShipmentId() {
 		return incomingShipmentId;
 	}
+	
 
 	public void setIncomingShipmentId(int incomingShipmentId) {
 		this.incomingShipmentId = incomingShipmentId;
@@ -72,6 +79,14 @@ public class IncomingShipmentModel {
 
 	public void setIncomingShipmentIncomingShipmentId(int incomingShipmentIncomingShipmentId) {
 		this.incomingShipmentIncomingShipmentId = incomingShipmentIncomingShipmentId;
+	}
+
+	public String getShipmentNo() {
+		return shipmentNo;
+	}
+
+	public void setShipmentNo(String shipmentNo) {
+		this.shipmentNo = shipmentNo;
 	}
 
 	

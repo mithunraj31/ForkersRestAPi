@@ -18,6 +18,10 @@ public class IncomingShipment {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "incoming_shipment_id")
 	private int incomingShipmentId; 
+	
+	@NotNull(message="* Please Enter shipmentNo ")
+	@Column(name = "shipment_no")
+	private String shipmentNo;
 
 	@NotNull(message="* Please Enter Arrival Date")
 	@Column(name = "arrival_date")
@@ -45,6 +49,14 @@ public class IncomingShipment {
 
 	public void setIncomingShipmentId(int incomingShipmentId) {
 		this.incomingShipmentId = incomingShipmentId;
+	}
+
+	public String getShipmentNo() {
+		return shipmentNo;
+	}
+
+	public void setShipmentNo(String shipmentNo) {
+		this.shipmentNo = shipmentNo;
 	}
 
 	public LocalDateTime getArrivalDate() {
