@@ -47,7 +47,6 @@ public class IncomingShipmentServiceImpl  {
 		IncomingShipment incomingShipment = new IncomingShipment();
 		incomingShipment.setArrivalDate(newIncomingShipment.getArrivalDate());
 		incomingShipment.setCreatedAt(LocalDateTime.now());
-		incomingShipment.setIncomingShipmentIncomingShipmentId(newIncomingShipment.getIncomingShipmentIncomingShipmentId());
 		incomingShipment.setShipmentNo(newIncomingShipment.getShipmentNo());
 		incomingShipment.setUpdatedAt(LocalDateTime.now());
 		incomingShipment.setUserId(jwt.getUserdetails().getUserId());
@@ -127,7 +126,6 @@ public class IncomingShipmentServiceImpl  {
 			@Valid IncomingShipmentDto incomingShipmentDetails) {
 		IncomingShipment incomingShipment = incomingShipmentDao.findById(incomingShipmentId).get();
 		incomingShipment.setArrivalDate(incomingShipmentDetails.getArrivalDate());
-		incomingShipment.setIncomingShipmentIncomingShipmentId(incomingShipmentDetails.getIncomingShipmentIncomingShipmentId());
 		incomingShipment.setUpdatedAt(LocalDateTime.now());
 		incomingShipment.setUserId(jwt.getUserdetails().getUserId());
 		incomingShipment.setShipmentNo(incomingShipmentDetails.getShipmentNo());

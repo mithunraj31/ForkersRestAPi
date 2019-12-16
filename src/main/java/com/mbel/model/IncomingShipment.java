@@ -36,8 +36,6 @@ public class IncomingShipment {
 	@Column(name = "user_id")
 	private int userId;
 
-	@Column(name = "incoming_shipment_incoming_shipment_id")
-	private int incomingShipmentIncomingShipmentId;
 
 	public int getIncomingShipmentId() {
 		return incomingShipmentId;
@@ -88,13 +86,6 @@ public class IncomingShipment {
 		this.userId = userId;
 	}
 
-	public int getIncomingShipmentIncomingShipmentId() {
-		return incomingShipmentIncomingShipmentId;
-	}
-
-	public void setIncomingShipmentIncomingShipmentId(int incomingShipmentIncomingShipmentId) {
-		this.incomingShipmentIncomingShipmentId = incomingShipmentIncomingShipmentId;
-	}
 	
 	
 	
