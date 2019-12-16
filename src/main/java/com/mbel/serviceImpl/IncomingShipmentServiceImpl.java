@@ -52,13 +52,13 @@ public class IncomingShipmentServiceImpl  {
 		incomingShipment.setUserId(jwt.getUserdetails().getUserId());
 		IncomingShipment incomeShipment= incomingShipmentDao.save(incomingShipment);
 		int shipmentId =incomeShipment.getIncomingShipmentId();		
-		int size = newIncomingShipment.getProduct().size();
+		int size = newIncomingShipment.getProducts().size();
 		for(int i=0;i<size;i++) {
 			IncomingShipmentProduct  incomingShipmentProduct= new IncomingShipmentProduct();
 			incomingShipmentProduct.setIncomingShipmentId(shipmentId);
-			incomingShipmentProduct.setProductId(newIncomingShipment.getProduct().get(i).getProductId());
-			incomingShipmentProduct.setQuantity(newIncomingShipment.getProduct().get(i).getQuantity());
-			incomingShipmentProduct.setPrice(newIncomingShipment.getProduct().get(i).getPrice());
+			incomingShipmentProduct.setProductId(newIncomingShipment.getProducts().get(i).getProductId());
+			incomingShipmentProduct.setQuantity(newIncomingShipment.getProducts().get(i).getQuantity());
+			incomingShipmentProduct.setPrice(newIncomingShipment.getProducts().get(i).getPrice());
 			incomingShipmentProductDao.save(incomingShipmentProduct);
 		}
 
@@ -131,13 +131,13 @@ public class IncomingShipmentServiceImpl  {
 		incomingShipment.setShipmentNo(incomingShipmentDetails.getShipmentNo());
 		IncomingShipment incomingShipmentUpdate= incomingShipmentDao.save(incomingShipment);
 		 incomingShipmentProductDao.deleteByShipmentId(incomingShipmentId);
-			int size = incomingShipmentDetails.getProduct().size();
+			int size = incomingShipmentDetails.getProducts().size();
 			for(int i=0;i<size;i++) {
 				IncomingShipmentProduct  incomingShipmentProduct= new IncomingShipmentProduct();
 				incomingShipmentProduct.setIncomingShipmentId(incomingShipmentId);
-				incomingShipmentProduct.setProductId(incomingShipmentDetails.getProduct().get(i).getProductId());
-				incomingShipmentProduct.setQuantity(incomingShipmentDetails.getProduct().get(i).getQuantity());
-				incomingShipmentProduct.setPrice(incomingShipmentDetails.getProduct().get(i).getPrice());
+				incomingShipmentProduct.setProductId(incomingShipmentDetails.getProducts().get(i).getProductId());
+				incomingShipmentProduct.setQuantity(incomingShipmentDetails.getProducts().get(i).getQuantity());
+				incomingShipmentProduct.setPrice(incomingShipmentDetails.getProducts().get(i).getPrice());
 				incomingShipmentProductDao.save(incomingShipmentProduct);
 			}
 			return incomingShipmentUpdate;

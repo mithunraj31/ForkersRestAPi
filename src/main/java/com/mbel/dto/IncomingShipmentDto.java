@@ -6,15 +6,16 @@ import com.mbel.model.IncomingShipment;
 
 public class IncomingShipmentDto extends IncomingShipment{
 
-	private List<IncomingShipmentProductDto> product;
+	private List<IncomingShipmentProductDto> products;
 
-	public List<IncomingShipmentProductDto> getProduct() {
-		return product;
+	public List<IncomingShipmentProductDto> getProducts() {
+		return products;
 	}
 
-	public void setProduct(List<IncomingShipmentProductDto> product) {
-		this.product = product;
+	public void setProducts(List<IncomingShipmentProductDto> products) {
+		this.products = products;
 	}
+
 
 
 }
