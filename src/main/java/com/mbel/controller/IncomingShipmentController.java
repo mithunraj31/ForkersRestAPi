@@ -34,23 +34,23 @@ public class  IncomingShipmentController{
 	private IncomingShipmentServiceImpl incomingShipmentServiceImpl;  
 	
 
-	@PostMapping("/incoming/shipment/")
+	@PostMapping("/shipment/incoming/")
 	@ResponseStatus(HttpStatus.CREATED)
 	public IncomingShipment saveIncomingShipment(@Valid @RequestBody IncomingShipmentDto incomingShipment) {
 		return incomingShipmentServiceImpl.save(incomingShipment);
 	}
 
-	@GetMapping("/incoming/shipment/")
+	@GetMapping("/shipment/incoming/")
 	public List<PopulateIncomingShipmentDto> allIncomingShipment()  {
 		return incomingShipmentServiceImpl.getAllIncomingShipment();
 	}
-	@GetMapping("/incoming/shipment/{incomingShipmentId}")
+	@GetMapping("/shipment/incoming/{incomingShipmentId}")
 	public PopulateIncomingShipmentDto incomingShipmentById(@PathVariable (value="incomingShipmentId") @Valid int incomingShipmentId) {
 		return incomingShipmentServiceImpl.getIncomingShipmentById(incomingShipmentId);
 
 	}
 
-	@PutMapping("/incoming/shipment/{incomingShipmentId}")
+	@PutMapping("/shipment/incoming/{incomingShipmentId}")
 	public IncomingShipment updateIncomingShipmentById(@PathVariable (value="incomingShipmentId")int incomingShipmentId,
 			@Valid @RequestBody IncomingShipmentDto incomingShipmentDetails)   {
 		return incomingShipmentServiceImpl.getUpdateIncomingShipmentId(incomingShipmentId,incomingShipmentDetails);
@@ -58,7 +58,7 @@ public class  IncomingShipmentController{
 
 	}
 
-	@DeleteMapping("/incoming/shipment/{incomingShipmentId}")
+	@DeleteMapping("/shipment/incoming/{incomingShipmentId}")
 	public ResponseEntity<Map<String, String>> deleteIncomingShipmentById(@PathVariable (value="incomingShipmentId")@Valid int incomingShipmentId) {
 		return incomingShipmentServiceImpl.deleteIncomingShipmentById(incomingShipmentId);
 

@@ -34,23 +34,23 @@ public class  OutgoingShipmentController{
 	private OutgoingShipmentServiceImpl outgoingShipmentServiceImpl;  
 	
 
-	@PostMapping("/outgoing/shipment/")
+	@PostMapping("/shipment/outgoing/")
 	@ResponseStatus(HttpStatus.CREATED)
 	public OutgoingShipment saveOutgoingShipment(@Valid @RequestBody OutgoingShipmentDto newOutgoingShipment) {
 		return outgoingShipmentServiceImpl.save(newOutgoingShipment);
 	}
 
-	@GetMapping("/outgoing/shipment/")
+	@GetMapping("/shipment/outgoing/")
 	public List<PopulateOutgoingShipmentDto> allOutgoingShipment()  {
 		return outgoingShipmentServiceImpl.getAllOutgoingShipment();
 	}
-	@GetMapping("/outgoing/shipment/{outgoingShipmentId}")
+	@GetMapping("/shipment/outgoing/{outgoingShipmentId}")
 	public PopulateOutgoingShipmentDto outgoingShipmentById(@PathVariable (value="outgoingShipmentId") @Valid int outgoingShipmentId) {
 		return outgoingShipmentServiceImpl.getOutgoingShipmentById(outgoingShipmentId);
 
 	}
 
-	@PutMapping("/outgoing/shipment/{outgoingShipmentId}")
+	@PutMapping("/shipment/outgoing/{outgoingShipmentId}")
 	public OutgoingShipment updateOutgoingShipmentById(@PathVariable (value="outgoingShipmentId")int outgoingShipmentId,
 			@Valid @RequestBody OutgoingShipmentDto OutgoingShipmentDetails)   {
 		return outgoingShipmentServiceImpl.getUpdateOutgoingShipmentId(outgoingShipmentId,OutgoingShipmentDetails);
@@ -58,7 +58,7 @@ public class  OutgoingShipmentController{
 
 	}
 
-	@DeleteMapping("/outgoing/shipment/{outgoingShipmentId}")
+	@DeleteMapping("/shipment/outgoing/{outgoingShipmentId}")
 	public ResponseEntity<Map<String, String>> deleteOutgoingShipmentById(@PathVariable (value="outgoingShipmentId")@Valid int outgoingShipmentId) {
 		return outgoingShipmentServiceImpl.deleteOutgoingShipmentById(outgoingShipmentId);
 
