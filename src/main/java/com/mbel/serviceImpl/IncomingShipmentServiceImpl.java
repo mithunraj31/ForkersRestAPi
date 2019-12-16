@@ -17,7 +17,7 @@ import com.mbel.config.JwtAuthenticationFilter;
 import com.mbel.dao.IncomingShipmentDao;
 import com.mbel.dao.IncomingShipmentProductDao;
 import com.mbel.dao.UserDao;
-import com.mbel.dto.FetchOrderdProducts;
+import com.mbel.dto.FetchIncomingOrderdProducts;
 import com.mbel.dto.FetchProductSetDto;
 import com.mbel.dto.IncomingShipmentDto;
 import com.mbel.dto.PopulateIncomingShipmentDto;
@@ -84,15 +84,16 @@ public class IncomingShipmentServiceImpl  {
 		return incomingShipmentDtoList;
 	}
 
-	private List<FetchOrderdProducts> getAllProduct(int shipmentId) {
-		List<FetchOrderdProducts> fetchProducts = new ArrayList<>(); 
+	private List<FetchIncomingOrderdProducts> getAllProduct(int shipmentId) {
+		List<FetchIncomingOrderdProducts> fetchProducts = new ArrayList<>(); 
 		List<Map<Object, Object>> shipmentList=incomingShipmentProductDao.getByShipmentId(shipmentId);
 		for(int i=0;i<shipmentList.size();i++) {
 			FetchProductSetDto products = new FetchProductSetDto();
-			FetchOrderdProducts incomingOrder =new FetchOrderdProducts();
+			FetchIncomingOrderdProducts incomingOrder =new FetchIncomingOrderdProducts();
 		products =(productServiceImpl.getProductSetById((Integer)shipmentList.get(i).get("product_id")));
 		incomingOrder.setProduct(products);
 		incomingOrder.setQuantity((Integer)shipmentList.get(i).get("qty"));
+		incomingOrder.setPrice((Double)shipmentList.get(i).get("price"));
 		fetchProducts.add(incomingOrder);
 		}
 		return fetchProducts;

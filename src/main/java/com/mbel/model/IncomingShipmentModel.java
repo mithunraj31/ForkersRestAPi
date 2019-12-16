@@ -14,8 +14,6 @@ public class IncomingShipmentModel {
 
 	private LocalDateTime arrivalDate;
 
-	private int productId;
-
 	private LocalDateTime createdAt;
 	
 	private LocalDateTime updatedAt;
@@ -40,13 +38,6 @@ public class IncomingShipmentModel {
 		this.arrivalDate = arrivalDate;
 	}
 
-	public int getProductId() {
-		return productId;
-	}
-
-	public void setProductId(int productId) {
-		this.productId = productId;
-	}
 
 	public LocalDateTime getCreatedAt() {
 		return createdAt;

@@ -6,13 +6,13 @@ import com.mbel.model.IncomingShipmentModel;
 
 public class PopulateIncomingShipmentDto extends IncomingShipmentModel {
 	
-	private List<FetchOrderdProducts> products;
+	private List<FetchIncomingOrderdProducts> products;
 
-	public List<FetchOrderdProducts> getProducts() {
+	public List<FetchIncomingOrderdProducts> getProducts() {
 		return products;
 	}
 
-	public void setProducts(List<FetchOrderdProducts> products) {
+	public void setProducts(List<FetchIncomingOrderdProducts> products) {
 		this.products = products;
 	}
 	
