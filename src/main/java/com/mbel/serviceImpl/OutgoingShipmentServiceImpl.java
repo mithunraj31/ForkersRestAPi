@@ -52,19 +52,19 @@ public class OutgoingShipmentServiceImpl  {
 	public OutgoingShipment save(@Valid OutgoingShipmentDto newOutgoingShipment) {
 		OutgoingShipment outgoingShipment = new OutgoingShipment();
 		outgoingShipment.setCreatedAt(LocalDateTime.now());
-		outgoingShipment.setSalesDestination(newOutgoingShipment.getSalesDestination());
+		outgoingShipment.setSalesDestinationId(newOutgoingShipment.getSalesDestinationId());
 		outgoingShipment.setShipmentNo(newOutgoingShipment.getShipmentNo());
 		outgoingShipment.setUpdatedAt(LocalDateTime.now());
 		outgoingShipment.setUserId(jwt.getUserdetails().getUserId());
 		outgoingShipment.setShipmentDate(newOutgoingShipment.getShipmentDate());
 		OutgoingShipment incomeShipment= outgoingShipmentDao.save(outgoingShipment);
 		int shipmentId =incomeShipment.getOutgoingShipmentId();		
-		int size = newOutgoingShipment.getProduct().size();
+		int size = newOutgoingShipment.getProducts().size();
 		for(int i=0;i<size;i++) {
 			OutgoingShipmentProduct  outgoingShipmentProduct= new OutgoingShipmentProduct();
 			outgoingShipmentProduct.setOutgoingShipmentId(shipmentId);
-			outgoingShipmentProduct.setProductId(newOutgoingShipment.getProduct().get(i).getProductProductId());
-			outgoingShipmentProduct.setQuantity(newOutgoingShipment.getProduct().get(i).getQuantity());
+			outgoingShipmentProduct.setProductId(newOutgoingShipment.getProducts().get(i).getProductId());
+			outgoingShipmentProduct.setQuantity(newOutgoingShipment.getProducts().get(i).getQuantity());
 			outgoingShipmentProductDao.save(outgoingShipmentProduct);
 		}
 
@@ -77,7 +77,7 @@ public class OutgoingShipmentServiceImpl  {
 		for(OutgoingShipment outgoing :outgoingShipment ) {
 			PopulateOutgoingShipmentDto outgoingDto = new PopulateOutgoingShipmentDto();
 			outgoingDto.setCreatedAt(outgoing.getCreatedAt());
-			outgoingDto.setSalesDestination(customerDao.findById(outgoing.getSalesDestination()).get());
+			outgoingDto.setSalesDestination(customerDao.findById(outgoing.getSalesDestinationId()).get());
 			outgoingDto.setOutgoingShipmentId(outgoing.getOutgoingShipmentId());
 			outgoingDto.setProducts(getAllProduct(outgoing.getOutgoingShipmentId()));
 			outgoingDto.setUpdatedAt(outgoing.getUpdatedAt());
@@ -109,7 +109,7 @@ public class OutgoingShipmentServiceImpl  {
 		OutgoingShipment outgoing = outgoingShipmentDao.findById(outgoingShipmentId).get();
 		PopulateOutgoingShipmentDto outgoingDto = new PopulateOutgoingShipmentDto();
 		outgoingDto.setCreatedAt(outgoing.getCreatedAt());
-		outgoingDto.setSalesDestination(customerDao.findById(outgoing.getSalesDestination()).get());
+		outgoingDto.setSalesDestination(customerDao.findById(outgoing.getSalesDestinationId()).get());
 		outgoingDto.setOutgoingShipmentId(outgoing.getOutgoingShipmentId());
 		outgoingDto.setProducts(getAllProduct(outgoing.getOutgoingShipmentId()));
 		outgoingDto.setShipmentNo(outgoing.getShipmentNo());
@@ -133,19 +133,19 @@ public class OutgoingShipmentServiceImpl  {
 	public OutgoingShipment getUpdateOutgoingShipmentId(int outgoingShipmentId,
 			@Valid OutgoingShipmentDto outgoingShipmentDetails) {
 		OutgoingShipment outgoingShipment = outgoingShipmentDao.findById(outgoingShipmentId).get();
-		outgoingShipment.setSalesDestination(outgoingShipmentDetails.getSalesDestination());
+		outgoingShipment.setSalesDestinationId(outgoingShipmentDetails.getSalesDestinationId());
 		outgoingShipment.setShipmentNo(outgoingShipmentDetails.getShipmentNo());
 		outgoingShipment.setUpdatedAt(LocalDateTime.now());
 		outgoingShipment.setUserId(jwt.getUserdetails().getUserId());
 		outgoingShipment.setShipmentDate(outgoingShipmentDetails.getShipmentDate());
 		OutgoingShipment outgoingShipmentUpdate= outgoingShipmentDao.save(outgoingShipment);
 		outgoingShipmentProductDao.deleteByShipmentId(outgoingShipmentId);
-			int size = outgoingShipmentDetails.getProduct().size();
+			int size = outgoingShipmentDetails.getProducts().size();
 			for(int i=0;i<size;i++) {
 				OutgoingShipmentProduct  outgoingShipmentProduct= new OutgoingShipmentProduct();
 				outgoingShipmentProduct.setOutgoingShipmentId(outgoingShipmentId);
-				outgoingShipmentProduct.setProductId(outgoingShipmentDetails.getProduct().get(i).getProductProductId());
-				outgoingShipmentProduct.setQuantity(outgoingShipmentDetails.getProduct().get(i).getQuantity());
+				outgoingShipmentProduct.setProductId(outgoingShipmentDetails.getProducts().get(i).getProductId());
+				outgoingShipmentProduct.setQuantity(outgoingShipmentDetails.getProducts().get(i).getQuantity());
 				outgoingShipmentProductDao.save(outgoingShipmentProduct);
 			}
 			return outgoingShipmentUpdate;

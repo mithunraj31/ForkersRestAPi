@@ -29,8 +29,8 @@ public class OutgoingShipment {
 	
 	
 	@NotNull(message="* Please Enter Sales Destination")
-	@Column(name = "sales_destination")
-	private int salesDestination;
+	@Column(name = "sales_destination_id")
+	private int salesDestinationId;
 
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;
@@ -66,13 +66,13 @@ public class OutgoingShipment {
 	public void setShipmentDate(LocalDateTime shipmentDate) {
 		this.shipmentDate = shipmentDate;
 	}
-	
-	public int getSalesDestination() {
-		return salesDestination;
+
+	public int getSalesDestinationId() {
+		return salesDestinationId;
 	}
 
-	public void setSalesDestination(int salesDestination) {
-		this.salesDestination = salesDestination;
+	public void setSalesDestinationId(int salesDestinationId) {
+		this.salesDestinationId = salesDestinationId;
 	}
 
 	public LocalDateTime getCreatedAt() {
