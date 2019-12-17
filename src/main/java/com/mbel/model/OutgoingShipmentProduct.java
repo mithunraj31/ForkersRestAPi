@@ -17,13 +17,13 @@ public class OutgoingShipmentProduct {
 	@Column(name = "outgoing_shipment_product_id")
 	private int outgoingShipmentProductId; 
 
-	@NotNull(message="* Please Enter incomingShipmentId")
-	@Column(name = "outgoing_shipment_outgoing_shipment_product_id")
-	private int outgoingShipmentOutgoingShipmentProductId;
+	@NotNull(message="* Please Enter outgoingShipmentId")
+	@Column(name = "outgoing_shipment__id")
+	private int outgoingShipmentId;
 
 	@NotNull(message="* Please Enter ProductId")
-	@Column(name = "product_product_id")
-	private int productProductId;
+	@Column(name = "product_id")
+	private int productId;
 
 	@Column(name = "qty")
 	private int  quantity;
@@ -36,20 +36,21 @@ public class OutgoingShipmentProduct {
 		this.outgoingShipmentProductId = outgoingShipmentProductId;
 	}
 
-	public int getOutgoingShipmentOutgoingShipmentProductId() {
-		return outgoingShipmentOutgoingShipmentProductId;
+
+	public int getOutgoingShipmentId() {
+		return outgoingShipmentId;
 	}
 
-	public void setOutgoingShipmentOutgoingShipmentProductId(int outgoingShipmentOutgoingShipmentProductId) {
-		this.outgoingShipmentOutgoingShipmentProductId = outgoingShipmentOutgoingShipmentProductId;
+	public void setOutgoingShipmentId(int outgoingShipmentId) {
+		this.outgoingShipmentId = outgoingShipmentId;
 	}
 
-	public int getProductProductId() {
-		return productProductId;
+	public int getProductId() {
+		return productId;
 	}
 
-	public void setProductProductId(int productProductId) {
-		this.productProductId = productProductId;
+	public void setProductId(int productId) {
+		this.productId = productId;
 	}
 
 	public int getQuantity() {

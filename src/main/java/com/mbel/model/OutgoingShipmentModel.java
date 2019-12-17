@@ -6,13 +6,11 @@ public class OutgoingShipmentModel {
 
 	private int outgoingShipmentId; 
 
-	private int productId;
+	private String shipmentNo;
 	
-	private LocalDateTime shipDate;
+	private LocalDateTime shipmentDate;
 	
-	private int quantity;
-	
-	private String destination;
+	private Customer salesDestination;
 
 	private LocalDateTime createdAt;
 	
@@ -28,36 +26,13 @@ public class OutgoingShipmentModel {
 		this.outgoingShipmentId = outgoingShipmentId;
 	}
 
-	public int getProductId() {
-		return productId;
+
+	public Customer getSalesDestination() {
+		return salesDestination;
 	}
 
-	public void setProductId(int productId) {
-		this.productId = productId;
-	}
-
-	public LocalDateTime getShipDate() {
-		return shipDate;
-	}
-
-	public void setShipDate(LocalDateTime shipDate) {
-		this.shipDate = shipDate;
-	}
-
-	public int getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
-	}
-
-	public String getDestination() {
-		return destination;
-	}
-
-	public void setDestination(String destination) {
-		this.destination = destination;
+	public void setSalesDestination(Customer salesDestination) {
+		this.salesDestination = salesDestination;
 	}
 
 	public LocalDateTime getCreatedAt() {
@@ -82,6 +57,22 @@ public class OutgoingShipmentModel {
 
 	public void setUser(UserEntity user) {
 		this.user = user;
+	}
+
+	public LocalDateTime getShipmentDate() {
+		return shipmentDate;
+	}
+
+	public void setShipmentDate(LocalDateTime shipmentDate) {
+		this.shipmentDate = shipmentDate;
+	}
+
+	public String getShipmentNo() {
+		return shipmentNo;
+	}
+
+	public void setShipmentNo(String shipmentNo) {
+		this.shipmentNo = shipmentNo;
 	}
 	
 	

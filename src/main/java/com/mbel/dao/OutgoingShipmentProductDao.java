@@ -14,13 +14,13 @@ import com.mbel.model.OutgoingShipmentProduct;
 @Repository
 public interface OutgoingShipmentProductDao extends JpaRepository<OutgoingShipmentProduct, Integer> {
 	
-	@Query(value="SELECT * FROM `outgoing_shipment_product` WHERE  outgoing_shipment_outgoing_shipment_product_id = ?1"  , nativeQuery = true)
+	@Query(value="SELECT * FROM `outgoing_shipment_product` WHERE  outgoing_shipment__id = ?1"  , nativeQuery = true)
 	public List<Map<Object, Object>> getByShipmentId(int shipmentId);
 
 	
 	@Transactional
 	@Modifying
-	@Query(value="DELETE FROM `outgoing_shipment_product` WHERE  outgoing_shipment_outgoing_shipment_product_id = ?1" , nativeQuery = true)
+	@Query(value="DELETE FROM `outgoing_shipment_product` WHERE  outgoing_shipment__id = ?1" , nativeQuery = true)
 	public void deleteByShipmentId(int shipmentId);
 	
 }

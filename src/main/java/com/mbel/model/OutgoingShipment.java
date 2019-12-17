@@ -19,21 +19,18 @@ public class OutgoingShipment {
 	@Column(name = "outgoing_shipment_id")
 	private int outgoingShipmentId; 
 
-	@NotNull(message="* Please Enter Product Id")
-	@Column(name = "product_id")
-	private int productId;
+	@NotNull(message="* Please Enter shipmentNo ")
+	@Column(name = "shipment_no")
+	private String shipmentNo;
 
-	@NotNull(message="* Please Enter Ship Date")
-	@Column(name = "ship_date")
-	private LocalDateTime shipDate;
+	@NotNull(message="* Please Enter Shipment Date")
+	@Column(name = "shipment_date")
+	private LocalDateTime shipmentDate;
 	
-	@NotNull(message="* Please Enter Quantity")
-	@Column(name = "qty")
-	private int quantity;
 	
-	@NotNull(message="* Please Enter Destination")
-	@Column(name = "destination")
-	private String destination;
+	@NotNull(message="* Please Enter Sales Destination")
+	@Column(name = "sales_destination")
+	private int salesDestination;
 
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;
@@ -52,36 +49,30 @@ public class OutgoingShipment {
 		this.outgoingShipmentId = outgoingShipmentId;
 	}
 
-	public int getProductId() {
-		return productId;
+
+
+	public String getShipmentNo() {
+		return shipmentNo;
 	}
 
-	public void setProductId(int productId) {
-		this.productId = productId;
+	public void setShipmentNo(String shipmentNo) {
+		this.shipmentNo = shipmentNo;
 	}
 
-	public LocalDateTime getShipDate() {
-		return shipDate;
+	public LocalDateTime getShipmentDate() {
+		return shipmentDate;
 	}
 
-	public void setShipDate(LocalDateTime shipDate) {
-		this.shipDate = shipDate;
+	public void setShipmentDate(LocalDateTime shipmentDate) {
+		this.shipmentDate = shipmentDate;
+	}
+	
+	public int getSalesDestination() {
+		return salesDestination;
 	}
 
-	public int getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
-	}
-
-	public String getDestination() {
-		return destination;
-	}
-
-	public void setDestination(String destination) {
-		this.destination = destination;
+	public void setSalesDestination(int salesDestination) {
+		this.salesDestination = salesDestination;
 	}
 
 	public LocalDateTime getCreatedAt() {
