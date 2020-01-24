@@ -25,6 +25,8 @@ public class OrderModel{
 	    private boolean active;
 	    
 	    private boolean forecast;
+	    
+	    private boolean fullfilled;
 
 		public int getOrderId() {
 			return orderId;
@@ -113,6 +115,15 @@ public class OrderModel{
 		public void setForecast(boolean forecast) {
 			this.forecast = forecast;
 		}
+
+		public boolean isFullfilled() {
+			return fullfilled;
+		}
+
+		public void setFullfilled(boolean fullfilled) {
+			this.fullfilled = fullfilled;
+		}
+
 	    
 	    
 	    

@@ -23,6 +23,7 @@ import com.mbel.dto.PopulateOrderDto;
 import com.mbel.dto.SaveOrderSetDto;
 import com.mbel.model.Order;
 import com.mbel.model.OrderProduct;
+import com.mbel.model.Product;
 
 
 
@@ -75,8 +76,9 @@ public class OrderServiceImpl  {
 			populate.setProposalNo(order.getProposalNo());
 			populate.setReceivedDate(order.getReceivedDate());
 			populate.setDueDate(order.getDueDate());
-			populate.setActive(true);
-			populate.setForecast(true);
+			populate.setActive(order.isActive());
+			populate.setForecast(order.isForecast());
+			populate.setFullfilled(order.isFullfilled());
 			populate.setUser(userDao.findById(order.getUserId()).get());
 			populate.setSalesUser(userDao.findById(order.getSalesUserId()).get());
 			populate.setEditReason(order.getEditReason());
@@ -102,6 +104,7 @@ public class OrderServiceImpl  {
 		populate.setDueDate(order.getDueDate());
 		populate.setActive(order.isActive());
 		populate.setForecast(order.isForecast());
+		populate.setFullfilled(order.isFullfilled());
 		populate.setUser(userDao.findById(order.getUserId()).get());
 		populate.setSalesUser(userDao.findById(order.getSalesUserId()).get());
 		populate.setEditReason(order.getEditReason());
@@ -144,6 +147,7 @@ public class OrderServiceImpl  {
 		order.setUpdatedAt(LocalDateTime.now());
 		order.setActive(true);
 		order.setForecast(true);
+		order.setFullfilled(newOrderSet.isFullfilled());
 		order.setUserId(jwt.getUserdetails().getUserId());
 		order.setSalesUserId(newOrderSet.getSalesUserId());
 		order.setEditReason(newOrderSet.getEditReason());
@@ -180,6 +184,7 @@ public class OrderServiceImpl  {
 		order.setCreatedAt(LocalDateTime.now());
 		order.setActive(true);
 		order.setForecast(true);
+		order.setFullfilled(false);
 		order.setUserId(jwt.getUserdetails().getUserId());
 		order.setSalesUserId(newOrderSet.getSalesUserId());
 		order.setEditReason(newOrderSet.getEditReason());
@@ -196,6 +201,19 @@ public class OrderServiceImpl  {
 		}
 		return ordersave;
 	} 
+	
+	public double estimation(SaveOrderSetDto newOrderSet){
+		double estimationValue=0;
+		int noOfProducts =newOrderSet.getOrderedProducts().size();
+		for(int i=0;i<noOfProducts;i++) {
+			Product products;
+		int productId=	newOrderSet.getOrderedProducts().get(i).getProductId();
+		products =productServiceImpl.getProductSetById(productId);
+		estimationValue+=products.getPrice();
+		}
+		return estimationValue;
+		
+	}
 	
 	
 }
