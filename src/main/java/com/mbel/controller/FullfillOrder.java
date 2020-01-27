@@ -21,9 +21,9 @@ public class FullfillOrder {
 	
 	
 	
-	@PostMapping("/order/fullfillment/")
+	@PostMapping("/order/fulfillment/")
 	public List<String> fullfilledOrder(@RequestBody FullfillRequestBody requestBody) {
-		if(requestBody.isFullfillmentflag()) {
+		if(requestBody.isFulfillment()) {
 		return fullfillOrderServiceImpl.getFullfillOrder(requestBody.getOrderId());
 		}
 		return null;
@@ -38,7 +38,7 @@ public class FullfillOrder {
 	
 	private int orderId;
 	
-	private boolean fullfillmentflag;
+	private boolean fulfillment;
 
 	public int getOrderId() {
 		return orderId;
@@ -48,13 +48,14 @@ public class FullfillOrder {
 		this.orderId = orderId;
 	}
 
-	public boolean isFullfillmentflag() {
-		return fullfillmentflag;
+	public boolean isFulfillment() {
+		return fulfillment;
 	}
 
-	public void setFullfillmentflag(boolean fullfillmentflag) {
-		this.fullfillmentflag = fullfillmentflag;
+	public void setFulfillment(boolean fulfillment) {
+		this.fulfillment = fulfillment;
 	}
+
 	
 	
 }
