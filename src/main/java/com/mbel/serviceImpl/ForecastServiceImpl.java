@@ -99,6 +99,7 @@ public class ForecastServiceImpl {
 				productStockCheck.setOrderedQuantity(update.getValue());
 				productStockCheck.setStockQuantity(update.getKey().getQuantity());
 				productStockCheck.setCurrentQuantity(currentProductQuantityMap.get(update.getKey().getProductId()));
+				productStockCheck.setMod(unfulfilledorder.getDueDate().minusWeeks(update.getKey().getLeadTime()+1));
 				productStockCheckList.add(productStockCheck);					
 			}
 			forecastProductDto.setOrderedProducts(productStockCheckList);
