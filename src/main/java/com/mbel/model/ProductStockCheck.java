@@ -1,5 +1,7 @@
 package com.mbel.model;
 
+import java.time.LocalDateTime;
+
 public class ProductStockCheck {
 	
 	private Product product;
@@ -9,6 +11,8 @@ public class ProductStockCheck {
 	private int orderedQuantity;
 	
 	private int currentQuantity;
+	
+	private LocalDateTime mod;
 
 	public Product getProduct() {
 		return product;
@@ -41,6 +45,15 @@ public class ProductStockCheck {
 	public void setCurrentQuantity(int currentQuantity) {
 		this.currentQuantity = currentQuantity;
 	}
+
+	public LocalDateTime getMod() {
+		return mod;
+	}
+
+	public void setMod(LocalDateTime mod) {
+		this.mod = mod;
+	}
+
 
 
 
