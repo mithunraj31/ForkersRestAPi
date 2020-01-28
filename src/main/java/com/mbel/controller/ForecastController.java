@@ -19,7 +19,7 @@ public class ForecastController {
 	@Autowired
 	ForecastServiceImpl forecastServiceImpl;
 	
-	@GetMapping("order/forecast/")
+	@GetMapping("/order/forecast/")
 	public List<ForecastProductDto> orderForecast() {
 		return forecastServiceImpl.getForecastOrderDetails();
 	}
