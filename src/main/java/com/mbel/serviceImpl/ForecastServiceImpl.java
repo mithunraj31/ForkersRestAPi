@@ -153,18 +153,6 @@ public class ForecastServiceImpl {
 
 	}
 
-//	private void updateCurrentQuantity(int productId, int orderdQunatity, int stockQuantity, Map<Integer, Integer> currentProductQuantityMap, Order unfulfilledorder) {
-//		if(!currentProductQuantityMap.containsKey(productId)) {
-//			updateOrder(unfulfilledorder,orderdQunatity,stockQuantity);
-//			currentProductQuantityMap.put(productId, stockQuantity-orderdQunatity);
-//		}else {
-//			stockQuantity =currentProductQuantityMap.get(productId);
-//			updateOrder(unfulfilledorder,orderdQunatity,stockQuantity);
-//			currentProductQuantityMap.put(productId, stockQuantity-orderdQunatity);
-//			
-//		}
-//	}
-
 	private List<Order> getSortedOrder(List<Order> unfulfilledOrder) {
 		Collections.sort(unfulfilledOrder, new Comparator<Order>() {
 
