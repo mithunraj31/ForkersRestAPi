@@ -6,9 +6,7 @@ public class ProductStockCheck {
 	
 	private Product product;
 	
-	private int stockQuantity;
-	
-	private int orderedQuantity;
+	private int quantity;
 	
 	private int currentQuantity;
 	
@@ -22,20 +20,13 @@ public class ProductStockCheck {
 		this.product = product;
 	}
 
-	public int getStockQuantity() {
-		return stockQuantity;
+
+	public int getQuantity() {
+		return quantity;
 	}
 
-	public void setStockQuantity(int stockQuantity) {
-		this.stockQuantity = stockQuantity;
-	}
-
-	public int getOrderedQuantity() {
-		return orderedQuantity;
-	}
-
-	public void setOrderedQuantity(int orderedQuantity) {
-		this.orderedQuantity = orderedQuantity;
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
 	}
 
 	public int getCurrentQuantity() {

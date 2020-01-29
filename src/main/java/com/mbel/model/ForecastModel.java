@@ -16,7 +16,7 @@ public class ForecastModel{
 	    
 	    private boolean forecast;
 	    
-	    private boolean fullfilled;
+	    private boolean fulfilled;
 	    
 	    
 
@@ -68,13 +68,14 @@ public class ForecastModel{
 			this.forecast = forecast;
 		}
 
-		public boolean isFullfilled() {
-			return fullfilled;
+		public boolean isFulfilled() {
+			return fulfilled;
 		}
 
-		public void setFullfilled(boolean fullfilled) {
-			this.fullfilled = fullfilled;
+		public void setFulfilled(boolean fulfilled) {
+			this.fulfilled = fulfilled;
 		}
+
 
 	    
 	

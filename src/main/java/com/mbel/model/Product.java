@@ -32,11 +32,9 @@ public class Product {
     @Column(name = "price")
     private double price;
     
-    @NotNull(message="* Please Enter moq")
     @Column(name = "moq")
     private int moq;
     
-    @NotNull(message="* Please Enter leadTime")
     @Column(name = "lead_time")
     private int leadTime;
     
@@ -44,7 +42,6 @@ public class Product {
     @Column(name = "obic_no")
     private String obicNo;
     
-    @NotNull(message="* Please Enter quantity")
     @Column(name = "qty")
     private int quantity;
     

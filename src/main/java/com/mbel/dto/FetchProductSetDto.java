@@ -16,6 +16,7 @@ public class FetchProductSetDto extends Product {
 	public void setProducts(List<ProductSetModel> products) {
 		this.products = products;
 	}
+
 	
 	
 	

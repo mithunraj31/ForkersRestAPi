@@ -66,8 +66,8 @@ public class Order{
 	    @Column(name = "forecast")
 	    private boolean forecast;
 	    
-	    @Column(name = "fullfilled")
-	    private boolean fullfilled;
+	    @Column(name = "fulfilled")
+	    private boolean fulfilled;
 		
 		public int getOrderId() {
 			return OrderId;
@@ -157,12 +157,12 @@ public class Order{
 		public void setForecast(boolean forecast) {
 			this.forecast = forecast;
 		}
+		public boolean isFulfilled() {
+			return fulfilled;
+		}
+		public void setFulfilled(boolean fulfilled) {
+			this.fulfilled = fulfilled;
+		}
 	    
-		public boolean isFullfilled() {
-			return fullfilled;
-		}
-		public void setFullfilled(boolean fullfilled) {
-			this.fullfilled = fullfilled;
-		}
 	
 }

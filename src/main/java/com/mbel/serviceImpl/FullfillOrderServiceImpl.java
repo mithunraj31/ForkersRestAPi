@@ -51,29 +51,18 @@ public class FullfillOrderServiceImpl {
 				if(!product.getProduct().isSet()) {
 					productStockCaluculate(product,mesageList,productId,quantityUpdate);
 				
-			}else {
-				int packageStockQuantity = 0,packageOrderdQunatity=0,packagecurrentQuantity=0;
-				packageStockQuantity =product.getProduct().getQuantity();
-				packageOrderdQunatity=product.getQuantity();
-				if(packageOrderdQunatity<=packageStockQuantity) {
-					packagecurrentQuantity=packageStockQuantity - packageOrderdQunatity;
-					product.getProduct().setQuantity(packagecurrentQuantity);
+			}else {				
 					FetchProductSetDto productSet = productServiceImpl.getProductSetById(productId);
 					for(ProductSetModel individualProduct:productSet.getProducts()) {
 						int individualproductId =individualProduct.getProduct().getProductId();
-						productSetStockCaluculate(product,mesageList,individualproductId,individualProduct,quantityUpdate);					
-						
+						productSetStockCaluculate(product,mesageList,individualproductId,individualProduct,quantityUpdate);							
 					}
 					quantityUpdate.put(productId,product.getProduct());
-					
-				}else {
-					mesageList.add("This product "+product.getProduct().getProductName()+" is out of stock");
-				}
 				
 			}
 				
 			}
-			if(mesageList.isEmpty() && (!order.isFullfilled())) {
+			if(mesageList.isEmpty() && (!order.isFulfilled())) {
 				updateOdrer(orderId);
 				Set<Entry<Integer, Product>>updateCurrentQuantity =quantityUpdate.entrySet();
 				for(Entry<Integer, Product> update:updateCurrentQuantity) {
@@ -90,7 +79,7 @@ public class FullfillOrderServiceImpl {
 
 	private void updateOdrer(@NotNull int orderId) {
 		Order order = orderDao.findById(orderId).get();
-		order.setFullfilled(true);
+		order.setFulfilled(true);
 		orderDao.save(order);
 		}
 

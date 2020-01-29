@@ -2,6 +2,8 @@ package com.mbel.dto;
 
 import java.util.List;
 
+import javax.persistence.Transient;
+
 import com.mbel.model.Customer;
 import com.mbel.model.OrderModel;
 

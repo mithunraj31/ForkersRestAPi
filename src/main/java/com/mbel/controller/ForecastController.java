@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mbel.dto.ForecastProductDto;
+import com.mbel.dto.PopulateOrderDto;
 import com.mbel.serviceImpl.ForecastServiceImpl;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -20,7 +20,7 @@ public class ForecastController {
 	ForecastServiceImpl forecastServiceImpl;
 	
 	@GetMapping("/order/forecast/")
-	public List<ForecastProductDto> orderForecast() {
+	public List<PopulateOrderDto> orderForecast() {
 		return forecastServiceImpl.getForecastOrderDetails();
 	}
 

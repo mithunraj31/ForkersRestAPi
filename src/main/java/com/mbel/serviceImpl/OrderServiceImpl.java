@@ -78,7 +78,7 @@ public class OrderServiceImpl  {
 			populate.setDueDate(order.getDueDate());
 			populate.setActive(order.isActive());
 			populate.setForecast(order.isForecast());
-			populate.setFullfilled(order.isFullfilled());
+			populate.setFulfilled(order.isFulfilled());
 			populate.setUser(userDao.findById(order.getUserId()).get());
 			populate.setSalesUser(userDao.findById(order.getSalesUserId()).get());
 			populate.setEditReason(order.getEditReason());
@@ -104,7 +104,7 @@ public class OrderServiceImpl  {
 		populate.setDueDate(order.getDueDate());
 		populate.setActive(order.isActive());
 		populate.setForecast(order.isForecast());
-		populate.setFullfilled(order.isFullfilled());
+		populate.setFulfilled(order.isFulfilled());
 		populate.setUser(userDao.findById(order.getUserId()).get());
 		populate.setSalesUser(userDao.findById(order.getSalesUserId()).get());
 		populate.setEditReason(order.getEditReason());
@@ -147,7 +147,7 @@ public class OrderServiceImpl  {
 		order.setUpdatedAt(LocalDateTime.now());
 		order.setActive(true);
 		order.setForecast(true);
-		order.setFullfilled(newOrderSet.isFullfilled());
+		order.setFulfilled(newOrderSet.isFulfilled());
 		order.setUserId(jwt.getUserdetails().getUserId());
 		order.setSalesUserId(newOrderSet.getSalesUserId());
 		order.setEditReason(newOrderSet.getEditReason());
@@ -184,7 +184,7 @@ public class OrderServiceImpl  {
 		order.setCreatedAt(LocalDateTime.now());
 		order.setActive(true);
 		order.setForecast(true);
-		order.setFullfilled(false);
+		order.setFulfilled(false);
 		order.setUserId(jwt.getUserdetails().getUserId());
 		order.setSalesUserId(newOrderSet.getSalesUserId());
 		order.setEditReason(newOrderSet.getEditReason());
