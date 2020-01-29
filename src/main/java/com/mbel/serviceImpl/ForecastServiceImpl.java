@@ -193,10 +193,12 @@ public class ForecastServiceImpl {
 		if(!productQuantityMap.containsKey(individualProduct.getProduct().getProductId())) {
 			updateOrder(unfulfilledorder,orderdQunatity,stockQuantity,mappingFields);
 			mappingFields.setCurrentQuantity(stockQuantity);
+			mappingFields.setAvailableStockQuantity(stockQuantity-orderdQunatity);
 			productQuantityMap.put(individualProduct.getProduct().getProductId(), mappingFields);
 		}else {
 			stockQuantity =productQuantityMap.get(individualProduct.getProduct().getProductId()).getCurrentQuantity();
-			updateOrder(unfulfilledorder,orderdQunatity,stockQuantity,mappingFields);
+			int availableStockQuantity = productQuantityMap.get(individualProduct.getProduct().getProductId()).getAvailableStockQuantity();
+			updateOrder(unfulfilledorder,orderdQunatity,availableStockQuantity,mappingFields);
 			previousOrderQuantity=productQuantityMap.get(individualProduct.getProduct().getProductId()).getRequiredQuantity();
 				mappingFields.setCurrentQuantity(stockQuantity-previousOrderQuantity);	
 			productQuantityMap.put(individualProduct.getProduct().getProductId(), mappingFields);
@@ -220,11 +222,13 @@ public class ForecastServiceImpl {
 		if(!productQuantityMap.containsKey(productId)) {
 			updateOrder(unfulfilledorder,orderdQunatity,stockQuantity,mappingFields);
 			mappingFields.setCurrentQuantity(stockQuantity);
+			mappingFields.setAvailableStockQuantity(stockQuantity-orderdQunatity);
 			productQuantityMap.put(productId, mappingFields);
 		}else {
 			stockQuantity =productQuantityMap.get(productId).getCurrentQuantity();
-			updateOrder(unfulfilledorder,orderdQunatity,stockQuantity,mappingFields);
+			int availableStockQuantity = productQuantityMap.get(productId).getAvailableStockQuantity();
 			previousOrderQuantity=productQuantityMap.get(productId).getRequiredQuantity();
+			updateOrder(unfulfilledorder,orderdQunatity,availableStockQuantity,mappingFields);
 			mappingFields.setCurrentQuantity((stockQuantity)-(previousOrderQuantity));
 			productQuantityMap.put(productId, mappingFields);
 			
@@ -254,6 +258,8 @@ class Mappingfields{
 	
 	private int requiredQuantity;
 	
+	private int availableStockQuantity;
+	
 	private boolean forecast;
 
 	public int getCurrentQuantity() {
@@ -278,6 +284,14 @@ class Mappingfields{
 
 	public void setForecast(boolean forecast) {
 		this.forecast = forecast;
+	}
+
+	public int getAvailableStockQuantity() {
+		return availableStockQuantity;
+	}
+
+	public void setAvailableStockQuantity(int availableStockQuantity) {
+		this.availableStockQuantity = availableStockQuantity;
 	}
 	
 	
