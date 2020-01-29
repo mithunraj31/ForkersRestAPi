@@ -200,7 +200,8 @@ public class ForecastServiceImpl {
 			int availableStockQuantity = productQuantityMap.get(individualProduct.getProduct().getProductId()).getAvailableStockQuantity();
 			updateOrder(unfulfilledorder,orderdQunatity,availableStockQuantity,mappingFields);
 			previousOrderQuantity=productQuantityMap.get(individualProduct.getProduct().getProductId()).getRequiredQuantity();
-				mappingFields.setCurrentQuantity(stockQuantity-previousOrderQuantity);	
+				mappingFields.setCurrentQuantity(stockQuantity-previousOrderQuantity);
+				mappingFields.setAvailableStockQuantity(availableStockQuantity);
 			productQuantityMap.put(individualProduct.getProduct().getProductId(), mappingFields);
 			
 		}
@@ -230,6 +231,7 @@ public class ForecastServiceImpl {
 			previousOrderQuantity=productQuantityMap.get(productId).getRequiredQuantity();
 			updateOrder(unfulfilledorder,orderdQunatity,availableStockQuantity,mappingFields);
 			mappingFields.setCurrentQuantity((stockQuantity)-(previousOrderQuantity));
+			mappingFields.setAvailableStockQuantity(availableStockQuantity);
 			productQuantityMap.put(productId, mappingFields);
 			
 		}
