@@ -7,7 +7,6 @@ public class FetchOrderdProducts   {
 	private FetchProductSetDto product;
 	
 	private int quantity;
-	
 
 	private int currentQuantity;
 	
