@@ -48,7 +48,6 @@ public class VerifyOrderServiceImpl {
 		Map<Product,Integer>productDetails=new HashMap<>();
 		Map<Integer,Mappingfields>productQuantityMap=new HashMap<>();
 		for(Order unfulfilledorder:sortedOrder) {
-			List<FetchOrderdProducts> fetchOrderedproductsList =new ArrayList<>();
 			PopulateOrderDto order=orderServiceImpl.getOrderById(unfulfilledorder.getOrderId());
 			List<FetchOrderdProducts> orderdProducts = order.getOrderedProducts();
 			FetchProductSetDto productSet =new FetchProductSetDto();
@@ -155,14 +154,6 @@ public class VerifyOrderServiceImpl {
 				.filter(predicate->predicate.isFulfilled()==false 
 				&& predicate.getDueDate().isBefore(dueDate) || predicate.getDueDate().isEqual(dueDate))
 				.collect(Collectors.toList());
-//		for(Order orderCheck:order) {
-//			if(!orderCheck.isFulfilled()&&orderCheck.getDueDate().isBefore(dueDate)
-//					||orderCheck.getDueDate().isEqual(dueDate)) {
-//				dueDateOrders.add(orderCheck);
-//				
-//			}
-//		}
-//		return dueDateOrders;
 }
 	
 
