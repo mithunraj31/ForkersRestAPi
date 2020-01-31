@@ -90,7 +90,7 @@ public class ForecastServiceImpl {
 			Set<Entry<Product, Integer>>productMap=productDetails.entrySet();
 			for(Entry<Product, Integer> update:productMap) {
 				FetchOrderdProducts fetchOrderedproducts = new FetchOrderdProducts();
-				fetchOrderedproducts.setProduct(productDetails(update,productQuantityMap,unfulfilledorder));
+				fetchOrderedproducts.setProduct(productFetch(update,productQuantityMap,unfulfilledorder));
 				fetchOrderedproducts.setQuantity(productDetails.get(update.getKey()));
 				if(!update.getKey().isSet()) {
 				fetchOrderedproducts.setQuantity(productQuantityMap.get(update.getKey().getProductId()).getRequiredQuantity());
@@ -99,6 +99,7 @@ public class ForecastServiceImpl {
 				fetchOrderedproducts.setForecast(productQuantityMap.get(update.getKey().getProductId()).isForecast());
 				fetchOrderedproducts.setMod(unfulfilledorder.getDueDate().minusWeeks(update.getKey().getLeadTime()+1));
 				}
+				fetchOrderedproducts.setForecast(productQuantityMap.get(update.getKey().getProductId()).isForecast());
 				fetchOrderedproductsList.add(fetchOrderedproducts);
 			}
 			forecastProductDto.setOrderedProducts(fetchOrderedproductsList);
@@ -122,10 +123,20 @@ public class ForecastServiceImpl {
 
 		}else {
 				 productSet = productServiceImpl.getProductSetById(productId);
+				 List<String>forecastPackage =new ArrayList<>();
+				 Mappingfields mappingPackage =new Mappingfields();
 				for(ProductSetModel individualProduct:productSet.getProducts()) {
 					productSetStockCaluculate(product,individualProduct,unfulfilledorder,
-							productDetails,productQuantityMap,forecastOrder,incomingShipmentMap,forecastString);
+							productDetails,productQuantityMap,forecastOrder,incomingShipmentMap,forecastString,forecastPackage);
 			}
+				if(forecastPackage.contains("false")) {
+					mappingPackage.setForecast(false);
+				productQuantityMap.put(productId,mappingPackage);
+				}else {
+					mappingPackage.setForecast(true);
+					productQuantityMap.put(productId,mappingPackage);
+					
+				}
 		}
 
 	
@@ -145,7 +156,7 @@ public class ForecastServiceImpl {
 		
 	}
 
-	private FetchProductSetDto productDetails(Entry<Product, Integer> update, Map<Integer, Mappingfields> productQuantityMap, Order unfulfilledorder) {
+	private FetchProductSetDto productFetch(Entry<Product, Integer> update, Map<Integer, Mappingfields> productQuantityMap, Order unfulfilledorder) {
 		Product proCheck = update.getKey();
 		List<ProductSetModel> productList = new ArrayList<>();
 		FetchProductSetDto componentSet= new FetchProductSetDto();
@@ -207,7 +218,7 @@ public class ForecastServiceImpl {
 
 	public void productSetStockCaluculate(FetchOrderdProducts product,
 			ProductSetModel individualProduct,Order unfulfilledorder, Map<Product, Integer> productDetails,
-			Map<Integer, Mappingfields> productQuantityMap, Map<Integer, Boolean> forecastOrder, Map<Integer, List<Integer>> incomingShipmentMap,List<String> forecastString) {
+			Map<Integer, Mappingfields> productQuantityMap, Map<Integer, Boolean> forecastOrder, Map<Integer, List<Integer>> incomingShipmentMap,List<String> forecastString, List<String> forecastPackage) {
 		Mappingfields mappingFields =new Mappingfields();
 		int stockQuantity=0, orderdQunatity = 0,previousOrderQuantity = 0,tillDateQuantity=0;
 		orderdQunatity=product.getQuantity()*individualProduct.getQuantity();
@@ -216,6 +227,7 @@ public class ForecastServiceImpl {
 		if(!productQuantityMap.containsKey(individualProduct.getProduct().getProductId())) {
 			tillDateQuantity =getTillDateQuantity(individualProduct.getProduct(),stockQuantity,unfulfilledorder,mappingFields,incomingShipmentMap);
 			updateOrder(unfulfilledorder,orderdQunatity,tillDateQuantity,mappingFields,forecastString);
+			forecastPackage.add(String.valueOf(mappingFields.isForecast()));
 			mappingFields.setCurrentQuantity(tillDateQuantity);
 			mappingFields.setAvailableStockQuantity(tillDateQuantity-orderdQunatity);
 			productQuantityMap.put(individualProduct.getProduct().getProductId(), mappingFields);
@@ -225,6 +237,7 @@ public class ForecastServiceImpl {
 			tillDateQuantity =getTillDateQuantity(individualProduct.getProduct(),availableStockQuantity,unfulfilledorder,mappingFields,incomingShipmentMap);
 			previousOrderQuantity=productQuantityMap.get(individualProduct.getProduct().getProductId()).getRequiredQuantity();
 			updateOrder(unfulfilledorder,orderdQunatity,tillDateQuantity,mappingFields,forecastString);
+			forecastPackage.add(String.valueOf(mappingFields.isForecast()));
 				mappingFields.setCurrentQuantity(tillDateQuantity);
 				mappingFields.setAvailableStockQuantity(tillDateQuantity-orderdQunatity);
 			productQuantityMap.put(individualProduct.getProduct().getProductId(), mappingFields);
