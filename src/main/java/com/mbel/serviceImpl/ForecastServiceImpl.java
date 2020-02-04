@@ -101,7 +101,7 @@ public class ForecastServiceImpl {
 				fetchOrderedproducts.setCurrentQuantity(update.getValue().get(i).getCurrentQuantity());
 				fetchOrderedproducts.setRequiredQuantity(update.getValue().get(i).getRequiredQuantity());
 				fetchOrderedproducts.setForecast(update.getValue().get(i).isForecast());
-				fetchOrderedproducts.setMod(unfulfilledorder.getDueDate().minusWeeks(update.getValue().get(i).getProduct().getLeadTime()+1));
+				fetchOrderedproducts.setMod(unfulfilledorder.getDueDate().minusWeeks(update.getValue().get(i).getProduct().getLeadTime()+3));
 				fetchOrderedproductsList.add(fetchOrderedproducts);
 				}
 			    }else {
@@ -209,7 +209,7 @@ public FetchProductSetDto productPackageFetch(Product statusCheck, List<Mappingf
 		productSetModel.setCurrentQuantity(productValue.get(i).getCurrentQuantity());
 		productSetModel.setRequiredQuantity(productValue.get(i).getRequiredQuantity());
 		productSetModel.setForecast(productValue.get(i).isForecast());
-		productSetModel.setMod(unfulfilledorder.getDueDate().minusWeeks(productValue.get(i).getProduct().getLeadTime()+1));
+		productSetModel.setMod(unfulfilledorder.getDueDate().minusWeeks(productValue.get(i).getProduct().getLeadTime()+3));
 		productList.add(productSetModel);
 	}
 	componentSet.setProducts(productList);
