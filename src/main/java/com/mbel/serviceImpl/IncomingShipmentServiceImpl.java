@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -50,6 +51,7 @@ public class IncomingShipmentServiceImpl  {
 		incomingShipment.setShipmentNo(newIncomingShipment.getShipmentNo());
 		incomingShipment.setUpdatedAt(LocalDateTime.now());
 		incomingShipment.setUserId(jwt.getUserdetails().getUserId());
+		incomingShipment.setArrived(false);
 		IncomingShipment incomeShipment= incomingShipmentDao.save(incomingShipment);
 		int shipmentId =incomeShipment.getIncomingShipmentId();		
 		int size = newIncomingShipment.getProducts().size();
@@ -77,6 +79,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingDto.setUpdatedAt(incoming.getUpdatedAt());
 			incomingDto.setUser(userDao.findById(incoming.getUserId()).get());
 			incomingDto.setShipmentNo(incoming.getShipmentNo());
+			incomingDto.setArrived(incoming.isArrived());
 			incomingShipmentDtoList.add(incomingDto);
 		}
 		
@@ -108,6 +111,7 @@ public class IncomingShipmentServiceImpl  {
 		incomingDto.setUpdatedAt(incoming.getUpdatedAt());
 		incomingDto.setUser(userDao.findById(incoming.getUserId()).get());
 		incomingDto.setShipmentNo(incoming.getShipmentNo());
+		incomingDto.setArrived(incoming.isArrived());
 		
 		return incomingDto;
 	}
@@ -129,6 +133,7 @@ public class IncomingShipmentServiceImpl  {
 		incomingShipment.setUpdatedAt(LocalDateTime.now());
 		incomingShipment.setUserId(jwt.getUserdetails().getUserId());
 		incomingShipment.setShipmentNo(incomingShipmentDetails.getShipmentNo());
+		incomingShipment.setArrived(incomingShipmentDetails.isArrived());
 		IncomingShipment incomingShipmentUpdate= incomingShipmentDao.save(incomingShipment);
 		 incomingShipmentProductDao.deleteByShipmentId(incomingShipmentId);
 			int size = incomingShipmentDetails.getProducts().size();
@@ -142,6 +147,14 @@ public class IncomingShipmentServiceImpl  {
 			}
 			return incomingShipmentUpdate;
 
+	}
+
+	public List<PopulateIncomingShipmentDto> getAllUnarrivedIncomingShipment() {
+		List<PopulateIncomingShipmentDto> incomingShipmentDtoList =getAllIncomingShipment();
+		return incomingShipmentDtoList.stream()
+		.filter(predicate->predicate.isArrived()==false)
+		.collect(Collectors.toList());
+		 
 	}
 
 }

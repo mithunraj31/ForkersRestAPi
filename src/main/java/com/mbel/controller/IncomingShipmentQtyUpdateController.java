@@ -22,8 +22,8 @@ public class IncomingShipmentQtyUpdateController {
 	@PostMapping("/shipment/incoming/arrival/")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void updateIncomingShipment(@RequestBody IncomingProductUpdate incomingProductUpdate) {
-		if(incomingProductUpdate.isArrived()){
-		 incomingShipmentQtyUpdateServiceImpl.updateQuantity(incomingProductUpdate.getShipmentId());
+		if(incomingProductUpdate.isArrival()){
+		  incomingShipmentQtyUpdateServiceImpl.updateQuantity(incomingProductUpdate.getIncomingShipmentId());
 		}
 	}
 
@@ -31,25 +31,26 @@ public class IncomingShipmentQtyUpdateController {
 
 class IncomingProductUpdate {
 	
-	private int shipmentId;
+	private int incomingShipmentId;
 	
-	private boolean arrived;
+	private boolean arrival;
 
-	public int getShipmentId() {
-		return shipmentId;
+	public int getIncomingShipmentId() {
+		return incomingShipmentId;
 	}
 
-	public void setShipmentId(int shipmentId) {
-		this.shipmentId = shipmentId;
+	public void setIncomingShipmentId(int incomingShipmentId) {
+		this.incomingShipmentId = incomingShipmentId;
 	}
 
-	public boolean isArrived() {
-		return arrived;
+	public boolean isArrival() {
+		return arrival;
 	}
 
-	public void setArrived(boolean arrived) {
-		this.arrived = arrived;
+	public void setArrival(boolean arrival) {
+		this.arrival = arrival;
 	}
+
 	
 	
 	

@@ -35,6 +35,9 @@ public class IncomingShipment {
 
 	@Column(name = "user_id")
 	private int userId;
+	
+	@Column(name = "arrived")
+	private boolean arrived;
 
 
 	public int getIncomingShipmentId() {
@@ -86,9 +89,13 @@ public class IncomingShipment {
 		this.userId = userId;
 	}
 
-	
-	
-	
-	
+	public boolean isArrived() {
+		return arrived;
+	}
+
+	public void setArrived(boolean arrived) {
+		this.arrived = arrived;
+	}
+
 
 }
