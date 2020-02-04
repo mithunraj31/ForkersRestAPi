@@ -19,6 +19,8 @@ public class IncomingShipmentModel {
 	private LocalDateTime updatedAt;
 
 	private UserEntity user;
+	
+	private boolean arrived;
 
 
 	public int getIncomingShipmentId() {
@@ -72,6 +74,16 @@ public class IncomingShipmentModel {
 
 	public void setShipmentNo(String shipmentNo) {
 		this.shipmentNo = shipmentNo;
+	}
+
+
+	public boolean isArrived() {
+		return arrived;
+	}
+
+
+	public void setArrived(boolean arrived) {
+		this.arrived = arrived;
 	}
 
 	
