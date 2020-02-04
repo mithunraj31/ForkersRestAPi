@@ -11,6 +11,8 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.mbel.dao.OrderDao;
@@ -41,7 +43,7 @@ public class FullfillOrderServiceImpl {
 	@Autowired
 	OrderDao orderDao;
 
-	public List<String> getFullfillOrder(@NotNull int orderId) {
+	public ResponseEntity<Map<String, List<String>>> getFullfillOrder(@NotNull int orderId) {
 		PopulateOrderDto order=orderServiceImpl.getOrderById(orderId);
 		List<String> mesageList =new ArrayList<>();
 		Map<Integer,Product>quantityUpdate=new HashMap<>();
@@ -70,7 +72,15 @@ public class FullfillOrderServiceImpl {
 				}
 			}
 		
-		return mesageList;
+		Map<String, List<String> > response = new HashMap<>();
+		if(!mesageList.isEmpty()) {
+		 response.put("Cannot Fullfill due to the following Products Unavailablity", mesageList);
+		 return new ResponseEntity<Map<String,List<String>>>(response, HttpStatus.NOT_ACCEPTABLE);
+	}else {
+		response.put("Order Fullfilled", mesageList);
+		 return new ResponseEntity<Map<String,List<String>>>(response, HttpStatus.ACCEPTED);
+		
+	}
 		
 	}
 	

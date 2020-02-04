@@ -1,8 +1,10 @@
 package com.mbel.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +24,7 @@ public class FullfillOrder {
 	
 	
 	@PostMapping("/order/fulfillment/")
-	public List<String> fullfilledOrder(@RequestBody FullfillRequestBody requestBody) {
+	public ResponseEntity<Map<String, List<String>>> fullfilledOrder(@RequestBody FullfillRequestBody requestBody) {
 		if(requestBody.isFulfillment()) {
 		return fullfillOrderServiceImpl.getFullfillOrder(requestBody.getOrderId());
 		}

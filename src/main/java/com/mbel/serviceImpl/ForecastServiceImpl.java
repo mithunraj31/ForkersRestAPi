@@ -2,7 +2,6 @@ package com.mbel.serviceImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -247,7 +246,7 @@ public FetchProductSetDto productPackageFetch(Product statusCheck, List<Mappingf
 		mappingFields.setSet(true);
 		stockQuantity=individualProduct.getProduct().getQuantity();
 		if(!productQuantityMap.containsKey(individualProduct.getProduct().getProductId())) {
-			tillDateQuantity =getTillDateQuantity(individualProduct.getProduct(),stockQuantity,unfulfilledorder,mappingFields,incomingShipmentMap);
+			tillDateQuantity =getTillDateQuantity(individualProduct.getProduct(),stockQuantity,unfulfilledorder.getDueDate(),mappingFields,incomingShipmentMap);
 			updateOrder(unfulfilledorder,orderdQunatity,tillDateQuantity,mappingFields,forecastString);
 			forecastPackage.add(String.valueOf(mappingFields.isForecast()));
 			mappingFields.setCurrentQuantity(tillDateQuantity);
@@ -256,7 +255,7 @@ public FetchProductSetDto productPackageFetch(Product statusCheck, List<Mappingf
 		}else {
 			stockQuantity=productQuantityMap.get(individualProduct.getProduct().getProductId()).getCurrentQuantity();
 			int availableStockQuantity = productQuantityMap.get(individualProduct.getProduct().getProductId()).getAvailableStockQuantity();
-			tillDateQuantity =getTillDateQuantity(individualProduct.getProduct(),availableStockQuantity,unfulfilledorder,mappingFields,incomingShipmentMap);
+			tillDateQuantity =getTillDateQuantity(individualProduct.getProduct(),availableStockQuantity,unfulfilledorder.getDueDate(),mappingFields,incomingShipmentMap);
 			previousOrderQuantity=productQuantityMap.get(individualProduct.getProduct().getProductId()).getRequiredQuantity();
 			updateOrder(unfulfilledorder,orderdQunatity,tillDateQuantity,mappingFields,forecastString);
 			forecastPackage.add(String.valueOf(mappingFields.isForecast()));
@@ -284,7 +283,7 @@ public FetchProductSetDto productPackageFetch(Product statusCheck, List<Mappingf
 		mappingFields.setOrderdQuantity(orderdQunatity);
 		mappingFields.setRequiredQuantity(orderdQunatity);
 		if(!productQuantityMap.containsKey(productId)) {
-			tillDateQuantity =getTillDateQuantity(productValue.get(),stockQuantity,unfulfilledorder,mappingFields,incomingShipmentMap);
+			tillDateQuantity =getTillDateQuantity(productValue.get(),stockQuantity,unfulfilledorder.getDueDate(),mappingFields,incomingShipmentMap);
 			updateOrder(unfulfilledorder,orderdQunatity,tillDateQuantity,mappingFields,forecastString);
 			mappingFields.setCurrentQuantity(tillDateQuantity);
 			mappingFields.setAvailableStockQuantity(tillDateQuantity-orderdQunatity);
@@ -292,7 +291,7 @@ public FetchProductSetDto productPackageFetch(Product statusCheck, List<Mappingf
 		}else {
 			stockQuantity=productQuantityMap.get(productId).getCurrentQuantity();
 			int availableStockQuantity = productQuantityMap.get(productId).getAvailableStockQuantity();
-			tillDateQuantity =getTillDateQuantity(productValue.get(),availableStockQuantity,unfulfilledorder,mappingFields,incomingShipmentMap);
+			tillDateQuantity =getTillDateQuantity(productValue.get(),availableStockQuantity,unfulfilledorder.getDueDate(),mappingFields,incomingShipmentMap);
 			previousOrderQuantity=productQuantityMap.get(productId).getRequiredQuantity();
 			updateOrder(unfulfilledorder,orderdQunatity,tillDateQuantity,mappingFields,forecastString);
 			mappingFields.setCurrentQuantity(tillDateQuantity);
@@ -325,13 +324,13 @@ public FetchProductSetDto productPackageFetch(Product statusCheck, List<Mappingf
 		}
 	}
 
-	public int getTillDateQuantity(Product newproduct, int stockQuantity, Order unfulfilledorder, Mappingfields mappingFields, Map<Integer, List<Integer>> incomingShipmentMap) {
+	public int getTillDateQuantity(Product newproduct, int stockQuantity, LocalDateTime dueDate, Mappingfields mappingFields, Map<Integer, List<Integer>> incomingShipmentMap) {
 		List<Integer>incomingOrderList=new ArrayList<>();
 		int tillDateQuantity = stockQuantity;
 		List<PopulateIncomingShipmentDto> incomingShipmentList=incomingShipmentServiceImpl.getAllUnarrivedIncomingShipment();
 		List<PopulateIncomingShipmentDto> arrivedOrderList =
-		incomingShipmentList.stream().filter(predicate->predicate.getArrivalDate().isBefore(unfulfilledorder.getDueDate())
-				||predicate.getArrivalDate().isEqual(unfulfilledorder.getDueDate()))
+		incomingShipmentList.stream().filter(predicate->predicate.getArrivalDate().isBefore(dueDate)
+				||predicate.getArrivalDate().isEqual(dueDate))
 		        .collect(Collectors.toList());
 		for(PopulateIncomingShipmentDto arrivedOrder:arrivedOrderList) {
 			for(FetchIncomingOrderdProducts incomingProduct: arrivedOrder.getProducts()) {
