@@ -23,12 +23,10 @@ public class Customer {
 	@Column(name = "customer_name")
 	private String customerName;
 
-	@NotEmpty(message="* Please Enter zip")
 	@Size(min=7, max=7)
 	@Column(name = "zip")
 	private String zip;
 
-	@NotEmpty(message="* Please Enter address")
 	@Column(name = "address")
 	private String address;
 

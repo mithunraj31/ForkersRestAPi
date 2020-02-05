@@ -69,12 +69,16 @@ public class CustomerServiceImpl  {
 	}
 
 	public ResponseEntity<Map<String, String>> deleteCustomerById(int customerId) {
-		Customer customer = customerDao.findById(customerId).get();
+		Optional<Customer> customerValue = customerDao.findById(customerId);
+		if(customerValue.isPresent()) {
+			Customer customer = customerValue.get();
 		customer.setActive(false);
 		 customerDao.save(customer); 
+		}
 		 Map<String, String> response = new HashMap<>();
 		 response.put("message", "Customer has been deleted");
 		 response.put("customerId", String.valueOf(customerId));
+		
 		 
 		 return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
 	}
