@@ -21,6 +21,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.mbel.config.JwtAuthenticationFilter;
+import com.mbel.config.TokenProvider;
 import com.mbel.dao.UserDao;
 import com.mbel.dto.UserDto;
 import com.mbel.model.UserEntity;
@@ -34,6 +36,8 @@ public class UserServiceImpl implements UserDetailsService {
 
 	@Autowired
 	private BCryptPasswordEncoder bcryptEncoder;
+	
+	
 
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		UserEntity user = userDao.findByEmail(username);
@@ -67,17 +71,6 @@ public class UserServiceImpl implements UserDetailsService {
 	}
 
 
-	
-    public UserEntity save(UserDto user) {
-		UserEntity newUser = new UserEntity();
-	    newUser.setFirstName(user.getFirstName());
-	    newUser.setLastName(user.getLastName());
-	    newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
-		newUser.setEmail(user.getEmail());
-		newUser.setRoleId(user.getRoleId());
-        return userDao.save(newUser);
-    }
-
 	public Optional<UserEntity> findById(int userId) {
 		return userDao.findById(userId);
 	}
@@ -101,4 +94,6 @@ public class UserServiceImpl implements UserDetailsService {
 		 return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
 	
 	}
+
+
 }

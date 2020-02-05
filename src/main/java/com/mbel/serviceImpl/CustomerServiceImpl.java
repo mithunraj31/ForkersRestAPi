@@ -12,30 +12,36 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.mbel.config.JwtAuthenticationFilter;
 import com.mbel.dao.CustomerDao;
+import com.mbel.dao.UserDao;
 import com.mbel.model.Customer;
+import com.mbel.model.UserEntity;
 
 
 @Service("CustomerServiceImpl")
 public class CustomerServiceImpl  {
-	
+
 	@Autowired
-	 CustomerDao customerDao; 
-	
-	 @Autowired
-	 JwtAuthenticationFilter jwt;
-	
-	
+	CustomerDao customerDao; 
+
+	@Autowired
+	JwtAuthenticationFilter jwt;
+
 	public Customer save(Customer newCustomer) {
 		newCustomer.setCreatedAtDateTime(LocalDateTime.now());
 		newCustomer.setUpdatedAtDateTime(LocalDateTime.now());	
 		newCustomer.setUserId(jwt.getUserdetails().getUserId());
 		newCustomer.setActive(true);
 		return customerDao.save(newCustomer);
-		
+
 	}
 
 	public List<Customer> getAllCustomers() {
@@ -47,11 +53,11 @@ public class CustomerServiceImpl  {
 			}
 		}
 		return activeCustomer;
-		
+
 	}
 
 	public Optional<Customer> getCustomerById(int customerId) {
-		 return customerDao.findById(customerId);
+		return customerDao.findById(customerId);
 	}
 
 	public Customer getupdateCustomerById(int customerId, @Valid Customer customerDetails) {
@@ -72,17 +78,19 @@ public class CustomerServiceImpl  {
 		Optional<Customer> customerValue = customerDao.findById(customerId);
 		if(customerValue.isPresent()) {
 			Customer customer = customerValue.get();
-		customer.setActive(false);
-		 customerDao.save(customer); 
+			customer.setActive(false);
+			customerDao.save(customer); 
 		}
-		 Map<String, String> response = new HashMap<>();
-		 response.put("message", "Customer has been deleted");
-		 response.put("customerId", String.valueOf(customerId));
-		
-		 
-		 return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
+		Map<String, String> response = new HashMap<>();
+		response.put("message", "Customer has been deleted");
+		response.put("customerId", String.valueOf(customerId));
+
+
+		return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
 	}
 
-
 }
+
+
+
 
