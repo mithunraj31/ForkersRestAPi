@@ -23,7 +23,6 @@ public class Customer {
 	@Column(name = "customer_name")
 	private String customerName;
 
-	@Size(min=7, max=7)
 	@Column(name = "zip")
 	private String zip;
 
