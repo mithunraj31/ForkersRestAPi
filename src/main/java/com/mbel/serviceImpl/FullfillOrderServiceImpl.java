@@ -67,7 +67,7 @@ public class FullfillOrderServiceImpl {
 			}
 				
 			}
-			if(insufficientMap.isEmpty() && (!order.isFulfilled())) {
+			if(productSetModelList.isEmpty() && (!order.isFulfilled())) {
 				Set<Entry<Integer, Product>>updateCurrentQuantity =quantityUpdate.entrySet();
 				for(Entry<Integer, Product> update:updateCurrentQuantity) {
 					productServiceImpl.getupdateById(update.getKey(), update.getValue());
@@ -136,7 +136,6 @@ public class FullfillOrderServiceImpl {
 
 	private void updateInsuffientProduct(Map<Integer, List<ProductSetModel>> insufficientMap,
 			int productId, Product product, int orderdQunatity, List<ProductSetModel> productSetModelList) {
-		if(!insufficientMap.containsKey(productId)) {
 			ProductSetModel productSetModel = new ProductSetModel();
 			productSetModel.setProduct(product);
 			productSetModel.setCurrentQuantity(product.getQuantity());
@@ -148,6 +147,6 @@ public class FullfillOrderServiceImpl {
 		}
 		
 		
-	}
+	
 
 }
