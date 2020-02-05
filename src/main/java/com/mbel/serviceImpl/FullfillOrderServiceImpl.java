@@ -73,10 +73,10 @@ public class FullfillOrderServiceImpl {
 					productServiceImpl.getupdateById(update.getKey(), update.getValue());
 				}
 				updateOdrer(orderId);
-				response.put("Order Fullfilled", productSetModelList);
+				response.put("fulfilled", productSetModelList);
 				 return new ResponseEntity<Map<String,List<ProductSetModel>>>(response, HttpStatus.ACCEPTED);
 			}else {
-		 response.put("Cannot Fullfill due to the following Products Unavailablity", productSetModelList);
+		 response.put("unfulfilled", productSetModelList);
 		 return new ResponseEntity<Map<String,List<ProductSetModel>>>(response, HttpStatus.NOT_ACCEPTABLE);
 	
 			}
