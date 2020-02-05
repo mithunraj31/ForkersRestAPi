@@ -66,14 +66,14 @@ public class RegistrationServiceImpl {
 			response.put("message", "New Password cannot be same as Old Password.");
 			response.put("userName", newUser.getFirstName());
 
-			return new ResponseEntity<Map<String,String>>(response, HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<Map<String,String>>(response, HttpStatus.BAD_REQUEST);
 			
 		}
 		else {
 			response.put("message", "New Password and Confirm Password doesnt match.");
 			response.put("userName", newUser.getFirstName());
 
-			return new ResponseEntity<Map<String,String>>(response, HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<Map<String,String>>(response, null);
 
 		}
 
