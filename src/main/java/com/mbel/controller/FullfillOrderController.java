@@ -11,12 +11,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mbel.model.ProductSetModel;
 import com.mbel.serviceImpl.FullfillOrderServiceImpl;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/mbel")
-public class FullfillOrder {
+public class FullfillOrderController {
 	
 	@Autowired
 	FullfillOrderServiceImpl fullfillOrderServiceImpl;
@@ -24,7 +25,7 @@ public class FullfillOrder {
 	
 	
 	@PostMapping("/order/fulfillment/")
-	public ResponseEntity<Map<String, List<String>>> fullfilledOrder(@RequestBody FullfillRequestBody requestBody) {
+	public ResponseEntity<Map<String, List<ProductSetModel>>> fullfilledOrder(@RequestBody FullfillRequestBody requestBody) {
 		if(requestBody.isFulfillment()) {
 		return fullfillOrderServiceImpl.getFullfillOrder(requestBody.getOrderId());
 		}

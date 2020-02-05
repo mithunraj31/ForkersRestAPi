@@ -1,5 +1,6 @@
 package com.mbel.serviceImpl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,44 +44,42 @@ public class FullfillOrderServiceImpl {
 	@Autowired
 	OrderDao orderDao;
 
-	public ResponseEntity<Map<String, List<String>>> getFullfillOrder(@NotNull int orderId) {
+	public ResponseEntity<Map<String, List<ProductSetModel>>> getFullfillOrder(@NotNull int orderId) {
 		PopulateOrderDto order=orderServiceImpl.getOrderById(orderId);
-		List<String> mesageList =new ArrayList<>();
+		List<ProductSetModel> productSetModelList = new ArrayList<>();
+		Map<String, List<ProductSetModel>> response = new HashMap<>();
+		Map<Integer,List<ProductSetModel>>insufficientMap=new HashMap<>();
 		Map<Integer,Product>quantityUpdate=new HashMap<>();
 			List<FetchOrderdProducts> orderdProducts = order.getOrderedProducts();
 			for(FetchOrderdProducts product:orderdProducts) {
 				int productId = product.getProduct().getProductId();
 				if(!product.getProduct().isSet()) {
-					productStockCaluculate(product,mesageList,productId,quantityUpdate);
+					productStockCaluculate(product,insufficientMap,productId,quantityUpdate,productSetModelList);
 				
 			}else {				
 					FetchProductSetDto productSet = productServiceImpl.getProductSetById(productId);
 					for(ProductSetModel individualProduct:productSet.getProducts()) {
 						int individualproductId =individualProduct.getProduct().getProductId();
-						productSetStockCaluculate(product,mesageList,individualproductId,individualProduct,quantityUpdate);							
+						productSetStockCaluculate(product,insufficientMap,individualproductId,individualProduct,quantityUpdate,productSetModelList);							
 					}
 					quantityUpdate.put(productId,product.getProduct());
 				
 			}
 				
 			}
-			if(mesageList.isEmpty() && (!order.isFulfilled())) {
-				updateOdrer(orderId);
+			if(insufficientMap.isEmpty() && (!order.isFulfilled())) {
 				Set<Entry<Integer, Product>>updateCurrentQuantity =quantityUpdate.entrySet();
 				for(Entry<Integer, Product> update:updateCurrentQuantity) {
 					productServiceImpl.getupdateById(update.getKey(), update.getValue());
 				}
+				updateOdrer(orderId);
+				response.put("Order Fullfilled", productSetModelList);
+				 return new ResponseEntity<Map<String,List<ProductSetModel>>>(response, HttpStatus.ACCEPTED);
+			}else {
+		 response.put("Cannot Fullfill due to the following Products Unavailablity", productSetModelList);
+		 return new ResponseEntity<Map<String,List<ProductSetModel>>>(response, HttpStatus.NOT_ACCEPTABLE);
+	
 			}
-		
-		Map<String, List<String> > response = new HashMap<>();
-		if(!mesageList.isEmpty()) {
-		 response.put("Cannot Fullfill due to the following Products Unavailablity", mesageList);
-		 return new ResponseEntity<Map<String,List<String>>>(response, HttpStatus.NOT_ACCEPTABLE);
-	}else {
-		response.put("Order Fullfilled", mesageList);
-		 return new ResponseEntity<Map<String,List<String>>>(response, HttpStatus.ACCEPTED);
-		
-	}
 		
 	}
 	
@@ -96,8 +95,8 @@ public class FullfillOrderServiceImpl {
 
 
 
-	public void productSetStockCaluculate(FetchOrderdProducts product, List<String> mesageList,
-			int individualproductId, ProductSetModel individualProduct, Map<Integer, Product> quantityUpdate) {
+	public void productSetStockCaluculate(FetchOrderdProducts product, Map<Integer, List<ProductSetModel>> insufficientMap,
+			int individualproductId, ProductSetModel individualProduct, Map<Integer, Product> quantityUpdate, List<ProductSetModel> productSetModelList) {
 		int stockQuantity = 0,orderdQunatity = 0,currentQuantity = 0;
 			stockQuantity =individualProduct.getProduct().getQuantity();			
 			orderdQunatity=product.getQuantity()*individualProduct.getQuantity();
@@ -107,13 +106,14 @@ public class FullfillOrderServiceImpl {
 			 quantityUpdate.put(individualproductId,individualProduct.getProduct());
 			
 		}else {
-			mesageList.add("This product "+individualProduct.getProduct().getProductName()+" is out of stock");
+			updateInsuffientProduct(insufficientMap,individualproductId, individualProduct.getProduct(),orderdQunatity,productSetModelList);
 		}
 	}
 
 
 
-	public void productStockCaluculate(FetchOrderdProducts product, List<String> mesageList, int productId, Map<Integer, Product> quantityUpdate) {
+	public void productStockCaluculate(FetchOrderdProducts product, Map<Integer, List<ProductSetModel>> insufficientMap, int productId,
+			Map<Integer, Product> quantityUpdate, List<ProductSetModel> productSetModelList) {
 		int stockQuantity = 0,orderdQunatity = 0,currentQuantity = 0;
 		Optional<Product> productValue = productDao.findById(productId);
 		if(productValue.isPresent()) {
@@ -127,8 +127,27 @@ public class FullfillOrderServiceImpl {
 			quantityUpdate.put(productId, productValue.get());
 			
 		}else {
-			mesageList.add("This product "+productValue.get().getProductName()+" is out of stock");
+			updateInsuffientProduct(insufficientMap,productId, productValue.get(),orderdQunatity,productSetModelList);
 		}
+	}
+
+
+
+
+	private void updateInsuffientProduct(Map<Integer, List<ProductSetModel>> insufficientMap,
+			int productId, Product product, int orderdQunatity, List<ProductSetModel> productSetModelList) {
+		if(!insufficientMap.containsKey(productId)) {
+			ProductSetModel productSetModel = new ProductSetModel();
+			productSetModel.setProduct(product);
+			productSetModel.setCurrentQuantity(product.getQuantity());
+			productSetModel.setForecast(false);
+			productSetModel.setMod(LocalDateTime.now().minusWeeks(product.getLeadTime()+3));
+			productSetModel.setQuantity(orderdQunatity);
+			productSetModel.setRequiredQuantity(orderdQunatity);
+			productSetModelList.add(productSetModel);
+		}
+		
+		
 	}
 
 }
