@@ -118,7 +118,7 @@ public class OrderServiceImpl  {
 	}
 
 
-	private List<FetchOrderdProducts> getAllProducts(int orderId) {
+	public List<FetchOrderdProducts> getAllProducts(int orderId) {
 		List<FetchOrderdProducts> orderProductList = new ArrayList<>();
 		List<Map<Object, Object>> orderList=orderProductDao.getByOrderId(orderId);
 		for(int i=0;i<orderList.size();i++) {

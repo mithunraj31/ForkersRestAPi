@@ -93,7 +93,7 @@ public class VerifyOrderServiceImpl {
 			}
 		}
 		Map<String, List<ProductSetModel> > response = new HashMap<>();
-		if( productSetModelList.size()>0) {			
+		if(! productSetModelList.isEmpty()) {			
 		 response.put("Following Products cannot be delivered", productSetModelList);
 		 return new ResponseEntity<Map<String,List<ProductSetModel>>>(response, HttpStatus.NOT_ACCEPTABLE);
 		}else {
@@ -174,16 +174,14 @@ public class VerifyOrderServiceImpl {
 		mappingFields.setSet(true);
 		stockQuantity=individualProduct.getProduct().getQuantity();
 		if(!productQuantityMap.containsKey(individualProduct.getProduct().getProductId())) {
-			tillDateQuantity =forecastServiceImpl.getTillDateQuantity(individualProduct.getProduct(),stockQuantity,dueDate,mappingFields,incomingShipmentMap);
+			tillDateQuantity =forecastServiceImpl.getTillDateQuantity(individualProduct.getProduct(),stockQuantity,dueDate,incomingShipmentMap);
 			mappingFields.setCurrentQuantity(tillDateQuantity);
 			mappingFields.setAvailableStockQuantity(tillDateQuantity-orderdQunatity);
 			productQuantityMap.put(individualProduct.getProduct().getProductId(), mappingFields);
 		}else {
-			stockQuantity=productQuantityMap.get(individualProduct.getProduct().getProductId()).getCurrentQuantity();
-			int availableStockQuantity = productQuantityMap.get(individualProduct.getProduct().getProductId()).getAvailableStockQuantity();
+			 stockQuantity = productQuantityMap.get(individualProduct.getProduct().getProductId()).getAvailableStockQuantity();
 			tillDateQuantity =forecastServiceImpl.getTillDateQuantity(individualProduct.getProduct(),
-					availableStockQuantity,dueDate,mappingFields,incomingShipmentMap);
-			previousOrderQuantity=productQuantityMap.get(individualProduct.getProduct().getProductId()).getRequiredQuantity();
+					stockQuantity,dueDate,incomingShipmentMap);
 			mappingFields.setCurrentQuantity(tillDateQuantity);
 			mappingFields.setAvailableStockQuantity(tillDateQuantity-orderdQunatity);
 			productQuantityMap.put(individualProduct.getProduct().getProductId(), mappingFields);
@@ -203,15 +201,13 @@ public class VerifyOrderServiceImpl {
 		mappingFields.setOrderdQuantity(orderdQunatity);
 		mappingFields.setRequiredQuantity(orderdQunatity);
 		if(!productQuantityMap.containsKey(productId)) {
-			tillDateQuantity =forecastServiceImpl.getTillDateQuantity(productValue.get(),stockQuantity,dueDate,mappingFields,incomingShipmentMap);
+			tillDateQuantity =forecastServiceImpl.getTillDateQuantity(productValue.get(),stockQuantity,dueDate,incomingShipmentMap);
 			mappingFields.setCurrentQuantity(tillDateQuantity);
 			mappingFields.setAvailableStockQuantity(tillDateQuantity-orderdQunatity);
 			productQuantityMap.put(productId, mappingFields);
 		}else {
-			stockQuantity=productQuantityMap.get(productId).getCurrentQuantity();
-			int availableStockQuantity = productQuantityMap.get(productId).getAvailableStockQuantity();
-			tillDateQuantity =forecastServiceImpl.getTillDateQuantity(productValue.get(),availableStockQuantity,dueDate,mappingFields,incomingShipmentMap);
-			previousOrderQuantity=productQuantityMap.get(productId).getRequiredQuantity();
+			 stockQuantity = productQuantityMap.get(productId).getAvailableStockQuantity();
+			tillDateQuantity =forecastServiceImpl.getTillDateQuantity(productValue.get(),stockQuantity,dueDate,incomingShipmentMap);
 			mappingFields.setCurrentQuantity(tillDateQuantity);
 			mappingFields.setAvailableStockQuantity(tillDateQuantity-orderdQunatity);
 			productQuantityMap.put(productId, mappingFields);
