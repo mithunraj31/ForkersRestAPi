@@ -26,16 +26,12 @@ public class FullfillOrderController {
 	
 	@PostMapping("/order/fulfillment/")
 	public ResponseEntity<Map<String, List<ProductSetModel>>> fullfilledOrder(@RequestBody FullfillRequestBody requestBody) {
-		if(requestBody.isFulfillment()) {
-		return fullfillOrderServiceImpl.getFullfillOrder(requestBody.getOrderId());
+		return fullfillOrderServiceImpl.getFullfillOrder(requestBody.getOrderId(),requestBody.isFulfillment());
 		}
-		return null;
 		
 	}
 	
-	
 
-}
 
  class FullfillRequestBody{
 	
