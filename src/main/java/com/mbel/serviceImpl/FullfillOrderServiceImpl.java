@@ -146,9 +146,10 @@ public class FullfillOrderServiceImpl {
 			productSetModel.setProduct(productValue.get());
 			stockQuantity =productValue.get().getQuantity();			
 			orderdQunatity=product.getQuantity();
+			int amount=product.getQuantity();
 			updateStockQuantities(orderdQunatity,stockQuantity,currentQuantity,
 					productSetModel,productId,insufficientMap,
-					productSetModelList,quantityUpdate);
+					productSetModelList,quantityUpdate,amount);
 
 		}else {				
 			FetchProductSetDto productSet = productServiceImpl.getProductSetById(productId);
@@ -156,9 +157,10 @@ public class FullfillOrderServiceImpl {
 				int individualproductId =individualProduct.getProduct().getProductId();
 				stockQuantity =individualProduct.getProduct().getQuantity();			
 				orderdQunatity=product.getQuantity()*individualProduct.getQuantity();
+				int amount=individualProduct.getQuantity();
 				updateStockQuantities(orderdQunatity,stockQuantity,currentQuantity,
 						individualProduct,individualproductId,insufficientMap,
-						productSetModelList,quantityUpdate);
+						productSetModelList,quantityUpdate,amount);
 			}
 			quantityUpdate.put(productId,product.getProduct());
 
@@ -190,14 +192,14 @@ public class FullfillOrderServiceImpl {
 
 	private void updateStockQuantities(int orderdQunatity, int stockQuantity, int currentQuantity,
 			ProductSetModel individualProduct, int individualproductId, Map<Integer, 
-			List<ProductSetModel>> insufficientMap, List<ProductSetModel> productSetModelList, Map<Integer, Product> quantityUpdate) {
+			List<ProductSetModel>> insufficientMap, List<ProductSetModel> productSetModelList, Map<Integer, Product> quantityUpdate, int amount) {
 		if(orderdQunatity<=stockQuantity) {
 			currentQuantity = stockQuantity - orderdQunatity;
 			individualProduct.getProduct().setQuantity(currentQuantity);
 			quantityUpdate.put(individualproductId,individualProduct.getProduct());
 
 		}else {
-			updateInsuffientProduct(insufficientMap,individualproductId, individualProduct.getProduct(),orderdQunatity,productSetModelList);
+			updateInsuffientProduct(insufficientMap,individualproductId, individualProduct.getProduct(),orderdQunatity,productSetModelList,amount);
 		}
 
 	}
@@ -206,13 +208,13 @@ public class FullfillOrderServiceImpl {
 
 
 	private void updateInsuffientProduct(Map<Integer, List<ProductSetModel>> insufficientMap,
-			int productId, Product product, int orderdQunatity, List<ProductSetModel> productSetModelList) {
+			int productId, Product product, int orderdQunatity, List<ProductSetModel> productSetModelList, int amount) {
 		ProductSetModel productSetModel = new ProductSetModel();
 		productSetModel.setProduct(product);
 		productSetModel.setCurrentQuantity(product.getQuantity());
 		productSetModel.setForecast(false);
 		productSetModel.setMod(LocalDateTime.now().minusWeeks(product.getLeadTime()+3));
-		productSetModel.setQuantity(orderdQunatity);
+		productSetModel.setQuantity(amount);
 		productSetModel.setRequiredQuantity(orderdQunatity);
 		productSetModelList.add(productSetModel);
 	}
