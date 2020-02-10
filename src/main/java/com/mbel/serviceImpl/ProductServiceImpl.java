@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mbel.config.JwtAuthenticationFilter;
+import com.mbel.constants.Constants;
 import com.mbel.dao.ProductDao;
 import com.mbel.dao.ProductSetDao;
 import com.mbel.dto.FetchProductSetDto;
@@ -46,24 +48,18 @@ public class ProductServiceImpl  {
 
 	public List<Product> getAllProducts() {
 		List<Product>product =productDao.findAll();
-		List<Product>activeProduct =new ArrayList<>();
-		for(Product pd :product ) {
-			if(pd.isActive() && (!pd.isSet())) {
-				activeProduct.add(pd);
-			}
-		}
-		return activeProduct;
+		return product.stream()
+				.filter(predicate->predicate.isActive()
+						&&!predicate.isSet())
+				.collect(Collectors.toList());
 	}
 
 	public List<Product> getAllActiveProductset() {
 		List<Product>product =productDao.findAll();
-		List<Product>activeProductSet =new ArrayList<>();
-		for(Product pd :product ) {
-			if(pd.isActive() && pd.isSet()) {
-				activeProductSet.add(pd);
-			}
-		}
-		return activeProductSet;
+		return product.stream()
+				.filter(predicate->predicate.isActive()
+						&&predicate.isSet())
+				.collect(Collectors.toList());
 	}
 
 	public Optional<Product> getProductsById(int productId) {
@@ -84,6 +80,7 @@ public class ProductServiceImpl  {
 		product.setCreatedAtDateTime(LocalDateTime.now());
 		product.setUpdatedAtDateTime(LocalDateTime.now());
 		product.setUserId(jwt.getUserdetails().getUserId());
+		product.setCurrency(productSet.getCurrency());
 		Product productsave=productDao.save(product);
 		int id  = product.getProductId();
 		if(productSet.getProducts() != null) {
@@ -118,14 +115,15 @@ public class ProductServiceImpl  {
 			componentSet.setActive(proSet.get(i).isActive());
 			componentSet.setCreatedAtDateTime(proSet.get(i).getCreatedAtDateTime());
 			componentSet.setUpdatedAtDateTime(proSet.get(i).getUpdatedAtDateTime());
+			componentSet.setCurrency(proSet.get(i).getCurrency());
 			if((Integer)proSet.get(i).getProductId()!= null) {
 				List<Map<Object, Object>> productsetList =productSetDao.getAllBySetId(proSet.get(i).getProductId());
 				if(productsetList != null) {
 					for(int l=0;l< productsetList.size();l++ ) {
 						ProductSetModel productSetModel = new ProductSetModel();
 						Product component = new Product();
-						if((Integer) productsetList.get(l).get("product_component_id") != 0) {
-							component=productDao.findById((Integer) productsetList.get(l).get("product_component_id")).get();
+						if((Integer) productsetList.get(l).get(Constants.PRODUCT_COMPONENT_ID) != 0) {
+							component=productDao.findById((Integer) productsetList.get(l).get(Constants.PRODUCT_COMPONENT_ID)).get();
 							productSetModel.setProduct(component);
 							productSetModel.setQuantity((Integer)productsetList.get(l).get("qty"));
 							productList.add(productSetModel);
@@ -157,12 +155,13 @@ public class ProductServiceImpl  {
 		componentSet.setUserId(proCheck.getUserId());
 		componentSet.setCreatedAtDateTime(proCheck.getCreatedAtDateTime());
 		componentSet.setUpdatedAtDateTime(proCheck.getUpdatedAtDateTime());
+		componentSet.setCurrency(proCheck.getCurrency());
 		if(proCheck.isSet()) {
 			List<Map<Object, Object>> productsetList =productSetDao.getAllBySetId(proCheck.getProductId());
 			for(int l=0;l< productsetList.size();l++ ) {
 				ProductSetModel productSetModel = new ProductSetModel();
 				Product component = new Product();
-				component=productDao.findById((Integer) productsetList.get(l).get("product_component_id")).get();
+				component=productDao.findById((Integer) productsetList.get(l).get(Constants.PRODUCT_COMPONENT_ID)).get();
 				productSetModel.setProduct(component);
 				productSetModel.setQuantity((Integer)productsetList.get(l).get("qty"));
 				productList.add(productSetModel);
@@ -186,6 +185,7 @@ public class ProductServiceImpl  {
 		product.setQuantity(productionDetails.getQuantity());
 		product.setUpdatedAtDateTime(LocalDateTime.now());
 		product.setUserId(jwt.getUserdetails().getUserId());
+		product.setCurrency(productionDetails.getCurrency());
 		return productDao.save(product);
 	}
 
@@ -208,6 +208,7 @@ public class ProductServiceImpl  {
 		product.setActive(true);
 		product.setUpdatedAtDateTime(LocalDateTime.now());
 		product.setUserId(jwt.getUserdetails().getUserId());
+		product.setCurrency(productSetDetails.getCurrency());
 		Product productupdate=productDao.save(product);
 		int setValue  =productSetDetails.getProducts().size();
 		productSetDao.deleteBySet(productId);

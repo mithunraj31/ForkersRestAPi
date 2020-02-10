@@ -149,10 +149,11 @@ public class IncomingShipmentServiceImpl  {
 
 	}
 
-	public List<PopulateIncomingShipmentDto> getAllUnarrivedIncomingShipment() {
+	public List<PopulateIncomingShipmentDto> getAllUnarrivedDueDateIncomingShipment(LocalDateTime dueDate) {
 		List<PopulateIncomingShipmentDto> incomingShipmentDtoList =getAllIncomingShipment();
 		return incomingShipmentDtoList.stream()
-		.filter(predicate->predicate.isArrived()==false)
+		.filter(predicate->!predicate.isArrived()&&predicate.getArrivalDate().isBefore(dueDate)
+				||predicate.getArrivalDate().isEqual(dueDate))
 		.collect(Collectors.toList());
 		 
 	}

@@ -12,18 +12,11 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.mbel.config.JwtAuthenticationFilter;
 import com.mbel.dao.CustomerDao;
-import com.mbel.dao.UserDao;
 import com.mbel.model.Customer;
-import com.mbel.model.UserEntity;
 
 
 @Service("CustomerServiceImpl")

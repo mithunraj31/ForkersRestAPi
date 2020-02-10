@@ -21,10 +21,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.mbel.config.JwtAuthenticationFilter;
-import com.mbel.config.TokenProvider;
 import com.mbel.dao.UserDao;
-import com.mbel.dto.UserDto;
 import com.mbel.model.UserEntity;
 
 
