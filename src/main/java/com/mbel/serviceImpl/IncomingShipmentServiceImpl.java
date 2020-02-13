@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.mbel.config.JwtAuthenticationFilter;
+import com.mbel.constants.Constants;
 import com.mbel.dao.IncomingShipmentDao;
 import com.mbel.dao.IncomingShipmentProductDao;
 import com.mbel.dao.UserDao;
@@ -24,6 +26,7 @@ import com.mbel.dto.IncomingShipmentDto;
 import com.mbel.dto.PopulateIncomingShipmentDto;
 import com.mbel.model.IncomingShipment;
 import com.mbel.model.IncomingShipmentProduct;
+import com.mbel.model.UserEntity;
 
 
 @Service("IncomingShipmentServiceImpl")
@@ -70,6 +73,7 @@ public class IncomingShipmentServiceImpl  {
 	public List<PopulateIncomingShipmentDto> getAllIncomingShipment() {
 		List<PopulateIncomingShipmentDto> incomingShipmentDtoList = new ArrayList<>(); 
 		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll();
+		List<UserEntity> userEntityList = userDao.findAll();
 		for(IncomingShipment incoming :incomingShipment ) {
 			PopulateIncomingShipmentDto incomingDto = new PopulateIncomingShipmentDto();
 			incomingDto.setArrivalDate(incoming.getArrivalDate());
@@ -77,7 +81,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingDto.setIncomingShipmentId(incoming.getIncomingShipmentId());			
 			incomingDto.setProducts(getAllProduct(incoming.getIncomingShipmentId()));
 			incomingDto.setUpdatedAt(incoming.getUpdatedAt());
-			incomingDto.setUser(userDao.findById(incoming.getUserId()).get());
+			incomingDto.setUser(getUserDetails(userEntityList,incoming.getUserId()));
 			incomingDto.setShipmentNo(incoming.getShipmentNo());
 			incomingDto.setArrived(incoming.isArrived());
 			incomingShipmentDtoList.add(incomingDto);
@@ -86,33 +90,44 @@ public class IncomingShipmentServiceImpl  {
 		return incomingShipmentDtoList;
 	}
 
+	private UserEntity getUserDetails(List<UserEntity> userEntityList, int userId) {
+		return userEntityList.stream()
+		.filter(predicate->predicate.getUserId()==userId)
+		.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
+            if (list.size() != 1) {
+                throw new IllegalStateException();
+            }
+            return list.get(0);
+        }));
+	}
+
 	private List<FetchIncomingOrderdProducts> getAllProduct(int shipmentId) {
 		List<FetchIncomingOrderdProducts> fetchProducts = new ArrayList<>(); 
 		List<Map<Object, Object>> shipmentList=incomingShipmentProductDao.getByShipmentId(shipmentId);
 		for(int i=0;i<shipmentList.size();i++) {
-			FetchProductSetDto products = new FetchProductSetDto();
 			FetchIncomingOrderdProducts incomingOrder =new FetchIncomingOrderdProducts();
-		products =(productServiceImpl.getProductSetById((Integer)shipmentList.get(i).get("product_id")));
+			FetchProductSetDto products =(productServiceImpl.getProductSetById((Integer)shipmentList.get(i).get(Constants.PRODUCT_ID)));
 		incomingOrder.setProduct(products);
-		incomingOrder.setQuantity((Integer)shipmentList.get(i).get("qty"));
-		incomingOrder.setPrice((Double)shipmentList.get(i).get("price"));
+		incomingOrder.setQuantity((Integer)shipmentList.get(i).get(Constants.QTY));
+		incomingOrder.setPrice((Double)shipmentList.get(i).get(Constants.PRICE));
 		fetchProducts.add(incomingOrder);
 		}
 		return fetchProducts;
 	}
 
 	public PopulateIncomingShipmentDto getIncomingShipmentById(@Valid int incomingShipmentId) {
-		IncomingShipment incoming = incomingShipmentDao.findById(incomingShipmentId).get();
+		IncomingShipment incoming = incomingShipmentDao.findById(incomingShipmentId).orElse(null);
 		PopulateIncomingShipmentDto incomingDto = new PopulateIncomingShipmentDto();
+		if(Objects.nonNull(incoming)) {
 		incomingDto.setArrivalDate(incoming.getArrivalDate());
 		incomingDto.setCreatedAt(incoming.getCreatedAt());
 		incomingDto.setIncomingShipmentId(incoming.getIncomingShipmentId());
 		incomingDto.setProducts(getAllProduct(incoming.getIncomingShipmentId()));
 		incomingDto.setUpdatedAt(incoming.getUpdatedAt());
-		incomingDto.setUser(userDao.findById(incoming.getUserId()).get());
+		incomingDto.setUser(userDao.findById(incoming.getUserId()).orElse(null));
 		incomingDto.setShipmentNo(incoming.getShipmentNo());
 		incomingDto.setArrived(incoming.isArrived());
-		
+		}
 		return incomingDto;
 	}
 
@@ -128,13 +143,16 @@ public class IncomingShipmentServiceImpl  {
 
 	public IncomingShipment getUpdateIncomingShipmentId(int incomingShipmentId,
 			@Valid IncomingShipmentDto incomingShipmentDetails) {
-		IncomingShipment incomingShipment = incomingShipmentDao.findById(incomingShipmentId).get();
+		IncomingShipment incomingShipmentUpdate=new IncomingShipment();
+		IncomingShipment incomingShipment = incomingShipmentDao.findById(incomingShipmentId).orElse(null);
+		if(Objects.nonNull(incomingShipment)) {
 		incomingShipment.setArrivalDate(incomingShipmentDetails.getArrivalDate());
 		incomingShipment.setUpdatedAt(LocalDateTime.now());
 		incomingShipment.setUserId(jwt.getUserdetails().getUserId());
 		incomingShipment.setShipmentNo(incomingShipmentDetails.getShipmentNo());
 		incomingShipment.setArrived(incomingShipmentDetails.isArrived());
-		IncomingShipment incomingShipmentUpdate= incomingShipmentDao.save(incomingShipment);
+		 incomingShipmentUpdate= incomingShipmentDao.save(incomingShipment);
+		}
 		 incomingShipmentProductDao.deleteByShipmentId(incomingShipmentId);
 			int size = incomingShipmentDetails.getProducts().size();
 			for(int i=0;i<size;i++) {

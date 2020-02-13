@@ -1,11 +1,12 @@
 package com.mbel.serviceImpl;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -38,15 +39,11 @@ public class CustomerServiceImpl  {
 	}
 
 	public List<Customer> getAllCustomers() {
-		List<Customer> activeCustomer = new ArrayList<>();
 		List<Customer> customer = customerDao.findAll();
-		for(Customer pd :customer ) {
-			if(pd.isActive()) {
-				activeCustomer.add(pd);
-			}
-		}
-		return activeCustomer;
-
+		return customer.stream()
+				.filter(Customer::isActive)
+				.collect(Collectors.toList());
+				
 	}
 
 	public Optional<Customer> getCustomerById(int customerId) {
@@ -54,7 +51,8 @@ public class CustomerServiceImpl  {
 	}
 
 	public Customer getupdateCustomerById(int customerId, @Valid Customer customerDetails) {
-		Customer customer = customerDao.findById(customerId).get();
+		Customer customer = customerDao.findById(customerId).orElse(null);
+		if(Objects.nonNull(customer)) {
 		customer.setAddress(customerDetails.getAddress());
 		customer.setContactName(customerDetails.getContactName());
 		customer.setCustomerName(customerDetails.getCustomerName());
@@ -65,6 +63,8 @@ public class CustomerServiceImpl  {
 		customer.setZip(customerDetails.getZip());
 		customer.setActive(true);
 		return customerDao.save(customer);
+		}
+		return customer;
 	}
 
 	public ResponseEntity<Map<String, String>> deleteCustomerById(int customerId) {

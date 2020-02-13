@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.validation.Valid;
 
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.mbel.config.JwtAuthenticationFilter;
+import com.mbel.constants.Constants;
 import com.mbel.dao.CustomerDao;
 import com.mbel.dao.OutgoingShipmentDao;
 import com.mbel.dao.OutgoingShipmentProductDao;
@@ -77,11 +79,11 @@ public class OutgoingShipmentServiceImpl  {
 		for(OutgoingShipment outgoing :outgoingShipment ) {
 			PopulateOutgoingShipmentDto outgoingDto = new PopulateOutgoingShipmentDto();
 			outgoingDto.setCreatedAt(outgoing.getCreatedAt());
-			outgoingDto.setSalesDestination(customerDao.findById(outgoing.getSalesDestinationId()).get());
+			outgoingDto.setSalesDestination(customerDao.findById(outgoing.getSalesDestinationId()).orElse(null));
 			outgoingDto.setOutgoingShipmentId(outgoing.getOutgoingShipmentId());
 			outgoingDto.setProducts(getAllProduct(outgoing.getOutgoingShipmentId()));
 			outgoingDto.setUpdatedAt(outgoing.getUpdatedAt());
-			outgoingDto.setUser(userDao.findById(outgoing.getUserId()).get());
+			outgoingDto.setUser(userDao.findById(outgoing.getUserId()).orElse(null));
 			outgoingDto.setShipmentDate(outgoing.getShipmentDate());
 			outgoingDto.setShipmentNo(outgoing.getShipmentNo());
 			
@@ -95,28 +97,28 @@ public class OutgoingShipmentServiceImpl  {
 		List<FetchOrderdProducts> fetchProducts = new ArrayList<>(); 
 		List<Map<Object, Object>> shipmentList=outgoingShipmentProductDao.getByShipmentId(shipmentId);
 		for(int i=0;i<shipmentList.size();i++) {
-			FetchProductSetDto products = new FetchProductSetDto();
 			FetchOrderdProducts outgoingOrder =new FetchOrderdProducts();
-		products =(productServiceImpl.getProductSetById((Integer)shipmentList.get(i).get("product_id")));
+			FetchProductSetDto products =(productServiceImpl.getProductSetById((Integer)shipmentList.get(i).get(Constants.PRODUCT_ID)));
 		outgoingOrder.setProduct(products);
-		outgoingOrder.setQuantity((Integer)shipmentList.get(i).get("qty"));
+		outgoingOrder.setQuantity((Integer)shipmentList.get(i).get(Constants.QTY));
 		fetchProducts.add(outgoingOrder);
 		}
 		return fetchProducts;
 	}
 
 	public PopulateOutgoingShipmentDto getOutgoingShipmentById(@Valid int outgoingShipmentId) {
-		OutgoingShipment outgoing = outgoingShipmentDao.findById(outgoingShipmentId).get();
 		PopulateOutgoingShipmentDto outgoingDto = new PopulateOutgoingShipmentDto();
+		OutgoingShipment outgoing = outgoingShipmentDao.findById(outgoingShipmentId).orElse(null);
+		if(Objects.nonNull(outgoing)) {
 		outgoingDto.setCreatedAt(outgoing.getCreatedAt());
-		outgoingDto.setSalesDestination(customerDao.findById(outgoing.getSalesDestinationId()).get());
+		outgoingDto.setSalesDestination(customerDao.findById(outgoing.getSalesDestinationId()).orElse(null));
 		outgoingDto.setOutgoingShipmentId(outgoing.getOutgoingShipmentId());
 		outgoingDto.setProducts(getAllProduct(outgoing.getOutgoingShipmentId()));
 		outgoingDto.setShipmentNo(outgoing.getShipmentNo());
 		outgoingDto.setUpdatedAt(outgoing.getUpdatedAt());
-		outgoingDto.setUser(userDao.findById(outgoing.getUserId()).get());
+		outgoingDto.setUser(userDao.findById(outgoing.getUserId()).orElse(null));
 		outgoingDto.setShipmentDate(outgoing.getShipmentDate());
-		
+		}
 		return outgoingDto;
 	}
 
@@ -132,14 +134,17 @@ public class OutgoingShipmentServiceImpl  {
 
 	public OutgoingShipment getUpdateOutgoingShipmentId(int outgoingShipmentId,
 			@Valid OutgoingShipmentDto outgoingShipmentDetails) {
-		OutgoingShipment outgoingShipment = outgoingShipmentDao.findById(outgoingShipmentId).get();
+		OutgoingShipment outgoingShipmentUpdate = new OutgoingShipment();
+		OutgoingShipment outgoingShipment = outgoingShipmentDao.findById(outgoingShipmentId).orElse(null);
+		if(Objects.nonNull(outgoingShipment)) {
 		outgoingShipment.setSalesDestinationId(outgoingShipmentDetails.getSalesDestinationId());
 		outgoingShipment.setShipmentNo(outgoingShipmentDetails.getShipmentNo());
 		outgoingShipment.setUpdatedAt(LocalDateTime.now());
 		outgoingShipment.setUserId(jwt.getUserdetails().getUserId());
 		outgoingShipment.setShipmentDate(outgoingShipmentDetails.getShipmentDate());
-		OutgoingShipment outgoingShipmentUpdate= outgoingShipmentDao.save(outgoingShipment);
+		outgoingShipmentUpdate= outgoingShipmentDao.save(outgoingShipment);
 		outgoingShipmentProductDao.deleteByShipmentId(outgoingShipmentId);
+		}
 			int size = outgoingShipmentDetails.getProducts().size();
 			for(int i=0;i<size;i++) {
 				OutgoingShipmentProduct  outgoingShipmentProduct= new OutgoingShipmentProduct();

@@ -35,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private UserDao userDao;
     
-    public static String username=null;
+    public static  String username=null;
     
 
     @Override
@@ -82,8 +82,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
 	public UserEntity getUserdetails() {
-	   UserEntity user = userDao.findByEmail(username);
-	   return user;
+		return userDao.findByEmail(username);
+	    
 	}
    
 

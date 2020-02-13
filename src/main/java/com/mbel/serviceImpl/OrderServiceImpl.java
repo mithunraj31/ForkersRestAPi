@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mbel.config.JwtAuthenticationFilter;
+import com.mbel.constants.Constants;
 import com.mbel.dao.CustomerDao;
 import com.mbel.dao.OrderDao;
 import com.mbel.dao.OrderProductDao;
@@ -21,9 +24,11 @@ import com.mbel.dto.FetchOrderdProducts;
 import com.mbel.dto.FetchProductSetDto;
 import com.mbel.dto.PopulateOrderDto;
 import com.mbel.dto.SaveOrderSetDto;
+import com.mbel.model.Customer;
 import com.mbel.model.Order;
 import com.mbel.model.OrderProduct;
 import com.mbel.model.Product;
+import com.mbel.model.UserEntity;
 
 
 
@@ -57,14 +62,10 @@ public class OrderServiceImpl  {
 	
 
 	public List<Order> getActiveOrders() {
-		List<Order>order =orderDao.findAll();
-		List<Order>activeOrder = new ArrayList<>();
-		for(Order od:order) {
-			if(od.isActive()) {
-				activeOrder.add(od);
-			}
-		}
-		return activeOrder;
+		List<Order>order =orderDao.findAll(); 
+		return order.stream()
+				.filter(Order::isActive)
+				.collect(Collectors.toList());
 	}
 
 	public List<PopulateOrderDto> getAllOrders() {
@@ -79,14 +80,16 @@ public class OrderServiceImpl  {
 			populate.setActive(order.isActive());
 			populate.setForecast(order.isForecast());
 			populate.setFulfilled(order.isFulfilled());
-			populate.setUser(userDao.findById(order.getUserId()).get());
-			populate.setSalesUser(userDao.findById(order.getSalesUserId()).get());
+			List<UserEntity> userList = userDao.findAll();
+			populate.setUser(getUser(userList,order.getUserId()));
+			populate.setSalesUser(getUser(userList,order.getSalesUserId()));
 			populate.setEditReason(order.getEditReason());
 			populate.setCreatedAt(order.getCreatedAt());
 			populate.setUpdatedAt(order.getUpdatedAt());
-			populate.setCustomer(customerDao.findById(order.getCustomerId()).get());
-			populate.setSalesDestination(customerDao.findById(order.getSalesDestinationId()).get());
-			populate.setContractor(customerDao.findById(order.getContractorId()).get());
+			List<Customer> customerList = customerDao.findAll();
+			populate.setCustomer(getCustomer(customerList,order.getCustomerId()));
+			populate.setSalesDestination(getCustomer(customerList,order.getSalesDestinationId()));
+			populate.setContractor(getCustomer(customerList,order.getContractorId()));
 			populate.setOrderedProducts(getAllProducts(order.getOrderId()));
 			populateList.add(populate);
 		}
@@ -96,8 +99,9 @@ public class OrderServiceImpl  {
 	}
 
 	public PopulateOrderDto getOrderById(int orderId) {
-		Order order = orderDao.findById(orderId).get();
 		PopulateOrderDto populate = new PopulateOrderDto();
+		Order order = orderDao.findById(orderId).orElse(null);
+		if(Objects.nonNull(order)) {
 		populate.setOrderId(order.getOrderId());
 		populate.setProposalNo(order.getProposalNo());
 		populate.setReceivedDate(order.getReceivedDate());
@@ -105,16 +109,41 @@ public class OrderServiceImpl  {
 		populate.setActive(order.isActive());
 		populate.setForecast(order.isForecast());
 		populate.setFulfilled(order.isFulfilled());
-		populate.setUser(userDao.findById(order.getUserId()).get());
-		populate.setSalesUser(userDao.findById(order.getSalesUserId()).get());
+		List<UserEntity> userList = userDao.findAll();
+		populate.setUser(getUser(userList,order.getUserId()));
+		populate.setSalesUser(getUser(userList,order.getSalesUserId()));
 		populate.setEditReason(order.getEditReason());
 		populate.setCreatedAt(order.getCreatedAt());
 		populate.setUpdatedAt(order.getUpdatedAt());
-		populate.setCustomer(customerDao.findById(order.getCustomerId()).get());
-		populate.setSalesDestination(customerDao.findById(order.getSalesDestinationId()).get());
-		populate.setContractor(customerDao.findById(order.getContractorId()).get());
+		List<Customer> customerList = customerDao.findAll();
+		populate.setCustomer(getCustomer(customerList,order.getCustomerId()));
+		populate.setSalesDestination(getCustomer(customerList,order.getSalesDestinationId()));
+		populate.setContractor(getCustomer(customerList,order.getContractorId()));
 		populate.setOrderedProducts(getAllProducts(orderId));
+		}
 		return populate;
+	}
+	
+	private UserEntity getUser(List<UserEntity> userList, int userId) {
+		return userList.stream()
+		.filter(predicate->predicate.getUserId()==userId)
+		.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
+            if (list.size() != 1) {
+                throw new IllegalStateException();
+            }
+            return list.get(0);
+        }));
+	}
+	
+	private Customer getCustomer(List<Customer> customerList, int customerId) {
+		return customerList.stream()
+		.filter(predicate->predicate.getCustomerId()==customerId)
+		.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
+            if (list.size() != 1) {
+                throw new IllegalStateException();
+            }
+            return list.get(0);
+        }));
 	}
 
 
@@ -122,11 +151,10 @@ public class OrderServiceImpl  {
 		List<FetchOrderdProducts> orderProductList = new ArrayList<>();
 		List<Map<Object, Object>> orderList=orderProductDao.getByOrderId(orderId);
 		for(int i=0;i<orderList.size();i++) {
-			FetchProductSetDto products = new FetchProductSetDto();
 			FetchOrderdProducts order =new FetchOrderdProducts();
-			products =(productServiceImpl.getProductSetById((Integer)orderList.get(i).get("product_id")));
+			FetchProductSetDto products =(productServiceImpl.getProductSetById((Integer)orderList.get(i).get(Constants.PRODUCT_ID)));
 			order.setProduct(products);
-			order.setQuantity((Integer)orderList.get(i).get("qty"));
+			order.setQuantity((Integer)orderList.get(i).get(Constants.QTY));
 			orderProductList.add(order);
 			
 			}
@@ -137,7 +165,10 @@ public class OrderServiceImpl  {
 	
 
 	public Order getupdateOrderById(int orderId, @Valid SaveOrderSetDto newOrderSet) {
-		Order order = orderDao.findById(orderId).get();
+		int orderedId =0;
+		Order orderupdate= new Order();
+		Order order = orderDao.findById(orderId).orElse(null);
+		if(Objects.nonNull(order)) {
 		order.setContractorId(newOrderSet.getContractorId());
 		order.setSalesDestinationId(newOrderSet.getSalesDestinationId());
 		order.setDueDate(newOrderSet.getDueDate());
@@ -151,13 +182,14 @@ public class OrderServiceImpl  {
 		order.setUserId(jwt.getUserdetails().getUserId());
 		order.setSalesUserId(newOrderSet.getSalesUserId());
 		order.setEditReason(newOrderSet.getEditReason());
-		Order orderupdate=orderDao.save(order);
-		int id  = order.getOrderId();
-		orderProductDao.deleteByOrderId(id);
+		orderupdate=orderDao.save(order);
+		orderedId  = order.getOrderId();
+		}
+		orderProductDao.deleteByOrderId(orderedId);
 		int noOfProducts =newOrderSet.getOrderedProducts().size();
 		for(int i=0;i<noOfProducts;i++) {
 			OrderProduct orderProduct =new OrderProduct(); 
-			orderProduct.setOrderId(id);
+			orderProduct.setOrderId(orderedId);
 			orderProduct.setProductId(newOrderSet.getOrderedProducts().get(i).getProductId());
 			orderProduct.setQuantity(newOrderSet.getOrderedProducts().get(i).getQuantity());
 			orderProductDao.save(orderProduct);
@@ -167,9 +199,12 @@ public class OrderServiceImpl  {
 	}
 
 	public Order deleteOrderById(int orderId) {
-		Order order=orderDao.findById(orderId).get();
+		Order order=orderDao.findById(orderId).orElse(null);
+		if(Objects.nonNull(order)) {
 		order.setActive(false);
 		return orderDao.save(order);
+		}
+		return order;
 	}
 
 	public Order save(SaveOrderSetDto newOrderSet) {

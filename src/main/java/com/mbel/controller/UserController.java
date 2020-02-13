@@ -9,6 +9,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +31,7 @@ public class  UserController{
 	private UserServiceImpl userServiceImpl;   
 	
 
-
+	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/user/")
 	public List<UserEntity> allUsers() {
 		return userServiceImpl.findAll();
@@ -42,6 +43,7 @@ public class  UserController{
 
 	}
 
+	@PreAuthorize("hasRole('ADMIN')")
 	@PutMapping("/user/{userId}")
 	public UserEntity updateUserById(@PathVariable (value="userId")@NonNull int userId,
 			@Valid @RequestBody UserEntity userEntity) {
@@ -50,6 +52,7 @@ public class  UserController{
 
 	}
 
+	@PreAuthorize("hasRole('ADMIN')")
 	@DeleteMapping("/user/{userId}")
 	public ResponseEntity<Map<String, String>> deleteUserById(@PathVariable (value="userId")@NonNull int userId) {
 		return userServiceImpl.deleteUserById(userId);

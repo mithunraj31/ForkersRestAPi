@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -15,10 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.mbel.dao.OrderDao;
 import com.mbel.dao.ProductDao;
 import com.mbel.dto.FetchOrderdProducts;
 import com.mbel.dto.FetchProductSetDto;
-import com.mbel.dto.PopulateOrderDto;
 import com.mbel.model.Order;
 import com.mbel.model.Product;
 import com.mbel.model.ProductSetModel;
@@ -28,6 +28,9 @@ public class VerifyOrderServiceImpl {
 
 	@Autowired
 	ProductDao productDao;
+	
+	@Autowired
+	OrderDao orderDao;
 
 	@Autowired
 	ForecastServiceImpl forecastServiceImpl;
@@ -39,10 +42,7 @@ public class VerifyOrderServiceImpl {
 	ProductServiceImpl productServiceImpl;
 
 	public ResponseEntity<Map<String, List<ProductSetModel>>> getForecastOrderStatus(@Valid int productId, @Valid LocalDateTime dueDate, @Valid int amountRequired) {
-
-
-		List<Order> order =orderServiceImpl.getActiveOrders();
-		List<Order>unfulfilledDueDateOrder=getUnfulfilledOrder(order,dueDate);
+		List<Order>unfulfilledDueDateOrder=getUnfulfilledOrder(dueDate);
 		List<Order>sortedOrder=forecastServiceImpl.getSortedOrder(unfulfilledDueDateOrder);
 		return productStockCheck(productId,sortedOrder,amountRequired,dueDate);
 	}
@@ -70,9 +70,9 @@ public class VerifyOrderServiceImpl {
 	private ResponseEntity<Map<String, List<ProductSetModel>>> verifyProductStatus(@Valid int productId,
 			Map<Integer, Mappingfields> productQuantityMap, @Valid int amountRequired, @Valid LocalDateTime dueDate) {
 		List<ProductSetModel> productSetModelList = new ArrayList<>();
-		Optional<Product> availProduct = productDao.findById(productId);
+		Product availProduct = productDao.findById(productId).orElse(null);
 		if(productQuantityMap.containsKey(productId)) {
-			if(!availProduct.get().isSet()) {
+			if(Objects.nonNull(availProduct)&&!availProduct.isSet()) {
 			verifySingleProduct(productId,productQuantityMap,productSetModelList,amountRequired,dueDate);
 			}else {
 				FetchProductSetDto fetchProductSet = productServiceImpl.getProductSetById(productId);
@@ -83,7 +83,9 @@ public class VerifyOrderServiceImpl {
 			}
 			}
 		}else {
+			if(Objects.nonNull(availProduct)){
 			verifyNewIncomingProduct(productId,productQuantityMap,amountRequired,dueDate,productSetModelList,availProduct);
+			}
 		}
 	
 		Map<String, List<ProductSetModel> > response = new HashMap<>();
@@ -96,10 +98,10 @@ public class VerifyOrderServiceImpl {
 	}
 	}
 	private void verifyNewIncomingProduct(@Valid int productId, Map<Integer, Mappingfields> productQuantityMap,
-			@Valid int amountRequired, @Valid LocalDateTime dueDate, List<ProductSetModel> productSetModelList, Optional<Product> availProduct) {
+			@Valid int amountRequired, @Valid LocalDateTime dueDate, List<ProductSetModel> productSetModelList, Product availProduct) {
 
 		if(!productQuantityMap.get(productId).isSet()) {
-		verifyStockQuantityProduct(availProduct.get(),productSetModelList,amountRequired,dueDate);	
+		verifyStockQuantityProduct(availProduct,productSetModelList,amountRequired,dueDate);	
 		}else {
 			FetchProductSetDto fetchProductSet = productServiceImpl.getProductSetById(productId);
 			for(int i=0;i<fetchProductSet.getProducts().size();i++) {
@@ -108,8 +110,10 @@ public class VerifyOrderServiceImpl {
 					int packageAmountRequired = amountRequired*fetchProductSet.getProducts().get(i).getQuantity();
 					verifySingleProduct(individualProductId,productQuantityMap,productSetModelList,packageAmountRequired,dueDate);
 				}else {
-					Optional<Product> productValue = productDao.findById(individualProductId);
-					verifyStockQuantityProduct(productValue.get(),productSetModelList,amountRequired,dueDate);
+				Product productValue = productDao.findById(individualProductId).orElse(null);
+				if(Objects.nonNull(productValue)) {
+					verifyStockQuantityProduct(productValue,productSetModelList,amountRequired,dueDate);
+				}
 				}
 			}
 			
@@ -126,7 +130,7 @@ public class VerifyOrderServiceImpl {
 			productSetModel.setProduct(product);
 			productSetModel.setRequiredQuantity(amountRequired);
 			productSetModel.setForecast(false);
-			productSetModel.setMod(dueDate.minusWeeks(product.getLeadTime()+3));
+			productSetModel.setMod(dueDate.minusWeeks(product.getLeadTime()+3L));
 
 			productSetModelList.add(productSetModel);
 		}
@@ -148,16 +152,16 @@ public class VerifyOrderServiceImpl {
 			productSetModel.setProduct(productQuantityMap.get(productId).getProduct());
 			productSetModel.setRequiredQuantity(amountRequired);
 			productSetModel.setForecast(false);
-			productSetModel.setMod(dueDate.minusWeeks(productQuantityMap.get(productId).getProduct().getLeadTime()+3));
-			
+			productSetModel.setMod(dueDate.minusWeeks(productQuantityMap.get(productId).getProduct().getLeadTime()+3L));
 			productSetModelList.add(productSetModel);
 		}
 
 
 	}
-	private List<Order> getUnfulfilledOrder(List<Order> order, @Valid LocalDateTime dueDate) {
+	private List<Order> getUnfulfilledOrder(@Valid LocalDateTime dueDate) {
+		List<Order>order =orderDao.findAll(); 
 		return order.stream()
-				.filter(predicate->!predicate.isFulfilled() 
+				.filter(predicate->!predicate.isFulfilled() && predicate.isActive()
 				&& predicate.getDueDate().isBefore(dueDate) || predicate.getDueDate().isEqual(dueDate))
 				.collect(Collectors.toList());
 	}

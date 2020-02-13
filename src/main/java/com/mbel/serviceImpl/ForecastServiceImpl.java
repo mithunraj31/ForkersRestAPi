@@ -91,7 +91,7 @@ public class ForecastServiceImpl {
 					fetchOrderedproducts.setCurrentQuantity(update.getValue().get(i).getCurrentQuantity());
 					fetchOrderedproducts.setRequiredQuantity(update.getValue().get(i).getRequiredQuantity());
 					fetchOrderedproducts.setForecast(update.getValue().get(i).isForecast());
-					fetchOrderedproducts.setMod(unfulfilledorder.getDueDate().minusWeeks(update.getValue().get(i).getProduct().getLeadTime()+3));
+					fetchOrderedproducts.setMod(unfulfilledorder.getDueDate().minusWeeks(update.getValue().get(i).getProduct().getLeadTime()+3L));
 					fetchOrderedproductsList.add(fetchOrderedproducts);
 				}
 			}else {
@@ -191,7 +191,7 @@ public class ForecastServiceImpl {
 			productSetModel.setCurrentQuantity(productValue.get(i).getCurrentQuantity());
 			productSetModel.setRequiredQuantity(productValue.get(i).getRequiredQuantity());
 			productSetModel.setForecast(productValue.get(i).isForecast());
-			productSetModel.setMod(unfulfilledorder.getDueDate().minusWeeks(productValue.get(i).getProduct().getLeadTime()+3));
+			productSetModel.setMod(unfulfilledorder.getDueDate().minusWeeks(productValue.get(i).getProduct().getLeadTime()+3L));
 			productList.add(productSetModel);
 		}
 		componentSet.setProducts(productList);
@@ -206,6 +206,7 @@ public class ForecastServiceImpl {
 				return (o1.getDueDate().compareTo(o2.getDueDate()));
 			}
 		});
+		
 		return unfulfilledOrder;
 
 	}

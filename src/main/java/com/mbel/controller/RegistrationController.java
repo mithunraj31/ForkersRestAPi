@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mbel.dto.UserDto;
@@ -15,25 +16,26 @@ import com.mbel.serviceImpl.RegistrationServiceImpl;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
+@RequestMapping("/mbel")
 public class RegistrationController {
 	
 	@Autowired
 	RegistrationServiceImpl registrationServiceImpl;
 	
-	@PostMapping(value="/register/")
+	@PostMapping(value="/user/register/")
     public UserEntity saveUser(@RequestBody UserDto user){
         return registrationServiceImpl.register(user);
     }
 
-	 @PostMapping(value="/mbel/user/password/")
-	    public ResponseEntity<Map<String, String>> updateUserPassword(@RequestBody NewPassword newpassword){
+	 @PostMapping(value="/user/password/")
+	    public ResponseEntity<Map<String, String>> updateUserPassword(@RequestBody UpdatePassword newpassword){
 	        return registrationServiceImpl.updateUserPassword(newpassword.getOldPassword(),
 	        		newpassword.getNewPassword(),newpassword.getConfirmPassword());
 	    }
 
 	}
 
-	class NewPassword{
+	class UpdatePassword{
 		
 		private String oldPassword;
 		

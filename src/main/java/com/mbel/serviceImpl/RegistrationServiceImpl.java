@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.mbel.config.JwtAuthenticationFilter;
+import com.mbel.constants.Constants;
 import com.mbel.dao.UserDao;
 import com.mbel.dto.UserDto;
 import com.mbel.model.UserEntity;
@@ -53,25 +54,25 @@ public class RegistrationServiceImpl {
 
 				newUser.setPassword(bcryptEncoder.encode(newPassword));
 				userDao.save(newUser);
-				response.put("message", "New Password has updated");
-				response.put("userName", newUser.getFirstName());
+				response.put(Constants.MESSAGE, "New Password has updated");
+				response.put(Constants.USER_NAME, newUser.getFirstName());
 				return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
 			}catch (Exception e){
-				response.put("message", "Entered Old Password is wrong.");
-				response.put("userName", newUser.getFirstName());
+				response.put(Constants.MESSAGE, "Entered Old Password is wrong.");
+				response.put(Constants.USER_NAME, newUser.getFirstName());
 
 				return new ResponseEntity<Map<String,String>>(response, HttpStatus.UNAUTHORIZED);
 			}
 		}else if(newPassword.equals(oldPassword)){
-			response.put("message", "New Password cannot be same as Old Password.");
-			response.put("userName", newUser.getFirstName());
+			response.put(Constants.MESSAGE, "New Password cannot be same as Old Password.");
+			response.put(Constants.USER_NAME, newUser.getFirstName());
 
 			return new ResponseEntity<Map<String,String>>(response, HttpStatus.BAD_REQUEST);
 			
 		}
 		else {
-			response.put("message", "New Password and Confirm Password doesnt match.");
-			response.put("userName", newUser.getFirstName());
+			response.put(Constants.MESSAGE, "New Password and Confirm Password doesnt match.");
+			response.put(Constants.USER_NAME, newUser.getFirstName());
 
 			return new ResponseEntity<Map<String,String>>(response, null);
 

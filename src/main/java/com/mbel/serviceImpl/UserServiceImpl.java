@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -73,13 +74,16 @@ public class UserServiceImpl implements UserDetailsService {
 	}
 
 	public UserEntity getupdateUserById(int userId, @Valid UserEntity userEntity) {
-		UserEntity user = userDao.findById(userId).get();
+		UserEntity user = userDao.findById(userId).orElse(null);
+		if(Objects.nonNull(user)) {
 		user.setEmail(userEntity.getEmail());
 		user.setLastName(userEntity.getLastName());
 		user.setFirstName(userEntity.getFirstName());
 		user.setRoleId(userEntity.getRoleId());
 		user.setUserId(userId);
 		return userDao.save(user);
+		}
+		return user;
 	}
 
 	public ResponseEntity<Map<String, String>> deleteUserById(int userId) {
