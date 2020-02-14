@@ -31,7 +31,7 @@ public class  UserController{
 	private UserServiceImpl userServiceImpl;   
 	
 
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@GetMapping("/user/")
 	public List<UserEntity> allUsers() {
 		return userServiceImpl.findAll();
@@ -43,7 +43,7 @@ public class  UserController{
 
 	}
 
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PutMapping("/user/{userId}")
 	public UserEntity updateUserById(@PathVariable (value="userId")@NonNull int userId,
 			@Valid @RequestBody UserEntity userEntity) {

@@ -19,10 +19,10 @@ import com.mbel.model.UserEntity;
 
 @Service("RegistrationServiceImpl")
 public class RegistrationServiceImpl {
-	
+
 	@Autowired
 	private UserDao userDao;
-	
+
 	@Autowired
 	JwtAuthenticationFilter jwt;
 
@@ -31,17 +31,20 @@ public class RegistrationServiceImpl {
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
-	
-    public UserEntity register(UserDto user) {
+
+	public UserEntity register(UserDto user) {
 		UserEntity newUser = new UserEntity();
-	    newUser.setFirstName(user.getFirstName());
-	    newUser.setLastName(user.getLastName());
-	    newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
+		newUser.setFirstName(user.getFirstName());
+		newUser.setLastName(user.getLastName());
+		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
 		newUser.setEmail(user.getEmail());
 		newUser.setRoleId(user.getRoleId());
-        return userDao.save(newUser);
-    }
-	
+		userDao.save(newUser);
+		userDao.saveRelation( newUser.getUserId(),user.getRoleId());
+		return newUser;
+
+	}
+
 	public ResponseEntity<Map<String, String>> updateUserPassword(String oldPassword, String newPassword, String confirmPassword) {
 		Map<String, String> response = new HashMap<>();
 		UserEntity newUser = jwt.getUserdetails();
@@ -68,7 +71,7 @@ public class RegistrationServiceImpl {
 			response.put(Constants.USER_NAME, newUser.getFirstName());
 
 			return new ResponseEntity<Map<String,String>>(response, HttpStatus.BAD_REQUEST);
-			
+
 		}
 		else {
 			response.put(Constants.MESSAGE, "New Password and Confirm Password doesnt match.");
