@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mbel.dto.UserDto;
-import com.mbel.model.UserEntity;
 import com.mbel.serviceImpl.RegistrationServiceImpl;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -23,7 +22,7 @@ public class RegistrationController {
 	RegistrationServiceImpl registrationServiceImpl;
 	
 	@PostMapping(value="/user/register/")
-    public UserEntity saveUser(@RequestBody UserDto user){
+    public ResponseEntity<Map<String, String>> saveUser(@RequestBody UserDto user){
         return registrationServiceImpl.register(user);
     }
 

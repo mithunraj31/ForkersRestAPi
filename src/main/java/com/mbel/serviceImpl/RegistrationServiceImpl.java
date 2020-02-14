@@ -2,6 +2,7 @@ package com.mbel.serviceImpl;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,25 +32,45 @@ public class RegistrationServiceImpl {
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
-	
+
 	@Autowired
 	private EmailServiceImpl emailServiceImpl;
 
-	public UserEntity register(UserDto user) {
-		UserEntity newUser = new UserEntity();
-		newUser.setFirstName(user.getFirstName());
-		newUser.setLastName(user.getLastName());
-		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
-		newUser.setEmail(user.getEmail());
-		newUser.setRoleId(user.getRole());
-		userDao.save(newUser);
-		userDao.saveRelation( newUser.getUserId(),user.getRole());
+	public ResponseEntity<Map<String, String>> register(UserDto user) {
+		Map<String, String> response = new HashMap<>();
+		if(verifyNewUser(user.getEmail())) {
+			UserEntity newUser = new UserEntity();
+			newUser.setFirstName(user.getFirstName());
+			newUser.setLastName(user.getLastName());
+			newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
+			newUser.setEmail(user.getEmail());
+			newUser.setRoleId(user.getRole());
+			userDao.save(newUser);
+			userDao.saveRelation( newUser.getUserId(),user.getRole());
+			try {
+				emailServiceImpl.sendEmail(user.getEmail(),user.getPassword(),user.getFirstName());
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
+		}else {
+			response.put(Constants.MESSAGE, "Email already registered");
+			response.put("Email", user.getEmail());
+			return new ResponseEntity<Map<String,String>>(response, HttpStatus.ALREADY_REPORTED);
+		}
+
+	}
+
+	private boolean verifyNewUser(String email) {
 		try {
-			emailServiceImpl.sendEmail(user.getEmail(),user.getPassword(),user.getFirstName());
-		}catch(Exception e) {
+			UserEntity user =userDao.findByEmail(email);
+			if(Objects.nonNull(user)) {
+				return false;	
+			}
+		}catch(Exception e){
 			e.printStackTrace();
 		}
-		return newUser;
+		return true;
 
 	}
 
