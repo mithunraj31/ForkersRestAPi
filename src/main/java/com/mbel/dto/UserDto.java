@@ -10,7 +10,7 @@ public class UserDto {
     
     private String password;
     
-    private int roleId;
+    private int role;
     
     
 	public String getFirstName() {
@@ -42,14 +42,15 @@ public class UserDto {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
-	public int getRoleId() {
-		return roleId;
+
+	public int getRole() {
+		return role;
+	}
+
+	public void setRole(int role) {
+		this.role = role;
 	}
 	
-	public void setRoleId(int roleId) {
-		this.roleId = roleId;
-	}
     
     
     

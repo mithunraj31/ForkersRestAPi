@@ -31,6 +31,9 @@ public class RegistrationServiceImpl {
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
+	
+	@Autowired
+	private EmailServiceImpl emailServiceImpl;
 
 	public UserEntity register(UserDto user) {
 		UserEntity newUser = new UserEntity();
@@ -38,9 +41,14 @@ public class RegistrationServiceImpl {
 		newUser.setLastName(user.getLastName());
 		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
 		newUser.setEmail(user.getEmail());
-		newUser.setRoleId(user.getRoleId());
+		newUser.setRoleId(user.getRole());
 		userDao.save(newUser);
-		userDao.saveRelation( newUser.getUserId(),user.getRoleId());
+		userDao.saveRelation( newUser.getUserId(),user.getRole());
+		try {
+			emailServiceImpl.sendEmail(user.getEmail(),user.getPassword(),user.getFirstName());
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 		return newUser;
 
 	}

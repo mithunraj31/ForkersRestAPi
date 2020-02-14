@@ -1,7 +1,6 @@
 package com.mbel.serviceImpl;
 
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -56,9 +55,7 @@ public class UserServiceImpl implements UserDetailsService {
 	}
 
 	public List<UserEntity> findAll() {
-		List<UserEntity> list = new ArrayList<>();
-		userDao.findAll().iterator().forEachRemaining(list::add);
-		return list;
+		return userDao.findAll();
 	}
 
 
