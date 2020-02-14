@@ -13,6 +13,7 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "Product")
+
 public class Product {
 
     @Id
@@ -59,6 +60,9 @@ public class Product {
     
     @Column(name = "user_id")
     private int userId;
+    
+    @Column(name = "currency")
+    private String currency;
     
 	public int getProductId() {
 		return productId;
@@ -138,6 +142,12 @@ public class Product {
 	}
 	public void setUserId(int userId) {
 		this.userId = userId;
+	}
+	public String getCurrency() {
+		return currency;
+	}
+	public void setCurrency(String currency) {
+		this.currency = currency;
 	}
     
 }

@@ -1,20 +1,23 @@
 package com.mbel.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mbel.model.ProductSetModel;
 import com.mbel.serviceImpl.FullfillOrderServiceImpl;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/mbel")
-public class FullfillOrder {
+public class FullfillOrderController {
 	
 	@Autowired
 	FullfillOrderServiceImpl fullfillOrderServiceImpl;
@@ -22,17 +25,13 @@ public class FullfillOrder {
 	
 	
 	@PostMapping("/order/fulfillment/")
-	public List<String> fullfilledOrder(@RequestBody FullfillRequestBody requestBody) {
-		if(requestBody.isFulfillment()) {
-		return fullfillOrderServiceImpl.getFullfillOrder(requestBody.getOrderId());
+	public ResponseEntity<Map<String, List<ProductSetModel>>> fullfilledOrder(@RequestBody FullfillRequestBody requestBody) {
+		return fullfillOrderServiceImpl.getFullfillOrder(requestBody.getOrderId(),requestBody.isFulfillment());
 		}
-		return null;
 		
 	}
 	
-	
 
-}
 
  class FullfillRequestBody{
 	

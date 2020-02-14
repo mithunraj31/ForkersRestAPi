@@ -35,17 +35,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private UserDao userDao;
     
-    public static String username=null;
+    public static  String username=null;
     
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws IOException, ServletException {
     	String path =req.getRequestURI();
-    	if(path.equals("/mbel/login")) {
-    		   chain.doFilter(req, res);
-    		return ;
-    	}
-        String header = req.getHeader(HEADER_STRING);
+        if(path.equals("/mbel/login")||path.equals("/mbel/user/register/")) {
+               chain.doFilter(req, res);
+            return ;
+        }
+    	String header = req.getHeader(HEADER_STRING);
         String authToken = null;
         if (header != null && header.startsWith(TOKEN_PREFIX)) {
             authToken = header.replace(TOKEN_PREFIX,"");
@@ -82,8 +82,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
 	public UserEntity getUserdetails() {
-	   UserEntity user = userDao.findByEmail(username);
-	   return user;
+		return userDao.findByEmail(username);
+	    
 	}
    
 

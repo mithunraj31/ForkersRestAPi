@@ -1,5 +1,7 @@
 package com.mbel.serviceImpl;
 
+import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,13 +27,17 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 		public void updateQuantity(int shipmentId) {
 			PopulateIncomingShipmentDto incomingShipment = incomingShipmentServiceImpl.getIncomingShipmentById(shipmentId);
 			for(FetchIncomingOrderdProducts incomingProduct: incomingShipment.getProducts()) {
-			Product product =productServiceImpl.getProductsById(incomingProduct.getProduct().getProductId()).get();
+			Product product =productServiceImpl.getProductsById(incomingProduct.getProduct().getProductId()).orElse(null);
+			if(Objects.nonNull(product)) {
 			product.setQuantity(product.getQuantity()+incomingProduct.getQuantity());
 			product.setPrice(incomingProduct.getPrice());
 			productServiceImpl.getupdateById(incomingProduct.getProduct().getProductId(), product);
-			IncomingShipment incomingShipmentUpdate = incomingShipmentDao.findById(shipmentId).get();
+			}
+			IncomingShipment incomingShipmentUpdate = incomingShipmentDao.findById(shipmentId).orElse(null);
+			if(Objects.nonNull(incomingShipmentUpdate)) {
 			incomingShipmentUpdate.setArrived(true);
 			incomingShipmentDao.save(incomingShipmentUpdate);
+			}
 			
 			
 			}

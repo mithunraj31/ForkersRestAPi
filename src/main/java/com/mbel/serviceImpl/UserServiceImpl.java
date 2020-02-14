@@ -1,11 +1,11 @@
 package com.mbel.serviceImpl;
 
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -22,7 +22,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.mbel.dao.UserDao;
-import com.mbel.dto.UserDto;
 import com.mbel.model.UserEntity;
 
 
@@ -34,6 +33,8 @@ public class UserServiceImpl implements UserDetailsService {
 
 	@Autowired
 	private BCryptPasswordEncoder bcryptEncoder;
+	
+	
 
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		UserEntity user = userDao.findByEmail(username);
@@ -54,9 +55,7 @@ public class UserServiceImpl implements UserDetailsService {
 	}
 
 	public List<UserEntity> findAll() {
-		List<UserEntity> list = new ArrayList<>();
-		userDao.findAll().iterator().forEachRemaining(list::add);
-		return list;
+		return userDao.findAll();
 	}
 
 
@@ -67,29 +66,21 @@ public class UserServiceImpl implements UserDetailsService {
 	}
 
 
-	
-    public UserEntity save(UserDto user) {
-		UserEntity newUser = new UserEntity();
-	    newUser.setFirstName(user.getFirstName());
-	    newUser.setLastName(user.getLastName());
-	    newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
-		newUser.setEmail(user.getEmail());
-		newUser.setRoleId(user.getRoleId());
-        return userDao.save(newUser);
-    }
-
 	public Optional<UserEntity> findById(int userId) {
 		return userDao.findById(userId);
 	}
 
 	public UserEntity getupdateUserById(int userId, @Valid UserEntity userEntity) {
-		UserEntity user = userDao.findById(userId).get();
+		UserEntity user = userDao.findById(userId).orElse(null);
+		if(Objects.nonNull(user)) {
 		user.setEmail(userEntity.getEmail());
 		user.setLastName(userEntity.getLastName());
 		user.setFirstName(userEntity.getFirstName());
 		user.setRoleId(userEntity.getRoleId());
 		user.setUserId(userId);
 		return userDao.save(user);
+		}
+		return user;
 	}
 
 	public ResponseEntity<Map<String, String>> deleteUserById(int userId) {
@@ -101,4 +92,6 @@ public class UserServiceImpl implements UserDetailsService {
 		 return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
 	
 	}
+
+
 }

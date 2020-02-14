@@ -8,17 +8,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mbel.config.TokenProvider;
-import com.mbel.dto.UserDto;
 import com.mbel.model.AuthToken;
 import com.mbel.model.LoginUser;
-import com.mbel.model.UserEntity;
-import com.mbel.serviceImpl.UserServiceImpl;
 
 
 
@@ -33,10 +30,8 @@ public class AuthenticationController {
     @Autowired
     private TokenProvider jwtTokenUtil;
     
-    @Autowired
-    private UserServiceImpl userServiceImpl;
 
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    @PostMapping(value = "/login")
     public ResponseEntity<?> register(@RequestBody LoginUser loginUser) throws AuthenticationException {
 
         final Authentication authentication = authenticationManager.authenticate(
@@ -50,9 +45,5 @@ public class AuthenticationController {
         return ResponseEntity.ok(new AuthToken(token));
     }
     
-    @RequestMapping(value="/register", method = RequestMethod.POST)
-    public UserEntity saveUser(@RequestBody UserDto user){
-        return userServiceImpl.save(user);
-    }
-
+    
 }
