@@ -31,7 +31,7 @@ public class  UserController{
 	private UserServiceImpl userServiceImpl;   
 	
 
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
 	@GetMapping("/user/")
 	public List<UserEntity> allUsers() {
 		return userServiceImpl.findAll();
