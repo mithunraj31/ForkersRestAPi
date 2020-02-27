@@ -3,6 +3,7 @@ package com.mbel.serviceImpl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,8 @@ import com.mbel.dto.FetchIncomingOrderdProducts;
 import com.mbel.dto.FetchOrderdProducts;
 import com.mbel.dto.FetchProductSetDto;
 import com.mbel.dto.PopulateIncomingShipmentDto;
+import com.mbel.dto.ProductDataDto;
+import com.mbel.dto.ProductPredictionDto;
 import com.mbel.model.IncomingShipment;
 import com.mbel.model.IncomingShipmentProduct;
 import com.mbel.model.Order;
@@ -60,7 +63,7 @@ public class ProductPredictionServiceImpl {
 	@Autowired 
 	IncomingShipmentProductDao incomingShipmentProductDao;
 
-	public List<FetchProductSetDto> getProductPrediction(int year,int month) {
+	public List<ProductPredictionDto> getProductPrediction(int year,int month) {
 		List<Product> allProduct = productDao.findAll();
 		List<ProductSet> allProductSet =productSetDao.findAll();
 		List<Order>order =orderDao.findAll().stream().filter(Order::isActive).collect(Collectors.toList()); 
@@ -71,32 +74,40 @@ public class ProductPredictionServiceImpl {
 
 	}
 
-	private List<FetchProductSetDto> predictProduct(List<Product> allProduct, List<ProductSet> allProductSet,
+	private List<ProductPredictionDto> predictProduct(List<Product> allProduct, List<ProductSet> allProductSet,
 			List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment,
 			List<IncomingShipmentProduct> incomingProducts, int year, int month) {
-		List<FetchProductSetDto> fetchProductSetDtoList = new ArrayList<>();
-		for(Product product:allProduct.stream().filter(predicate->predicate.isActive()).collect(Collectors.toList())) {
-
+		List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
+		for(Product product:allProduct.stream().filter(Product::isActive).collect(Collectors.toList())) {
 			List<PredictionData> predictionDataList = new ArrayList<>();
 			if(!product.isSet()) {
-				FetchProductSetDto fetchProductSetDto =new FetchProductSetDto();
-				fetchProductSetDto.setObicNo(product.getObicNo());
-				fetchProductSetDto.setProductId(product.getProductId());
-				fetchProductSetDto.setProductName(product.getProductName());
-				fetchProductSetDto.setMoq(product.getMoq());
-				fetchProductSetDto.setLeadTime(product.getLeadTime());
-				List<PredictionData> data =calculateAccordingToDate(product, year,month,predictionDataList,order,incomingShipment,orderProduct,allProduct,allProductSet,incomingProducts);
-				fetchProductSetDto.setData(data);
-				fetchProductSetDtoList.add(fetchProductSetDto);
+				ProductPredictionDto productPredictionDto =new ProductPredictionDto();
+				List<ProductDataDto>productDataDtoList=new ArrayList<>();
+				//productPredictionDto.setProductId(0);
+				productPredictionDto.setDescription(" ");
+				productPredictionDto.setObicNo(" ");
+				productPredictionDto.setProductName("Individual Product");
+				ProductDataDto productDataDto =new ProductDataDto();
+				productDataDto.setDescription(product.getDescription());
+				productDataDto.setProductId(product.getProductId());
+				productDataDto.setObicNo(product.getObicNo());
+				productDataDto.setProductName(product.getProductName());
+				List<PredictionData> data =calculateAccordingToDate(product, year,month
+						,predictionDataList,order,incomingShipment,orderProduct,allProduct,allProductSet,incomingProducts);
+				productDataDto.setValues(data);
+				productDataDtoList.add(productDataDto);
+				productPredictionDto.setProducts(productDataDtoList);
+				productPredictionDtoList.add(productPredictionDto);
 			}else {
-				FetchProductSetDto fetchProductSetDto =new FetchProductSetDto();
-				fetchProductSetDto.setObicNo(product.getObicNo());
-				fetchProductSetDto.setProductId(product.getProductId());
-				fetchProductSetDto.setProductName(product.getProductName());
+				ProductPredictionDto productPredictionDto =new ProductPredictionDto();
+				productPredictionDto.setObicNo(product.getObicNo());
+				productPredictionDto.setProductId(product.getProductId());
+				productPredictionDto.setProductName(product.getProductName());
+				productPredictionDto.setDescription(product.getDescription());
 				List<ProductSet> productsetList= allProductSet.stream().filter(predicate->predicate.getSetId()==product.getProductId()).collect(Collectors.toList());
-				List<ProductSetModel>productSetModelList = new ArrayList<>();
+				List<ProductDataDto>productDataDtoList=new ArrayList<>();
 				for(int l=0;l< productsetList.size();l++ ) {
-					ProductSetModel productSetModel = new ProductSetModel();
+					ProductDataDto productDataDto =new ProductDataDto();
 					predictionDataList = new ArrayList<>();
 					int productComponentId =productsetList.get(l).getProductComponentId();
 					Product component =allProduct.stream().filter(predicate->predicate.getProductId()==productComponentId)
@@ -106,19 +117,27 @@ public class ProductPredictionServiceImpl {
 								}
 								return list.get(0);
 							}));
-					productSetModel.setProduct(component);
-					productSetModel.setQuantity(productsetList.get(l).getQuantity());
+					productDataDto.setDescription(component.getDescription());
+					productDataDto.setProductId(component.getProductId());
+					productDataDto.setObicNo(component.getObicNo());
+					productDataDto.setProductName(component.getProductName());
 					List<PredictionData> data =calculateAccordingToDate(component, year,month,predictionDataList,order,
 							incomingShipment,orderProduct,allProduct,allProductSet,incomingProducts);
-					productSetModel.setData(data);
-					productSetModelList.add(productSetModel);
+					productDataDto.setValues(data);
+					productDataDtoList.add(productDataDto);
 				}
-				fetchProductSetDto.setProducts(productSetModelList);
-				fetchProductSetDtoList.add(fetchProductSetDto);
+				productPredictionDto.setProducts(productDataDtoList);
+				productPredictionDtoList.add(productPredictionDto);
 			}
 		} 
-		return fetchProductSetDtoList;
+		return getSortedOrder(productPredictionDtoList);
 
+
+	}
+	
+	public List<ProductPredictionDto> getSortedOrder(List<ProductPredictionDto> productPredictionDtoList) {
+		 productPredictionDtoList.sort(Comparator.comparingInt(ProductPredictionDto::getProductId).reversed());
+		 return productPredictionDtoList;
 
 	}
 
@@ -128,11 +147,11 @@ public class ProductPredictionServiceImpl {
 		LocalDateTime dueDateStart =LocalDateTime.of(year, month, 1, 0, 0);
 		LocalDateTime dueDateEnd =LocalDateTime.of(year, month, initial.lengthOfMonth(), 0, 0);
 		Map<Integer,Mappingfields>productQuantityMap=new HashMap<>();
-		Map<Integer,List<Mappingfields>>productDetails=new HashMap<>();
 		for(LocalDateTime dueDate=dueDateStart;dueDate.isBefore(dueDateEnd)||
 				dueDate.isEqual(dueDateEnd);dueDate=dueDate.plusDays(1)) {
 			List<Order> unfulfilledorder =getUnfulfilledActiveOrder(order,dueDate);
 			PredictionData predictionData=new PredictionData();
+			Map<Integer,List<Mappingfields>>productDetails=new HashMap<>();
 			Map<Integer,List<Integer>>incomingShipmentMap=new HashMap<>();
 			if(!unfulfilledorder.isEmpty()) {
 				for(Order individualOrder:unfulfilledorder) {
@@ -143,45 +162,62 @@ public class ProductPredictionServiceImpl {
 					}
 				}
 			}
-			boolean notOrdered=productNotOrdered(unfulfilledorder,product,dueDate,order,orderProduct,allProduct,allProductSet);
-			if(notOrdered&&productQuantityMap.containsKey(product.getProductId())) {
+			int numOrdered=productNumOrdered(unfulfilledorder,product,orderProduct,allProduct,allProductSet);
+			if(numOrdered > 1) {
+				List<Mappingfields> orderedTimes=productDetails.get(product.getProductId());
+				int requiredQuantity =0;
+				int currentQuantity =0;
+				for(int i=0;i < orderedTimes.size();i++) {
+					requiredQuantity+=orderedTimes.get(i).getRequiredQuantity();
+					currentQuantity=orderedTimes.get(0).getCurrentQuantity();
+				}
+				predictionData.setDate(dueDate);
+				predictionData.setCurrentQuantity(currentQuantity);
+				predictionData.setRequiredQuantity(requiredQuantity);
+				predictionData.setIncomingQuantity(productQuantityMap.get(product.getProductId()).getIncomingQuantity());
+			
+			}else if(numOrdered==0&&productQuantityMap.containsKey(product.getProductId())) {
 				predictionData.setDate(dueDate);
 				predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getAvailableStockQuantity());
-				predictionData.setRequiredQuantity(0);
-				predictionData.setQuantity(0);
+				//predictionData.setRequiredQuantity(0);
+				if(productQuantityMap.get(product.getProductId()).getIncomingQuantity()!=0) {
+				predictionData.setIncomingQuantity(productQuantityMap.get(product.getProductId()).getIncomingQuantity());
+				}
 
-			}
-			else if(productQuantityMap.containsKey(product.getProductId())){
+			}else if(productQuantityMap.containsKey(product.getProductId())){
 				predictionData.setDate(dueDate);
 				predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getCurrentQuantity());
 				predictionData.setRequiredQuantity(productQuantityMap.get(product.getProductId()).getRequiredQuantity());
-				predictionData.setQuantity(productQuantityMap.get(product.getProductId()).getRequiredQuantity());
+				if(productQuantityMap.get(product.getProductId()).getIncomingQuantity()!=0) {
+					predictionData.setIncomingQuantity(productQuantityMap.get(product.getProductId()).getIncomingQuantity());
+					}
 
 			}else {
 				predictionData.setDate(dueDate);
 				predictionData.setCurrentQuantity(product.getQuantity());
-				predictionData.setRequiredQuantity(0);
-				predictionData.setQuantity(0);
+				//predictionData.setRequiredQuantity(0);
+				//predictionData.setIncomingQuantity(0);
 			}
 			predictionDataList.add(predictionData);
+			}
+		
+		return predictionDataList;
 		}
 
-		return predictionDataList;
-	}
+		
 
-	private boolean productNotOrdered(List<Order> unfulfilledorder, Product product, LocalDateTime dueDate, List<Order> order,
-			List<OrderProduct> orderProduct, List<Product> allProduct, List<ProductSet> allProductSet) {
+	private int productNumOrdered(List<Order> unfulfilledorder, Product product, List<OrderProduct> orderProduct, List<Product> allProduct, List<ProductSet> allProductSet) {
 		List<FetchOrderdProducts> filteredProductSet=new ArrayList<>();
 		List<ProductSetModel> filteredProduct=new ArrayList<>();
 		if(!unfulfilledorder.isEmpty()) {
 			for(Order individualOrder:unfulfilledorder) {
 				List<FetchOrderdProducts> orderdProducts= getAllProducts(individualOrder,orderProduct,allProduct,allProductSet);
-				for(int i=0;i<orderdProducts.size();i++) {
-					if(!orderdProducts.get(i).getProduct().isSet()) {
+				
 				filteredProductSet.addAll(orderdProducts.stream()
 				.filter(predicate->predicate.getProduct().getProductId()==product.getProductId())
 				.collect(Collectors.toList()));
-					}else {
+				for(int i=0;i<orderdProducts.size();i++) {
+					if(orderdProducts.get(i).getProduct().isSet()) {
 						List<ProductSetModel> individualproduct=orderdProducts.get(i).getProduct().getProducts();
 						filteredProduct.addAll(individualproduct.stream()
 						.filter(predicate->predicate.getProduct().getProductId()==product.getProductId())
@@ -190,7 +226,7 @@ public class ProductPredictionServiceImpl {
 				}
 			}
 		}
-		return (filteredProduct.isEmpty()&&filteredProductSet.isEmpty())?true:false; 
+		return filteredProduct.size()+filteredProductSet.size();
 
 	}
 
@@ -295,10 +331,11 @@ public class ProductPredictionServiceImpl {
 		mappingFields.setOrderdQuantity(individualProduct.getQuantity());
 		mappingFields.setRequiredQuantity(orderdQunatity);
 		mappingFields.setSet(true);
+		mappingFields.setIncomingQuantity(0);
 		stockQuantity=individualProduct.getProduct().getQuantity();
 		updateStockValues(individualProduct.getProduct(),stockQuantity,orderdQunatity,
 				dueDate,mappingFields,productQuantityMap,incomingShipmentMap,incomingShipment,incomingProducts,allProduct,allProductSet);
-		multipleProductOrder(productDetails,product.getProduct().getProductId(),mappingFields);
+		multipleProductOrder(productDetails,individualProduct.getProduct().getProductId(),mappingFields);
 	}
 
 	private void productStockCaluculate(Map<Integer, List<Mappingfields>> productDetails, FetchOrderdProducts productCheck,
@@ -313,6 +350,7 @@ public class ProductPredictionServiceImpl {
 		mappingFields.setProduct(productValue);
 		mappingFields.setOrderdQuantity(orderdQunatity);
 		mappingFields.setRequiredQuantity(orderdQunatity);
+		mappingFields.setIncomingQuantity(0);
 		updateStockValues(productValue,stockQuantity,orderdQunatity,dueDate,mappingFields,
 				productQuantityMap,incomingShipmentMap,incomingShipment,incomingProducts, allProduct, allProductSet);
 		multipleProductOrder(productDetails,productCheck.getProduct().getProductId(),mappingFields);    
@@ -336,13 +374,13 @@ public class ProductPredictionServiceImpl {
 			List<IncomingShipmentProduct> incomingProducts, List<Product> allProduct, List<ProductSet> allProductSet) {
 		int tillDateQuantity=0;
 		if(!productQuantityMap.containsKey(product.getProductId())) {
-			tillDateQuantity =getTillDateQuantity(product,stockQuantity,dueDate,incomingShipmentMap,incomingShipment, incomingProducts,allProduct,allProductSet);
+			tillDateQuantity =getTillDateQuantity(product,stockQuantity,dueDate,incomingShipmentMap,incomingShipment, incomingProducts,allProduct,allProductSet,mappingFields);
 			mappingFields.setCurrentQuantity(tillDateQuantity);
 			mappingFields.setAvailableStockQuantity(tillDateQuantity-orderdQunatity);
 			productQuantityMap.put(product.getProductId(), mappingFields);
 		}else {
 			stockQuantity = productQuantityMap.get(product.getProductId()).getAvailableStockQuantity();
-			tillDateQuantity =getTillDateQuantity(product,stockQuantity,dueDate,incomingShipmentMap,incomingShipment, incomingProducts, allProduct, allProductSet);
+			tillDateQuantity =getTillDateQuantity(product,stockQuantity,dueDate,incomingShipmentMap,incomingShipment, incomingProducts, allProduct, allProductSet,mappingFields);
 			mappingFields.setCurrentQuantity(tillDateQuantity);
 			mappingFields.setAvailableStockQuantity(tillDateQuantity-orderdQunatity);
 			productQuantityMap.put(product.getProductId(), mappingFields);
@@ -352,14 +390,14 @@ public class ProductPredictionServiceImpl {
 
 	public int getTillDateQuantity(Product newproduct, int stockQuantity, LocalDateTime dueDate, 
 			Map<Integer, List<Integer>> incomingShipmentMap, List<IncomingShipment> incomingShipment,
-			List<IncomingShipmentProduct> incomingProducts, List<Product> allProduct, List<ProductSet> allProductSet) {
+			List<IncomingShipmentProduct> incomingProducts, List<Product> allProduct, List<ProductSet> allProductSet, Mappingfields mappingFields) {
 		List<Integer>incomingOrderList=new ArrayList<>();
 		int tillDateQuantity = stockQuantity;
 		List<PopulateIncomingShipmentDto> incomingShipmentList=getAllUnarrivedDueDateIncomingShipment(incomingShipment,incomingProducts,dueDate,allProduct,allProductSet);
 		for(PopulateIncomingShipmentDto arrivedOrder:incomingShipmentList) {
 			for(FetchIncomingOrderdProducts incomingProduct: arrivedOrder.getProducts()) {
 				if(newproduct.getProductId() == incomingProduct.getProduct().getProductId()) {
-					tillDateQuantity=addArrivedQuantity(tillDateQuantity,incomingShipmentMap,newproduct,arrivedOrder,incomingOrderList,incomingProduct);
+					tillDateQuantity=addArrivedQuantity(tillDateQuantity,incomingShipmentMap,newproduct,arrivedOrder,incomingOrderList,incomingProduct,mappingFields);
 				}
 			}
 		}
@@ -413,7 +451,8 @@ public class ProductPredictionServiceImpl {
 	}
 
 	private int addArrivedQuantity(int tillDateQuantity, Map<Integer, List<Integer>> incomingShipmentMap, 
-			Product newproduct, PopulateIncomingShipmentDto arrivedOrder, List<Integer> incomingOrderList, FetchIncomingOrderdProducts incomingProduct) {
+			Product newproduct, PopulateIncomingShipmentDto arrivedOrder, List<Integer> incomingOrderList, FetchIncomingOrderdProducts incomingProduct, Mappingfields mappingFields) {
+		mappingFields.setIncomingQuantity(incomingProduct.getQuantity());
 		if(!incomingShipmentMap.containsKey(newproduct.getProductId())){ 
 			tillDateQuantity+=incomingProduct.getQuantity();
 			incomingOrderList.add(arrivedOrder.getIncomingShipmentId());

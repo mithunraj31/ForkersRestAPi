@@ -10,7 +10,7 @@ public class PredictionData {
 	
 	private int requiredQuantity;
 	
-	private int quantity;
+	private int incomingQuantity;
 
 	public LocalDateTime getDate() {
 		return date;
@@ -36,13 +36,15 @@ public class PredictionData {
 		this.requiredQuantity = requiredQuantity;
 	}
 
-	public int getQuantity() {
-		return quantity;
+	public int getIncomingQuantity() {
+		return incomingQuantity;
 	}
 
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
+	public void setIncomingQuantity(int incomingQuantity) {
+		this.incomingQuantity = incomingQuantity;
 	}
+
+
 	
 
 }

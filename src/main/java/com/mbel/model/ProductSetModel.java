@@ -1,7 +1,6 @@
 package com.mbel.model;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class ProductSetModel {
 	
@@ -16,17 +15,6 @@ public class ProductSetModel {
 	private boolean forecast;
 	
 	private LocalDateTime mod;
-	
-	private List<PredictionData> data;
-
-	public List<PredictionData> getData() {
-		return data;
-	}
-
-	public void setData(List<PredictionData> data) {
-		this.data = data;
-	}
-
 
 	public int getQuantity() {
 		return quantity;
@@ -76,6 +64,7 @@ public class ProductSetModel {
 		this.forecast = forecast;
 	}
 
+	}
 
 
-}
+

@@ -393,6 +393,8 @@ class Mappingfields{
 	private int requiredQuantity;
 
 	private int availableStockQuantity;
+	
+	private int incomingQuantity;
 
 	private int orderdQuantity;
 
@@ -476,6 +478,14 @@ class Mappingfields{
 
 	public void setPackageProduct(Product packageProduct) {
 		this.packageProduct = packageProduct;
+	}
+
+	public int getIncomingQuantity() {
+		return incomingQuantity;
+	}
+
+	public void setIncomingQuantity(int incomingQuantity) {
+		this.incomingQuantity = incomingQuantity;
 	}
 
 
