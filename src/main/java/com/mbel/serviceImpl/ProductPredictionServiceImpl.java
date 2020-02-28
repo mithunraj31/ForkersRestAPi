@@ -78,27 +78,8 @@ public class ProductPredictionServiceImpl {
 			List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment,
 			List<IncomingShipmentProduct> incomingProducts, int year, int month) {
 		List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
-		for(Product product:allProduct.stream().filter(Product::isActive).collect(Collectors.toList())) {
+		for(Product product:allProduct.stream().filter(predicate->predicate.isActive()&&predicate.isSet()).collect(Collectors.toList())) {
 			List<PredictionData> predictionDataList = new ArrayList<>();
-			if(!product.isSet()) {
-				ProductPredictionDto productPredictionDto =new ProductPredictionDto();
-				List<ProductDataDto>productDataDtoList=new ArrayList<>();
-				//productPredictionDto.setProductId(0);
-				productPredictionDto.setDescription(" ");
-				productPredictionDto.setObicNo(" ");
-				productPredictionDto.setProductName("Individual Product");
-				ProductDataDto productDataDto =new ProductDataDto();
-				productDataDto.setDescription(product.getDescription());
-				productDataDto.setProductId(product.getProductId());
-				productDataDto.setObicNo(product.getObicNo());
-				productDataDto.setProductName(product.getProductName());
-				List<PredictionData> data =calculateAccordingToDate(product, year,month
-						,predictionDataList,order,incomingShipment,orderProduct,allProduct,allProductSet,incomingProducts);
-				productDataDto.setValues(data);
-				productDataDtoList.add(productDataDto);
-				productPredictionDto.setProducts(productDataDtoList);
-				productPredictionDtoList.add(productPredictionDto);
-			}else {
 				ProductPredictionDto productPredictionDto =new ProductPredictionDto();
 				productPredictionDto.setObicNo(product.getObicNo());
 				productPredictionDto.setProductId(product.getProductId());
@@ -129,17 +110,33 @@ public class ProductPredictionServiceImpl {
 				productPredictionDto.setProducts(productDataDtoList);
 				productPredictionDtoList.add(productPredictionDto);
 			}
-		} 
-		return getSortedOrder(productPredictionDtoList);
-
-
-	}
 	
-	public List<ProductPredictionDto> getSortedOrder(List<ProductPredictionDto> productPredictionDtoList) {
-		 productPredictionDtoList.sort(Comparator.comparingInt(ProductPredictionDto::getProductId).reversed());
-		 return productPredictionDtoList;
+		
+			ProductPredictionDto productPredictionDto =new ProductPredictionDto();
+			List<ProductDataDto>productDataDtoList=new ArrayList<>();
+			productPredictionDto.setProductId(0);
+			productPredictionDto.setDescription(" ");
+			productPredictionDto.setObicNo(" ");
+			productPredictionDto.setProductName("Individual Product");
+			for(Product product:allProduct.stream().filter(predicate->predicate.isActive()&&!predicate.isSet()).collect(Collectors.toList())) {
+				List<PredictionData> predictionDataList = new ArrayList<>();
+			ProductDataDto productDataDto =new ProductDataDto();
+			productDataDto.setDescription(product.getDescription());
+			productDataDto.setProductId(product.getProductId());
+			productDataDto.setObicNo(product.getObicNo());
+			productDataDto.setProductName(product.getProductName());
+			List<PredictionData> data  =calculateAccordingToDate(product, year,month
+					,predictionDataList,order,incomingShipment,orderProduct,allProduct,allProductSet,incomingProducts);
+			productDataDto.setValues(data);
+			productDataDtoList.add(productDataDto);
+			}
+			
+			productPredictionDto.setProducts(productDataDtoList);
+			productPredictionDtoList.add(productPredictionDto);
+		
+		return productPredictionDtoList;
+		} 
 
-	}
 
 	private List<PredictionData> calculateAccordingToDate(Product product, int year, int month, List<PredictionData> predictionDataList, 
 			List<Order> order, List<IncomingShipment> incomingShipment, List<OrderProduct> orderProduct, List<Product> allProduct, 
