@@ -11,6 +11,8 @@ public class PredictionData {
 	private int requiredQuantity;
 	
 	private int incomingQuantity;
+	
+	private int quantity;
 
 	public LocalDateTime getDate() {
 		return date;
@@ -42,6 +44,14 @@ public class PredictionData {
 
 	public void setIncomingQuantity(int incomingQuantity) {
 		this.incomingQuantity = incomingQuantity;
+	}
+
+	public int getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
 	}
 
 

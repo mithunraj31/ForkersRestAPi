@@ -142,7 +142,8 @@ public class ProductPredictionServiceImpl {
 	}
 
 	private List<PredictionData> calculateAccordingToDate(Product product, int year, int month, List<PredictionData> predictionDataList, 
-			List<Order> order, List<IncomingShipment> incomingShipment, List<OrderProduct> orderProduct, List<Product> allProduct, List<ProductSet> allProductSet, List<IncomingShipmentProduct> incomingProducts) {
+			List<Order> order, List<IncomingShipment> incomingShipment, List<OrderProduct> orderProduct, List<Product> allProduct, 
+			List<ProductSet> allProductSet, List<IncomingShipmentProduct> incomingProducts) {
 		LocalDate initial = LocalDate.of(year, month, 1);
 		LocalDateTime dueDateStart =LocalDateTime.of(year, month, 1, 0, 0);
 		LocalDateTime dueDateEnd =LocalDateTime.of(year, month, initial.lengthOfMonth(), 0, 0);
@@ -163,48 +164,56 @@ public class ProductPredictionServiceImpl {
 				}
 			}
 			int numOrdered=productNumOrdered(unfulfilledorder,product,orderProduct,allProduct,allProductSet);
-			if(numOrdered > 1) {
-				List<Mappingfields> orderedTimes=productDetails.get(product.getProductId());
-				int requiredQuantity =0;
-				int currentQuantity =0;
-				for(int i=0;i < orderedTimes.size();i++) {
-					requiredQuantity+=orderedTimes.get(i).getRequiredQuantity();
-					currentQuantity=orderedTimes.get(0).getCurrentQuantity();
-				}
-				predictionData.setDate(dueDate);
-				predictionData.setCurrentQuantity(currentQuantity);
-				predictionData.setRequiredQuantity(requiredQuantity);
-				predictionData.setIncomingQuantity(productQuantityMap.get(product.getProductId()).getIncomingQuantity());
-			
-			}else if(numOrdered==0&&productQuantityMap.containsKey(product.getProductId())) {
-				predictionData.setDate(dueDate);
-				predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getAvailableStockQuantity());
-				//predictionData.setRequiredQuantity(0);
-				if(productQuantityMap.get(product.getProductId()).getIncomingQuantity()!=0) {
-				predictionData.setIncomingQuantity(productQuantityMap.get(product.getProductId()).getIncomingQuantity());
-				}
-
-			}else if(productQuantityMap.containsKey(product.getProductId())){
-				predictionData.setDate(dueDate);
-				predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getCurrentQuantity());
-				predictionData.setRequiredQuantity(productQuantityMap.get(product.getProductId()).getRequiredQuantity());
-				if(productQuantityMap.get(product.getProductId()).getIncomingQuantity()!=0) {
-					predictionData.setIncomingQuantity(productQuantityMap.get(product.getProductId()).getIncomingQuantity());
-					}
-
-			}else {
-				predictionData.setDate(dueDate);
-				predictionData.setCurrentQuantity(product.getQuantity());
-				//predictionData.setRequiredQuantity(0);
-				//predictionData.setIncomingQuantity(0);
-			}
-			predictionDataList.add(predictionData);
-			}
-		
+				updateDailyStockValues(numOrdered,productDetails,predictionData,dueDate,productQuantityMap,product,predictionDataList);
+		}
 		return predictionDataList;
+	}
+
+		public void updateDailyStockValues(int numOrdered,
+				Map<Integer, List<Mappingfields>> productDetails, PredictionData predictionData, LocalDateTime dueDate, 
+				Map<Integer, Mappingfields> productQuantityMap, Product product, List<PredictionData> predictionDataList) {
+		if(numOrdered > 1) {
+			List<Mappingfields> orderedTimes=productDetails.get(product.getProductId());
+			int requiredQuantity =0;
+			int currentQuantity =0;
+			for(int i=0;i < orderedTimes.size();i++) {
+				requiredQuantity+=orderedTimes.get(i).getRequiredQuantity();
+				currentQuantity=orderedTimes.get(0).getCurrentQuantity();
+			}
+			predictionData.setDate(dueDate);
+			predictionData.setCurrentQuantity(currentQuantity);
+			predictionData.setRequiredQuantity(requiredQuantity);
+			predictionData.setIncomingQuantity(productQuantityMap.get(product.getProductId()).getIncomingQuantity());
+			predictionData.setQuantity(product.getQuantity());
+		
+		}else if(numOrdered==0&&productQuantityMap.containsKey(product.getProductId())) {
+			predictionData.setDate(dueDate);
+			predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getAvailableStockQuantity());
+			predictionData.setQuantity(product.getQuantity());
+			//predictionData.setRequiredQuantity(0);
+			if(productQuantityMap.get(product.getProductId()).getIncomingQuantity()!=0) {
+			predictionData.setIncomingQuantity(productQuantityMap.get(product.getProductId()).getIncomingQuantity());
+			}
+
+		}else if(productQuantityMap.containsKey(product.getProductId())){
+			predictionData.setDate(dueDate);
+			predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getCurrentQuantity());
+			predictionData.setRequiredQuantity(productQuantityMap.get(product.getProductId()).getRequiredQuantity());
+			predictionData.setQuantity(product.getQuantity());
+			if(productQuantityMap.get(product.getProductId()).getIncomingQuantity()!=0) {
+				predictionData.setIncomingQuantity(productQuantityMap.get(product.getProductId()).getIncomingQuantity());
+				}
+
+		}else {
+			predictionData.setDate(dueDate);
+			predictionData.setCurrentQuantity(product.getQuantity());
+			predictionData.setQuantity(product.getQuantity());
+			//predictionData.setRequiredQuantity(0);
+			//predictionData.setIncomingQuantity(0);
+		}
+		predictionDataList.add(predictionData);
 		}
 
-		
 
 	private int productNumOrdered(List<Order> unfulfilledorder, Product product, List<OrderProduct> orderProduct, List<Product> allProduct, List<ProductSet> allProductSet) {
 		List<FetchOrderdProducts> filteredProductSet=new ArrayList<>();

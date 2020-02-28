@@ -17,7 +17,7 @@ public class EmailServiceImpl  {
 
 	@Autowired
 	private JavaMailSender javaMailSender;
-	String url="http://13.113.194.21/";
+	String url="http://18.182.8.74/"; 
 
 
 
