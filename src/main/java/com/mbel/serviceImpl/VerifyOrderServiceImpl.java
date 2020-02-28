@@ -189,7 +189,8 @@ public class VerifyOrderServiceImpl {
 		List<Order>order =orderDao.findAll(); 
 		return order.stream()
 				.filter(predicate->!predicate.isFulfilled() && predicate.isActive()
-				&& predicate.getDueDate().isBefore(dueDate) || predicate.getDueDate().isEqual(dueDate))
+				&& ((predicate.getDueDate().getDayOfMonth() < dueDate.getDayOfMonth() )||
+						(predicate.getDueDate().getDayOfMonth() == dueDate.getDayOfMonth())))
 				.collect(Collectors.toList());
 	}
 

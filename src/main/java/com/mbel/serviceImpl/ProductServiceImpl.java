@@ -83,13 +83,15 @@ public class ProductServiceImpl  {
 		int id  = product.getProductId();
 		if(productSet.getProducts() != null) {
 			int setValue  =productSet.getProducts().size();
+			List<ProductSet> productSetList =new ArrayList<>();
 			for(int i=0;i<setValue;i++) {
 				ProductSet newProductSet = new ProductSet();
 				newProductSet.setSetId(id);
 				newProductSet.setQuantity(productSet.getProducts().get(i).getQuantity());
 				newProductSet.setProductComponentId(productSet.getProducts().get(i).getProductId());
-				productSetDao.save(newProductSet);
+				productSetList.add(newProductSet);
 			}
+			productSetDao.saveAll(productSetList);
 
 		}
 		return productsave;
@@ -244,14 +246,15 @@ public class ProductServiceImpl  {
 		Product productupdate=productDao.save(product);
 		int setValue  =productSetDetails.getProducts().size();
 		productSetDao.deleteBySet(productId);
+		List<ProductSet> productSetList =new ArrayList<>();
 		for(int i=0;i<setValue;i++) {
 			ProductSet productSet = new ProductSet();
 			productSet.setSetId(productId);
 			productSet.setQuantity(productSetDetails.getProducts().get(i).getQuantity());
 			productSet.setProductComponentId(productSetDetails.getProducts().get(i).getProductId());
-			productSetDao.save(productSet);
+			productSetList.add(productSet);
 		}
-
+		productSetDao.saveAll(productSetList);
 
 		return productupdate;
 		}
