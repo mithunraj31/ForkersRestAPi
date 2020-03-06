@@ -10,6 +10,8 @@ public class OrderModel{
 	    
 	    private LocalDateTime receivedDate;
 	    
+	    private LocalDateTime deliveryDate;
+	    
 	    private String proposalNo;
 	    
 	    private LocalDateTime createdAt;
@@ -122,6 +124,14 @@ public class OrderModel{
 
 		public void setForecast(boolean forecast) {
 			this.forecast = forecast;
+		}
+
+		public LocalDateTime getDeliveryDate() {
+			return deliveryDate;
+		}
+
+		public void setDeliveryDate(LocalDateTime deliveryDate) {
+			this.deliveryDate = deliveryDate;
 		}
 
 

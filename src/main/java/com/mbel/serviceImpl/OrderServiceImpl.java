@@ -82,6 +82,7 @@ public class OrderServiceImpl  {
 			populate.setProposalNo(order.getProposalNo());
 			populate.setReceivedDate(order.getReceivedDate());
 			populate.setDueDate(order.getDueDate());
+			populate.setDeliveryDate(order.getDeliveryDate());
 			populate.setActive(order.isActive());
 			populate.setForecast(order.isForecast());
 			populate.setFulfilled(order.isFulfilled());
@@ -114,6 +115,7 @@ public class OrderServiceImpl  {
 		populate.setProposalNo(order.getProposalNo());
 		populate.setReceivedDate(order.getReceivedDate());
 		populate.setDueDate(order.getDueDate());
+		populate.setDeliveryDate(order.getDeliveryDate());
 		populate.setActive(order.isActive());
 		populate.setForecast(order.isForecast());
 		populate.setFulfilled(order.isFulfilled());
@@ -164,6 +166,7 @@ public class OrderServiceImpl  {
 		order.setContractorId(newOrderSet.getContractorId());
 		order.setSalesDestinationId(newOrderSet.getSalesDestinationId());
 		order.setDueDate(newOrderSet.getDueDate());
+		order.setDeliveryDate(newOrderSet.getDeliveryDate());
 		order.setCustomerId(newOrderSet.getCustomerId());
 		order.setProposalNo(newOrderSet.getProposalNo());
 		order.setReceivedDate(newOrderSet.getReceivedDate());
@@ -208,6 +211,7 @@ public class OrderServiceImpl  {
 		order.setCustomerId(newOrderSet.getCustomerId());
 		order.setProposalNo(newOrderSet.getProposalNo());
 		order.setReceivedDate(newOrderSet.getReceivedDate());
+		order.setDeliveryDate(newOrderSet.getDeliveryDate());
 		order.setUpdatedAt(LocalDateTime.now());
 		order.setCreatedAt(LocalDateTime.now());
 		order.setActive(true);
