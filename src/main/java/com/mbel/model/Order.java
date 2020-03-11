@@ -24,7 +24,6 @@ public class Order{
 	    @Column(name = "due_date")
 	    private LocalDateTime dueDate;
 	    
-	    @NotNull(message="* Please Enter deliveryDate")
 	    @Column(name = "delivery_date")
 	    private LocalDateTime deliveryDate;
 	    
