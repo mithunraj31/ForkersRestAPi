@@ -24,6 +24,10 @@ public class Order{
 	    @Column(name = "due_date")
 	    private LocalDateTime dueDate;
 	    
+	    @NotNull(message="* Please Enter deliveryDate")
+	    @Column(name = "delivery_date")
+	    private LocalDateTime deliveryDate;
+	    
 	    @NotNull(message="* Please Enter customerId")
 	    @Column(name = "customer_id")
 	    private int customerId;
@@ -102,7 +106,12 @@ public class Order{
 			this.contractorId = contractorId;
 		}
 		
-		
+		public LocalDateTime getDeliveryDate() {
+			return deliveryDate;
+		}
+		public void setDeliveryDate(LocalDateTime deliveryDate) {
+			this.deliveryDate = deliveryDate;
+		}
 		public LocalDateTime getReceivedDate() {
 			return receivedDate;
 		}

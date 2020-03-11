@@ -8,6 +8,7 @@ import com.mbel.model.ProductSetModel;
 public class FetchProductSetDto extends Product {
 	
 	private List<ProductSetModel> products;
+	
 
 	public List<ProductSetModel> getProducts() {
 		return products;
@@ -17,7 +18,6 @@ public class FetchProductSetDto extends Product {
 		this.products = products;
 	}
 
-	
 	
 	
 }

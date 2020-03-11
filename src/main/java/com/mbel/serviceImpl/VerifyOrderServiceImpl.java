@@ -15,12 +15,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.mbel.dao.IncomingShipmentDao;
+import com.mbel.dao.IncomingShipmentProductDao;
 import com.mbel.dao.OrderDao;
+import com.mbel.dao.OrderProductDao;
 import com.mbel.dao.ProductDao;
+import com.mbel.dao.ProductSetDao;
 import com.mbel.dto.FetchOrderdProducts;
 import com.mbel.dto.FetchProductSetDto;
+import com.mbel.model.IncomingShipment;
+import com.mbel.model.IncomingShipmentProduct;
 import com.mbel.model.Order;
+import com.mbel.model.OrderProduct;
 import com.mbel.model.Product;
+import com.mbel.model.ProductSet;
 import com.mbel.model.ProductSetModel;
 
 @Service("VerifyOrderServiceImpl")
@@ -40,25 +48,44 @@ public class VerifyOrderServiceImpl {
 
 	@Autowired
 	ProductServiceImpl productServiceImpl;
+	
+	@Autowired
+	OrderProductDao orderProductDao;
+
+	@Autowired 
+	ProductSetDao productSetDao;
+
+	@Autowired
+	IncomingShipmentDao incomingShipmentDao;
+
+	@Autowired 
+	IncomingShipmentProductDao incomingShipmentProductDao;
+	
+	@Autowired
+	ProductPredictionServiceImpl productPredictionServiceImpl;
 
 	public ResponseEntity<Map<String, List<ProductSetModel>>> getForecastOrderStatus(@Valid int productId, @Valid LocalDateTime dueDate, @Valid int amountRequired) {
-		List<Order>unfulfilledDueDateOrder=getUnfulfilledOrder(dueDate);
+		List<Order>unfulfilledDueDateOrder=getUnfulfilledActiveOrder(dueDate);
 		List<Order>sortedOrder=forecastServiceImpl.getSortedOrder(unfulfilledDueDateOrder);
 		return productStockCheck(productId,sortedOrder,amountRequired,dueDate);
 	}
 	private ResponseEntity<Map<String, List<ProductSetModel>>> productStockCheck(@Valid int productId, List<Order> sortedOrder,
 			@Valid int amountRequired, @Valid LocalDateTime dueDate) {
+		List<Product> allProduct = productDao.findAll();
+		List<ProductSet> allProductSet =productSetDao.findAll();
+		List<OrderProduct>orderProduct =orderProductDao.findAll(); 
+		List<IncomingShipment> incomingShipmentList = incomingShipmentDao.findAll();
+		List<IncomingShipmentProduct> incomingProductsList = incomingShipmentProductDao.findAll();
 		Map<Integer,Mappingfields>productQuantityMap=new HashMap<>();
 		Map<Integer,List<Integer>>incomingShipmentMap=new HashMap<>();
 		for(Order unfulfilledorder:sortedOrder) {
 			Map<Integer, List<Mappingfields>>productDetails=new HashMap<>();
-			List<String> forecastString=new ArrayList<>();
-			List<FetchOrderdProducts> orderdProducts= orderServiceImpl.getAllProducts(unfulfilledorder.getOrderId());
+			List<String> forecastOrder=new ArrayList<>();
+			List<FetchOrderdProducts> orderdProducts= productPredictionServiceImpl.getAllProducts(unfulfilledorder,orderProduct,allProduct,allProductSet);
 			for(FetchOrderdProducts product:orderdProducts) {
 				forecastServiceImpl.checkProductStatus(product,unfulfilledorder.getDueDate(),productDetails,
-						productQuantityMap,incomingShipmentMap,forecastString);
+						productQuantityMap,incomingShipmentMap,forecastOrder,allProduct,allProductSet,incomingShipmentList,incomingProductsList);
 			}
-			
 		}
 		
 		return verifyProductStatus(productId,productQuantityMap,amountRequired,dueDate);
@@ -158,11 +185,12 @@ public class VerifyOrderServiceImpl {
 
 
 	}
-	private List<Order> getUnfulfilledOrder(@Valid LocalDateTime dueDate) {
+	public List<Order> getUnfulfilledActiveOrder(@Valid LocalDateTime dueDate) {
 		List<Order>order =orderDao.findAll(); 
 		return order.stream()
 				.filter(predicate->!predicate.isFulfilled() && predicate.isActive()
-				&& predicate.getDueDate().isBefore(dueDate) || predicate.getDueDate().isEqual(dueDate))
+				&& ((predicate.getDueDate().getDayOfMonth() < dueDate.getDayOfMonth() )||
+						(predicate.getDueDate().getDayOfMonth() == dueDate.getDayOfMonth())))
 				.collect(Collectors.toList());
 	}
 

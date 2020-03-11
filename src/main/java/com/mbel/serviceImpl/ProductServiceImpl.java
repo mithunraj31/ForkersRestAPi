@@ -3,7 +3,6 @@ package com.mbel.serviceImpl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mbel.config.JwtAuthenticationFilter;
-import com.mbel.constants.Constants;
 import com.mbel.dao.ProductDao;
 import com.mbel.dao.ProductSetDao;
 import com.mbel.dto.FetchProductSetDto;
@@ -85,13 +83,15 @@ public class ProductServiceImpl  {
 		int id  = product.getProductId();
 		if(productSet.getProducts() != null) {
 			int setValue  =productSet.getProducts().size();
+			List<ProductSet> productSetList =new ArrayList<>();
 			for(int i=0;i<setValue;i++) {
 				ProductSet newProductSet = new ProductSet();
 				newProductSet.setSetId(id);
 				newProductSet.setQuantity(productSet.getProducts().get(i).getQuantity());
 				newProductSet.setProductComponentId(productSet.getProducts().get(i).getProductId());
-				productSetDao.save(newProductSet);
+				productSetList.add(newProductSet);
 			}
+			productSetDao.saveAll(productSetList);
 
 		}
 		return productsave;
@@ -99,7 +99,10 @@ public class ProductServiceImpl  {
 
 	public List<FetchProductSetDto> getAllProductSet() {
 		List<FetchProductSetDto> fetchList =new ArrayList<>();
-		List<Product> proSet = getAllActiveProductset();
+		List<Product> allProducts = productDao.findAll();
+		List<ProductSet> allProductSet=productSetDao.findAll();
+		List<Product> proSet=allProducts.stream().filter(predicate->predicate.isActive()&&predicate.isSet()).collect(Collectors.toList());
+		List<Product> notsetProducts=allProducts.stream().filter(predicate->!predicate.isSet()).collect(Collectors.toList());
 		for(int i=0;i<proSet.size();i++) {
 			List<ProductSetModel> productList = new ArrayList<>();
 			FetchProductSetDto componentSet= new FetchProductSetDto();
@@ -116,20 +119,27 @@ public class ProductServiceImpl  {
 			componentSet.setCreatedAtDateTime(proSet.get(i).getCreatedAtDateTime());
 			componentSet.setUpdatedAtDateTime(proSet.get(i).getUpdatedAtDateTime());
 			componentSet.setCurrency(proSet.get(i).getCurrency());
-			if((Integer)proSet.get(i).getProductId()!= null) {
-				List<Map<Object, Object>> productsetList =productSetDao.getAllBySetId(proSet.get(i).getProductId());
+			if(proSet.get(i).isSet()){
+				int productId=proSet.get(i).getProductId();
+				List<ProductSet> productsetList= allProductSet.stream().filter(predicate->predicate.getSetId()==productId).collect(Collectors.toList());
 				if(productsetList != null) {
 					for(int l=0;l< productsetList.size();l++ ) {
 						ProductSetModel productSetModel = new ProductSetModel();
-						if((Integer) productsetList.get(l).get(Constants.PRODUCT_COMPONENT_ID) != 0) {
-							Product component =productDao.findById((Integer) productsetList.get(l).get(Constants.PRODUCT_COMPONENT_ID)).orElse(null);
+						int productComponentId=productsetList.get(l).getProductComponentId();
+							Product component =notsetProducts.stream().filter(predicate->predicate.getProductId()==productComponentId)
+									.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
+										if (list.size() != 1) {
+											return null;
+										}
+										return list.get(0);
+									}));
 							productSetModel.setProduct(component);
-							productSetModel.setQuantity((Integer)productsetList.get(l).get(Constants.QTY));
+							productSetModel.setQuantity(productsetList.get(l).getQuantity());
 							productList.add(productSetModel);
 						}
 					}
-				}
 			}
+			
 			componentSet.setProducts(productList);
 			fetchList.add(componentSet);
 		}
@@ -138,7 +148,17 @@ public class ProductServiceImpl  {
 	}
 
 	public FetchProductSetDto getProductSetById(int productId) {
-		Product proCheck = getProductsById(productId).orElse(null);
+		List<Product> allProducts = productDao.findAll();
+		List<ProductSet> allProductSet=productSetDao.findAll();
+		List<Product> proSet=allProducts.stream().filter(predicate->predicate.isActive()&&predicate.isSet()).collect(Collectors.toList());
+		List<Product> notsetProducts=allProducts.stream().filter(predicate->!predicate.isSet()).collect(Collectors.toList());
+		Product proCheck =proSet.stream().filter(predicate->predicate.getProductId()==productId)
+				.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
+					if (list.size() != 1) {
+						return null;
+					}
+					return list.get(0);
+				}));
 		List<ProductSetModel> productList = new ArrayList<>();
 		FetchProductSetDto componentSet= new FetchProductSetDto();
 		if(proCheck!=null) {
@@ -157,12 +177,19 @@ public class ProductServiceImpl  {
 		componentSet.setUpdatedAtDateTime(proCheck.getUpdatedAtDateTime());
 		componentSet.setCurrency(proCheck.getCurrency());
 		if(proCheck.isSet()) {
-			List<Map<Object, Object>> productsetList =productSetDao.getAllBySetId(proCheck.getProductId());
+			List<ProductSet> productsetList= allProductSet.stream().filter(predicate->predicate.getSetId()==productId).collect(Collectors.toList());
 			for(int l=0;l< productsetList.size();l++ ) {
 				ProductSetModel productSetModel = new ProductSetModel();
-				Product component =productDao.findById((Integer) productsetList.get(l).get(Constants.PRODUCT_COMPONENT_ID)).orElse(null);
+				int productComponentId=productsetList.get(l).getProductComponentId();
+				Product component =notsetProducts.stream().filter(predicate->predicate.getProductId()==productComponentId)
+						.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
+							if (list.size() != 1) {
+								return null;
+							}
+							return list.get(0);
+						}));
 				productSetModel.setProduct(component);
-				productSetModel.setQuantity((Integer)productsetList.get(l).get(Constants.QTY));
+				productSetModel.setQuantity(productsetList.get(l).getQuantity());
 				productList.add(productSetModel);
 			}
 		}
@@ -219,14 +246,15 @@ public class ProductServiceImpl  {
 		Product productupdate=productDao.save(product);
 		int setValue  =productSetDetails.getProducts().size();
 		productSetDao.deleteBySet(productId);
+		List<ProductSet> productSetList =new ArrayList<>();
 		for(int i=0;i<setValue;i++) {
 			ProductSet productSet = new ProductSet();
 			productSet.setSetId(productId);
 			productSet.setQuantity(productSetDetails.getProducts().get(i).getQuantity());
 			productSet.setProductComponentId(productSetDetails.getProducts().get(i).getProductId());
-			productSetDao.save(productSet);
+			productSetList.add(productSet);
 		}
-
+		productSetDao.saveAll(productSetList);
 
 		return productupdate;
 		}

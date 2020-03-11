@@ -22,12 +22,10 @@ public class IncomingShipmentQtyUpdateController {
 	@PostMapping("/shipment/incoming/arrival/")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void updateIncomingShipment(@RequestBody IncomingProductUpdate incomingProductUpdate) {
-		if(incomingProductUpdate.isArrival()){
-		  incomingShipmentQtyUpdateServiceImpl.updateQuantity(incomingProductUpdate.getIncomingShipmentId());
+		  incomingShipmentQtyUpdateServiceImpl.updateQuantity(incomingProductUpdate.getIncomingShipmentId(),incomingProductUpdate.isArrival());
 		}
 	}
 
-}
 
 class IncomingProductUpdate {
 	

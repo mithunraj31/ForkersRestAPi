@@ -3,7 +3,6 @@ package com.mbel.serviceImpl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -13,21 +12,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mbel.config.JwtAuthenticationFilter;
-import com.mbel.constants.Constants;
 import com.mbel.dao.CustomerDao;
 import com.mbel.dao.OrderDao;
 import com.mbel.dao.OrderProductDao;
 import com.mbel.dao.ProductDao;
 import com.mbel.dao.ProductSetDao;
 import com.mbel.dao.UserDao;
-import com.mbel.dto.FetchOrderdProducts;
-import com.mbel.dto.FetchProductSetDto;
 import com.mbel.dto.PopulateOrderDto;
 import com.mbel.dto.SaveOrderSetDto;
 import com.mbel.model.Customer;
 import com.mbel.model.Order;
 import com.mbel.model.OrderProduct;
 import com.mbel.model.Product;
+import com.mbel.model.ProductSet;
 import com.mbel.model.UserEntity;
 
 
@@ -47,6 +44,9 @@ public class OrderServiceImpl  {
 
 	@Autowired
 	ProductServiceImpl productServiceImpl;
+	
+	@Autowired
+	ProductPredictionServiceImpl productPredictionServiceImpl;
 	
 	@Autowired 
 	ProductDao productDao;
@@ -70,6 +70,11 @@ public class OrderServiceImpl  {
 
 	public List<PopulateOrderDto> getAllOrders() {
 		List<Order>activeOrder =getActiveOrders();
+		List<UserEntity> userList = userDao.findAll();
+		List<Customer> customerList = customerDao.findAll();
+		List<Product> allProduct = productDao.findAll();
+		List<ProductSet> allProductSet =productSetDao.findAll();
+		List<OrderProduct>orderProduct =orderProductDao.findAll(); 
 		List<PopulateOrderDto>populateList =new ArrayList<>();
 		for(Order order:activeOrder) {
 			PopulateOrderDto populate = new PopulateOrderDto();
@@ -77,20 +82,19 @@ public class OrderServiceImpl  {
 			populate.setProposalNo(order.getProposalNo());
 			populate.setReceivedDate(order.getReceivedDate());
 			populate.setDueDate(order.getDueDate());
+			populate.setDeliveryDate(order.getDeliveryDate());
 			populate.setActive(order.isActive());
 			populate.setForecast(order.isForecast());
 			populate.setFulfilled(order.isFulfilled());
-			List<UserEntity> userList = userDao.findAll();
 			populate.setUser(getUser(userList,order.getUserId()));
 			populate.setSalesUser(getUser(userList,order.getSalesUserId()));
 			populate.setEditReason(order.getEditReason());
 			populate.setCreatedAt(order.getCreatedAt());
 			populate.setUpdatedAt(order.getUpdatedAt());
-			List<Customer> customerList = customerDao.findAll();
 			populate.setCustomer(getCustomer(customerList,order.getCustomerId()));
 			populate.setSalesDestination(getCustomer(customerList,order.getSalesDestinationId()));
 			populate.setContractor(getCustomer(customerList,order.getContractorId()));
-			populate.setOrderedProducts(getAllProducts(order.getOrderId()));
+			populate.setOrderedProducts(productPredictionServiceImpl.getAllProducts(order,orderProduct,allProduct,allProductSet));
 			populateList.add(populate);
 		}
 
@@ -101,25 +105,29 @@ public class OrderServiceImpl  {
 	public PopulateOrderDto getOrderById(int orderId) {
 		PopulateOrderDto populate = new PopulateOrderDto();
 		Order order = orderDao.findById(orderId).orElse(null);
+		List<UserEntity> userList = userDao.findAll();
+		List<Customer> customerList = customerDao.findAll();
+		List<Product> allProduct = productDao.findAll();
+		List<ProductSet> allProductSet =productSetDao.findAll();
+		List<OrderProduct>orderProduct =orderProductDao.findAll(); 
 		if(Objects.nonNull(order)) {
 		populate.setOrderId(order.getOrderId());
 		populate.setProposalNo(order.getProposalNo());
 		populate.setReceivedDate(order.getReceivedDate());
 		populate.setDueDate(order.getDueDate());
+		populate.setDeliveryDate(order.getDeliveryDate());
 		populate.setActive(order.isActive());
 		populate.setForecast(order.isForecast());
 		populate.setFulfilled(order.isFulfilled());
-		List<UserEntity> userList = userDao.findAll();
 		populate.setUser(getUser(userList,order.getUserId()));
 		populate.setSalesUser(getUser(userList,order.getSalesUserId()));
 		populate.setEditReason(order.getEditReason());
 		populate.setCreatedAt(order.getCreatedAt());
 		populate.setUpdatedAt(order.getUpdatedAt());
-		List<Customer> customerList = customerDao.findAll();
 		populate.setCustomer(getCustomer(customerList,order.getCustomerId()));
 		populate.setSalesDestination(getCustomer(customerList,order.getSalesDestinationId()));
 		populate.setContractor(getCustomer(customerList,order.getContractorId()));
-		populate.setOrderedProducts(getAllProducts(orderId));
+		populate.setOrderedProducts(productPredictionServiceImpl.getAllProducts(order,orderProduct,allProduct,allProductSet));
 		}
 		return populate;
 	}
@@ -147,20 +155,6 @@ public class OrderServiceImpl  {
 	}
 
 
-	public List<FetchOrderdProducts> getAllProducts(int orderId) {
-		List<FetchOrderdProducts> orderProductList = new ArrayList<>();
-		List<Map<Object, Object>> orderList=orderProductDao.getByOrderId(orderId);
-		for(int i=0;i<orderList.size();i++) {
-			FetchOrderdProducts order =new FetchOrderdProducts();
-			FetchProductSetDto products =(productServiceImpl.getProductSetById((Integer)orderList.get(i).get(Constants.PRODUCT_ID)));
-			order.setProduct(products);
-			order.setQuantity((Integer)orderList.get(i).get(Constants.QTY));
-			orderProductList.add(order);
-			
-			}
-		
-		return orderProductList;
-		}
 		
 	
 
@@ -172,6 +166,7 @@ public class OrderServiceImpl  {
 		order.setContractorId(newOrderSet.getContractorId());
 		order.setSalesDestinationId(newOrderSet.getSalesDestinationId());
 		order.setDueDate(newOrderSet.getDueDate());
+		order.setDeliveryDate(newOrderSet.getDeliveryDate());
 		order.setCustomerId(newOrderSet.getCustomerId());
 		order.setProposalNo(newOrderSet.getProposalNo());
 		order.setReceivedDate(newOrderSet.getReceivedDate());
@@ -187,14 +182,15 @@ public class OrderServiceImpl  {
 		}
 		orderProductDao.deleteByOrderId(orderedId);
 		int noOfProducts =newOrderSet.getOrderedProducts().size();
+		List<OrderProduct> orderProductList =new ArrayList<>();
 		for(int i=0;i<noOfProducts;i++) {
 			OrderProduct orderProduct =new OrderProduct(); 
 			orderProduct.setOrderId(orderedId);
 			orderProduct.setProductId(newOrderSet.getOrderedProducts().get(i).getProductId());
 			orderProduct.setQuantity(newOrderSet.getOrderedProducts().get(i).getQuantity());
-			orderProductDao.save(orderProduct);
-
+			orderProductList.add(orderProduct);
 		}
+		orderProductDao.saveAll(orderProductList);
 		return orderupdate;
 	}
 
@@ -215,6 +211,7 @@ public class OrderServiceImpl  {
 		order.setCustomerId(newOrderSet.getCustomerId());
 		order.setProposalNo(newOrderSet.getProposalNo());
 		order.setReceivedDate(newOrderSet.getReceivedDate());
+		order.setDeliveryDate(newOrderSet.getDeliveryDate());
 		order.setUpdatedAt(LocalDateTime.now());
 		order.setCreatedAt(LocalDateTime.now());
 		order.setActive(true);
@@ -226,14 +223,15 @@ public class OrderServiceImpl  {
 		Order ordersave=orderDao.save(order);
 		int id  = order.getOrderId();
 		int noOfProducts =newOrderSet.getOrderedProducts().size();
+		List<OrderProduct> orderProductList = new ArrayList<>();
 		for(int i=0;i<noOfProducts;i++) {
 			OrderProduct orderProduct =new OrderProduct(); 
 			orderProduct.setOrderId(id);
 			orderProduct.setProductId(newOrderSet.getOrderedProducts().get(i).getProductId());
 			orderProduct.setQuantity(newOrderSet.getOrderedProducts().get(i).getQuantity());
-			orderProductDao.save(orderProduct);
-
+			orderProductList.add(orderProduct);
 		}
+		orderProductDao.saveAll(orderProductList);
 		return ordersave;
 	} 
 	

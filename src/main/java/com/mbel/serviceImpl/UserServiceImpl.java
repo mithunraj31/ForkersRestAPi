@@ -18,7 +18,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.mbel.dao.UserDao;
@@ -31,8 +30,6 @@ public class UserServiceImpl implements UserDetailsService {
 	@Autowired
 	private UserDao userDao;
 
-	@Autowired
-	private BCryptPasswordEncoder bcryptEncoder;
 	
 	
 
@@ -88,7 +85,6 @@ public class UserServiceImpl implements UserDetailsService {
 		 Map<String, String> response = new HashMap<>();
 		 response.put("message", "user has been deleted");
 		 response.put("userId", String.valueOf(userId));
-		 
 		 return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
 	
 	}

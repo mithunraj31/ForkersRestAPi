@@ -16,7 +16,6 @@ public class ProductSetModel {
 	
 	private LocalDateTime mod;
 
-
 	public int getQuantity() {
 		return quantity;
 	}
@@ -65,6 +64,7 @@ public class ProductSetModel {
 		this.forecast = forecast;
 	}
 
+	}
 
 
-}
+

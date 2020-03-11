@@ -16,9 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.mbel.config.JwtAuthenticationFilter;
-import com.mbel.constants.Constants;
 import com.mbel.dao.IncomingShipmentDao;
 import com.mbel.dao.IncomingShipmentProductDao;
+import com.mbel.dao.ProductDao;
+import com.mbel.dao.ProductSetDao;
 import com.mbel.dao.UserDao;
 import com.mbel.dto.FetchIncomingOrderdProducts;
 import com.mbel.dto.FetchProductSetDto;
@@ -26,6 +27,9 @@ import com.mbel.dto.IncomingShipmentDto;
 import com.mbel.dto.PopulateIncomingShipmentDto;
 import com.mbel.model.IncomingShipment;
 import com.mbel.model.IncomingShipmentProduct;
+import com.mbel.model.Product;
+import com.mbel.model.ProductSet;
+import com.mbel.model.ProductSetModel;
 import com.mbel.model.UserEntity;
 
 
@@ -46,6 +50,12 @@ public class IncomingShipmentServiceImpl  {
 
 	@Autowired 
 	UserDao userDao;
+	
+	@Autowired 
+	ProductDao productDao;
+
+	@Autowired 
+	ProductSetDao productSetDao;
 
 	public IncomingShipment save(@Valid IncomingShipmentDto newIncomingShipment) {
 		IncomingShipment incomingShipment = new IncomingShipment();
@@ -58,28 +68,32 @@ public class IncomingShipmentServiceImpl  {
 		IncomingShipment incomeShipment= incomingShipmentDao.save(incomingShipment);
 		int shipmentId =incomeShipment.getIncomingShipmentId();		
 		int size = newIncomingShipment.getProducts().size();
+		List<IncomingShipmentProduct> incomingShipmentProductList =new ArrayList<>();
 		for(int i=0;i<size;i++) {
 			IncomingShipmentProduct  incomingShipmentProduct= new IncomingShipmentProduct();
 			incomingShipmentProduct.setIncomingShipmentId(shipmentId);
 			incomingShipmentProduct.setProductId(newIncomingShipment.getProducts().get(i).getProductId());
 			incomingShipmentProduct.setQuantity(newIncomingShipment.getProducts().get(i).getQuantity());
 			incomingShipmentProduct.setPrice(newIncomingShipment.getProducts().get(i).getPrice());
-			incomingShipmentProductDao.save(incomingShipmentProduct);
+			incomingShipmentProductList.add(incomingShipmentProduct);
 		}
-
+		incomingShipmentProductDao.saveAll(incomingShipmentProductList);
 		return incomeShipment;
 	}
 
 	public List<PopulateIncomingShipmentDto> getAllIncomingShipment() {
 		List<PopulateIncomingShipmentDto> incomingShipmentDtoList = new ArrayList<>(); 
 		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll();
+		List<IncomingShipmentProduct> incomingShipmentProduct =incomingShipmentProductDao.findAll();
 		List<UserEntity> userEntityList = userDao.findAll();
+		List<Product> allProducts = productDao.findAll();
+		List<ProductSet> allProductSet=productSetDao.findAll();
 		for(IncomingShipment incoming :incomingShipment ) {
 			PopulateIncomingShipmentDto incomingDto = new PopulateIncomingShipmentDto();
 			incomingDto.setArrivalDate(incoming.getArrivalDate());
 			incomingDto.setCreatedAt(incoming.getCreatedAt());
 			incomingDto.setIncomingShipmentId(incoming.getIncomingShipmentId());			
-			incomingDto.setProducts(getAllProduct(incoming.getIncomingShipmentId()));
+			incomingDto.setProducts(getAllProduct(incoming.getIncomingShipmentId(),incomingShipmentProduct,allProducts,allProductSet));
 			incomingDto.setUpdatedAt(incoming.getUpdatedAt());
 			incomingDto.setUser(getUserDetails(userEntityList,incoming.getUserId()));
 			incomingDto.setShipmentNo(incoming.getShipmentNo());
@@ -95,21 +109,23 @@ public class IncomingShipmentServiceImpl  {
 		.filter(predicate->predicate.getUserId()==userId)
 		.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
             if (list.size() != 1) {
-                throw new IllegalStateException();
+               return null;
             }
             return list.get(0);
         }));
 	}
 
-	private List<FetchIncomingOrderdProducts> getAllProduct(int shipmentId) {
+	private List<FetchIncomingOrderdProducts> getAllProduct(int shipmentId, List<IncomingShipmentProduct> incomingShipmentProduct, List<Product> allProducts, List<ProductSet> allProductSet) {
 		List<FetchIncomingOrderdProducts> fetchProducts = new ArrayList<>(); 
-		List<Map<Object, Object>> shipmentList=incomingShipmentProductDao.getByShipmentId(shipmentId);
+		List<IncomingShipmentProduct> shipmentList=incomingShipmentProduct.stream()
+		.filter(predicate->predicate.getIncomingShipmentId() == shipmentId)
+		.collect(Collectors.toList());
 		for(int i=0;i<shipmentList.size();i++) {
 			FetchIncomingOrderdProducts incomingOrder =new FetchIncomingOrderdProducts();
-			FetchProductSetDto products =(productServiceImpl.getProductSetById((Integer)shipmentList.get(i).get(Constants.PRODUCT_ID)));
+			FetchProductSetDto products =(getProductSetById(shipmentList.get(i).getProductId(),allProducts,allProductSet));
 		incomingOrder.setProduct(products);
-		incomingOrder.setQuantity((Integer)shipmentList.get(i).get(Constants.QTY));
-		incomingOrder.setPrice((Double)shipmentList.get(i).get(Constants.PRICE));
+		incomingOrder.setQuantity((Integer)shipmentList.get(i).getQuantity());
+		incomingOrder.setPrice((Double)shipmentList.get(i).getPrice());
 		fetchProducts.add(incomingOrder);
 		}
 		return fetchProducts;
@@ -117,18 +133,73 @@ public class IncomingShipmentServiceImpl  {
 
 	public PopulateIncomingShipmentDto getIncomingShipmentById(@Valid int incomingShipmentId) {
 		IncomingShipment incoming = incomingShipmentDao.findById(incomingShipmentId).orElse(null);
+		List<Product> allProducts = productDao.findAll();
+		List<ProductSet> allProductSet=productSetDao.findAll();
+		List<IncomingShipmentProduct> incomingShipmentProduct = incomingShipmentProductDao.findAll();
 		PopulateIncomingShipmentDto incomingDto = new PopulateIncomingShipmentDto();
 		if(Objects.nonNull(incoming)) {
 		incomingDto.setArrivalDate(incoming.getArrivalDate());
 		incomingDto.setCreatedAt(incoming.getCreatedAt());
 		incomingDto.setIncomingShipmentId(incoming.getIncomingShipmentId());
-		incomingDto.setProducts(getAllProduct(incoming.getIncomingShipmentId()));
+		incomingDto.setProducts(getAllProduct(incoming.getIncomingShipmentId(),incomingShipmentProduct,allProducts,allProductSet));
 		incomingDto.setUpdatedAt(incoming.getUpdatedAt());
 		incomingDto.setUser(userDao.findById(incoming.getUserId()).orElse(null));
 		incomingDto.setShipmentNo(incoming.getShipmentNo());
 		incomingDto.setArrived(incoming.isArrived());
 		}
 		return incomingDto;
+	}
+
+	
+	public FetchProductSetDto getProductSetById(int productId, List<Product> allProducts, List<ProductSet> allProductSet) {
+		List<Product> notsetProducts=allProducts.stream().filter(predicate->!predicate.isSet()).collect(Collectors.toList());
+		Product proCheck =notsetProducts.stream().filter(predicate->predicate.getProductId()==productId)
+				.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
+					if (list.size() != 1) {
+						return null;
+					}
+					return list.get(0);
+				}));
+		List<ProductSetModel> productList = new ArrayList<>();
+		FetchProductSetDto componentSet= new FetchProductSetDto();
+		if(proCheck!=null) {
+		componentSet.setProductId(proCheck.getProductId());
+		componentSet.setProductName(proCheck.getProductName());
+		componentSet.setDescription(proCheck.getDescription());
+		componentSet.setPrice(proCheck.getPrice());
+		componentSet.setMoq(proCheck.getMoq());
+		componentSet.setLeadTime(proCheck.getLeadTime());
+		componentSet.setObicNo(proCheck.getObicNo());
+		componentSet.setQuantity(proCheck.getQuantity());
+		componentSet.setSet(proCheck.isSet());
+		componentSet.setActive(proCheck.isActive());
+		componentSet.setUserId(proCheck.getUserId());
+		componentSet.setCreatedAtDateTime(proCheck.getCreatedAtDateTime());
+		componentSet.setUpdatedAtDateTime(proCheck.getUpdatedAtDateTime());
+		componentSet.setCurrency(proCheck.getCurrency());
+		if(proCheck.isSet()) {
+			List<ProductSet> productsetList= allProductSet.stream().filter(predicate->predicate.getSetId()==productId).collect(Collectors.toList());
+			for(int l=0;l< productsetList.size();l++ ) {
+				ProductSetModel productSetModel = new ProductSetModel();
+				int productComponentId=productsetList.get(l).getProductComponentId();
+				Product component =notsetProducts.stream().filter(predicate->predicate.getProductId()==productComponentId)
+						.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
+							if (list.size() != 1) {
+								return null;
+							}
+							return list.get(0);
+						}));
+				productSetModel.setProduct(component);
+				productSetModel.setQuantity(productsetList.get(l).getQuantity());
+				productList.add(productSetModel);
+			}
+		}
+		}
+		componentSet.setProducts(productList);
+		return componentSet;
+
+
+
 	}
 
 
@@ -155,14 +226,16 @@ public class IncomingShipmentServiceImpl  {
 		}
 		 incomingShipmentProductDao.deleteByShipmentId(incomingShipmentId);
 			int size = incomingShipmentDetails.getProducts().size();
+			List<IncomingShipmentProduct>  incomingShipmentProductList = new ArrayList<>();
 			for(int i=0;i<size;i++) {
 				IncomingShipmentProduct  incomingShipmentProduct= new IncomingShipmentProduct();
 				incomingShipmentProduct.setIncomingShipmentId(incomingShipmentId);
 				incomingShipmentProduct.setProductId(incomingShipmentDetails.getProducts().get(i).getProductId());
 				incomingShipmentProduct.setQuantity(incomingShipmentDetails.getProducts().get(i).getQuantity());
 				incomingShipmentProduct.setPrice(incomingShipmentDetails.getProducts().get(i).getPrice());
-				incomingShipmentProductDao.save(incomingShipmentProduct);
+				incomingShipmentProductList.add(incomingShipmentProduct);
 			}
+			incomingShipmentProductDao.saveAll(incomingShipmentProductList);
 			return incomingShipmentUpdate;
 
 	}
@@ -170,8 +243,9 @@ public class IncomingShipmentServiceImpl  {
 	public List<PopulateIncomingShipmentDto> getAllUnarrivedDueDateIncomingShipment(LocalDateTime dueDate) {
 		List<PopulateIncomingShipmentDto> incomingShipmentDtoList =getAllIncomingShipment();
 		return incomingShipmentDtoList.stream()
-		.filter(predicate->!predicate.isArrived()&&predicate.getArrivalDate().isBefore(dueDate)
-				||predicate.getArrivalDate().isEqual(dueDate))
+		.filter(predicate->!predicate.isArrived()
+				&&(predicate.getArrivalDate().isBefore(dueDate)
+				||predicate.getArrivalDate().isEqual(dueDate)))
 		.collect(Collectors.toList());
 		 
 	}
