@@ -285,17 +285,23 @@ public class ProductServiceImpl  {
 		if(productionDetails.getSort()==0) {
 			assignSortValue(productionDetails,allproduct);
 		}
-		if(isSortValueEditted(productId,allproduct,productionDetails.getSort())) {
+		if(isSortValueEditted(productId,allproduct,productionDetails)) {
 			productionDetails.setProductId(productId);
+			productionDetails.setActive(true);
+			productionDetails.setSet(false);
+			productionDetails.setUpdatedAtDateTime(LocalDateTime.now());
 			return reArrangeProductDataBySort(allproduct,productionDetails,productId);
 		}else {
 			productionDetails.setProductId(productId);
+			productionDetails.setActive(true);
+			productionDetails.setSet(false);
+			productionDetails.setUpdatedAtDateTime(LocalDateTime.now());
 			return productDao.save(productionDetails);
 		}
 
 	}
 
-	private boolean isSortValueEditted(int productId, List<Product> allproduct, int sort) {
+	private boolean isSortValueEditted(int productId, List<Product> allproduct, @Valid Product productionDetails) {
 		Product previouslySavedProduct =allproduct.stream().filter(predicate->predicate.getProductId()==productId)
 				.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
 					if (list.size() != 1) {
@@ -303,7 +309,8 @@ public class ProductServiceImpl  {
 					}
 					return list.get(0);
 				}));
-		return previouslySavedProduct.getSort()==sort?false:true;
+		productionDetails.setCreatedAtDateTime(previouslySavedProduct.getCreatedAtDateTime());
+		return previouslySavedProduct.getSort()==productionDetails.getSort()?false:true;
 	}
 
 	private Product reArrangeProductDataBySort(List<Product> allproduct, @Valid Product productionDetails,
