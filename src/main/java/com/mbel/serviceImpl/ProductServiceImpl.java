@@ -434,6 +434,7 @@ public class ProductServiceImpl  {
 	}
 
 	private void singleProductCreation(Map<Object, Object> elements, FetchProductSetDto componentSet) {
+		List<ProductSetModel> productSetModelList = new ArrayList();
 		Product component = new Product();
 		component.setProductId((Integer)elements.get("product_id"));
 		component.setProductName((String)elements.get("product_name"));
@@ -451,7 +452,8 @@ public class ProductServiceImpl  {
 		ProductSetModel productSetModel = new ProductSetModel();
 		productSetModel.setProduct(component);
 		productSetModel.setQuantity((Integer)elements.get("quantity"));
-		componentSet.pushProduct(productSetModel);
+		productSetModelList.add(productSetModel);
+		componentSet.setProducts(productSetModelList);
 
 	}
 
