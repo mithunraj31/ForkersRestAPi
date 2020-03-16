@@ -86,6 +86,7 @@ public class OrderServiceImpl  {
 			populate.setActive(order.isActive());
 			populate.setForecast(order.isForecast());
 			populate.setFulfilled(order.isFulfilled());
+			populate.setFixed(order.isFixed());
 			populate.setUser(getUser(userList,order.getUserId()));
 			populate.setSalesUser(getUser(userList,order.getSalesUserId()));
 			populate.setEditReason(order.getEditReason());
@@ -119,6 +120,7 @@ public class OrderServiceImpl  {
 		populate.setActive(order.isActive());
 		populate.setForecast(order.isForecast());
 		populate.setFulfilled(order.isFulfilled());
+		populate.setFixed(order.isFixed());
 		populate.setUser(getUser(userList,order.getUserId()));
 		populate.setSalesUser(getUser(userList,order.getSalesUserId()));
 		populate.setEditReason(order.getEditReason());
@@ -173,6 +175,7 @@ public class OrderServiceImpl  {
 		order.setUpdatedAt(LocalDateTime.now());
 		order.setActive(true);
 		order.setForecast(true);
+		order.setFixed(newOrderSet.isFixed());
 		order.setFulfilled(newOrderSet.isFulfilled());
 		order.setUserId(jwt.getUserdetails().getUserId());
 		order.setSalesUserId(newOrderSet.getSalesUserId());
@@ -205,8 +208,8 @@ public class OrderServiceImpl  {
 
 	public Order save(SaveOrderSetDto newOrderSet) {
 		Order order = new Order();
-		order.setContractorId(newOrderSet.getContractorId());
-		order.setSalesDestinationId(newOrderSet.getSalesDestinationId());
+		//order.setContractorId(newOrderSet.getContractorId());
+		//order.setSalesDestinationId(newOrderSet.getSalesDestinationId());
 		order.setDueDate(newOrderSet.getDueDate());
 		order.setCustomerId(newOrderSet.getCustomerId());
 		order.setProposalNo(newOrderSet.getProposalNo());
@@ -217,6 +220,7 @@ public class OrderServiceImpl  {
 		order.setActive(true);
 		order.setForecast(true);
 		order.setFulfilled(false);
+		order.setFixed(false);
 		order.setUserId(jwt.getUserdetails().getUserId());
 		order.setSalesUserId(newOrderSet.getSalesUserId());
 		order.setEditReason(newOrderSet.getEditReason());
