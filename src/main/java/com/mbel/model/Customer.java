@@ -28,7 +28,6 @@ public class Customer {
 	@Column(name = "address")
 	private String address;
 
-	@NotEmpty(message="* Please Enter tel")
 	@Column(name = "tel")
 	private String tel;
 

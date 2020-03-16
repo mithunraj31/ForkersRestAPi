@@ -66,7 +66,7 @@ public class CustomerServiceImpl  {
 			CustomerDto customerDto = new CustomerDto();
 			customerDto.setActive(customer.isActive());
 			customerDto.setAddress(customer.getAddress());
-			customerDto.setContactName(customer.getCustomerName());
+			customerDto.setContactName(customer.getContactName());
 			customerDto.setCustomerName(customer.getCustomerName());
 			customerDto.setCreatedAtDateTime(customer.getCreatedAtDateTime());
 			customerDto.setCustomerId(customer.getCustomerId());
