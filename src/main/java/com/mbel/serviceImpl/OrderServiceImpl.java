@@ -139,7 +139,7 @@ public class OrderServiceImpl  {
 		.filter(predicate->predicate.getUserId()==userId)
 		.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
             if (list.size() != 1) {
-                throw new IllegalStateException();
+                return null;
             }
             return list.get(0);
         }));
@@ -150,7 +150,7 @@ public class OrderServiceImpl  {
 		.filter(predicate->predicate.getCustomerId()==customerId)
 		.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
             if (list.size() != 1) {
-                throw new IllegalStateException();
+            	return null;
             }
             return list.get(0);
         }));
@@ -208,8 +208,8 @@ public class OrderServiceImpl  {
 
 	public Order save(SaveOrderSetDto newOrderSet) {
 		Order order = new Order();
-		//order.setContractorId(newOrderSet.getContractorId());
-		//order.setSalesDestinationId(newOrderSet.getSalesDestinationId());
+		order.setContractorId(newOrderSet.getContractorId());
+		order.setSalesDestinationId(newOrderSet.getSalesDestinationId());
 		order.setDueDate(newOrderSet.getDueDate());
 		order.setCustomerId(newOrderSet.getCustomerId());
 		order.setProposalNo(newOrderSet.getProposalNo());
