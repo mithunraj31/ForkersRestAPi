@@ -422,8 +422,8 @@ public class ProductPredictionServiceImpl {
 		List<PopulateIncomingShipmentDto> incomingShipmentDtoList =getAllIncomingShipment(incomingShipment,incomingProducts,allProduct,allProductSet);
 		return incomingShipmentDtoList.stream()
 				.filter(predicate->!predicate.isArrived()
-						&&(predicate.getFixedDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
-								&& predicate.getFixedDeliveryDate().getMonth()==dueDate.getMonth()))
+						&&(predicate.getArrivalDate().getDayOfMonth()==dueDate.getDayOfMonth()
+								&& predicate.getArrivalDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
 
 	}
@@ -433,7 +433,7 @@ public class ProductPredictionServiceImpl {
 		List<PopulateIncomingShipmentDto> incomingShipmentDtoList = new ArrayList<>(); 
 		for(IncomingShipment incoming :incomingShipment ) {
 			PopulateIncomingShipmentDto incomingDto = new PopulateIncomingShipmentDto();
-			incomingDto.setFixedDeliveryDate(incoming.getFixedDeliveryDate());
+			incomingDto.setArrivalDate(incoming.getArrivalDate());
 			incomingDto.setCreatedAt(incoming.getCreatedAt());
 			incomingDto.setIncomingShipmentId(incoming.getIncomingShipmentId());			
 			incomingDto.setProducts(getAllIncomingProduct(incoming.getIncomingShipmentId(),incomingProducts,allProduct,allProductSet));
