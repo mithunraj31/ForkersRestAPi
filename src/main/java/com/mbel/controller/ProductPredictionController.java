@@ -27,5 +27,10 @@ public class ProductPredictionController {
 			@PathVariable (value="month") @Valid int month) {
 		 return productPredictionServiceImpl.getProductPrediction(year, month);
 	}
+	
+	@GetMapping("/product/forecast/")
+	public List<ProductPredictionDto> productPrediction() {
+		 return productPredictionServiceImpl.getProductPrediction(2020, 03);
+	}
 
 }
