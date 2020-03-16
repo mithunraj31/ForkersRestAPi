@@ -37,7 +37,6 @@ public class Order{
 	    @Column(name = "contractor_id")
 	    private int contractorId;
 	    
-	    @NotNull(message="* Please Enter receivedDate")
 	    @Column(name = "received_date")
 	    private LocalDateTime receivedDate;
 	    
