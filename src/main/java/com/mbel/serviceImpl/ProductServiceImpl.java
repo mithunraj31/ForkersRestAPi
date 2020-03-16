@@ -44,7 +44,7 @@ public class ProductServiceImpl  {
 		product.setUserId(jwt.getUserdetails().getUserId());
 		product.setActive(true);
 		product.setSet(false);
-		product.setDisplay(true);
+		product.setDisplay(false);
 		if(product.getSort()==0) {
 			assignSortValue(product,allproduct);
 		}
@@ -139,7 +139,7 @@ public class ProductServiceImpl  {
 		product.setCurrency(productSet.getCurrency());
 		product.setSort(productSet.getSort());
 		product.setColor(productSet.getColor());
-		product.setDisplay(true);
+		product.setDisplay(false);
 		if(!allproduct.isEmpty()&&
 				isSortValueAlreadyPresent(allproduct,productSet.getSort())) {
 			 reArrangeProductDataBySort(allproduct,product);

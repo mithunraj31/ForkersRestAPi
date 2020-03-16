@@ -78,7 +78,7 @@ public class ProductPredictionServiceImpl {
 			List<IncomingShipmentProduct> incomingProducts, int year, int month) {
 		List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
 		for(Product product:allProduct.stream().filter(predicate->predicate.isActive()
-				&&predicate.isSet()).collect(Collectors.toList())) {
+				&&predicate.isSet()&&predicate.isDisplay()).collect(Collectors.toList())) {
 			List<PredictionData> predictionDataList = new ArrayList<>();
 				ProductPredictionDto productPredictionDto =new ProductPredictionDto();
 				productPredictionDto.setObicNo(product.getObicNo());
@@ -121,7 +121,7 @@ public class ProductPredictionServiceImpl {
 			productPredictionDto.setObicNo(" ");
 			productPredictionDto.setProductName("Individual Product");
 			for(Product product:allProduct.stream()
-					.filter(predicate->predicate.isActive()&&!predicate.isSet())
+					.filter(predicate->predicate.isActive()&&!predicate.isSet()&&predicate.isDisplay())
 					.collect(Collectors.toList())) {
 				List<PredictionData> predictionDataList = new ArrayList<>();
 			ProductDataDto productDataDto =new ProductDataDto();
@@ -422,8 +422,8 @@ public class ProductPredictionServiceImpl {
 		List<PopulateIncomingShipmentDto> incomingShipmentDtoList =getAllIncomingShipment(incomingShipment,incomingProducts,allProduct,allProductSet);
 		return incomingShipmentDtoList.stream()
 				.filter(predicate->!predicate.isArrived()
-						&&(predicate.getArrivalDate().getDayOfMonth()==dueDate.getDayOfMonth()
-								&& predicate.getArrivalDate().getMonth()==dueDate.getMonth()))
+						&&(predicate.getFixedDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
+								&& predicate.getFixedDeliveryDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
 
 	}
@@ -433,7 +433,7 @@ public class ProductPredictionServiceImpl {
 		List<PopulateIncomingShipmentDto> incomingShipmentDtoList = new ArrayList<>(); 
 		for(IncomingShipment incoming :incomingShipment ) {
 			PopulateIncomingShipmentDto incomingDto = new PopulateIncomingShipmentDto();
-			incomingDto.setArrivalDate(incoming.getArrivalDate());
+			incomingDto.setFixedDeliveryDate(incoming.getFixedDeliveryDate());
 			incomingDto.setCreatedAt(incoming.getCreatedAt());
 			incomingDto.setIncomingShipmentId(incoming.getIncomingShipmentId());			
 			incomingDto.setProducts(getAllIncomingProduct(incoming.getIncomingShipmentId(),incomingProducts,allProduct,allProductSet));
