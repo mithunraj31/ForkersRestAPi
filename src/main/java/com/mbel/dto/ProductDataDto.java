@@ -14,6 +14,8 @@ public class ProductDataDto {
 
 	private String obicNo;
 	
+	private String color;
+	
 	List<PredictionData>values;
 
 	public int getProductId() {
@@ -54,6 +56,14 @@ public class ProductDataDto {
 
 	public void setValues(List<PredictionData> values) {
 		this.values = values;
+	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
 	}
 
 }

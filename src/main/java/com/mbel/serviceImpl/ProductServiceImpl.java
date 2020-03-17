@@ -99,7 +99,7 @@ public class ProductServiceImpl  {
 		return arrangeProductbySortField(activeProduct);
 	}
 
-	private List<Product> arrangeProductbySortField(List<Product> activeProduct) {
+	public List<Product> arrangeProductbySortField(List<Product> activeProduct) {
 		activeProduct.sort(Comparator.comparingInt(Product::getSort));
 		return activeProduct;
 

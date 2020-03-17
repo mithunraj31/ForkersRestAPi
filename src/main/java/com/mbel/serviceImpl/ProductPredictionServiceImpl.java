@@ -63,7 +63,7 @@ public class ProductPredictionServiceImpl {
 	IncomingShipmentProductDao incomingShipmentProductDao;
 
 	public List<ProductPredictionDto> getProductPrediction(int year,int month) {
-		List<Product> allProduct = productDao.findAll();
+		List<Product> allProduct = getAllSortedProducts();
 		List<ProductSet> allProductSet =productSetDao.findAll();
 		List<Order>order =orderDao.findAll().stream().filter(Order::isActive).collect(Collectors.toList()); 
 		List<OrderProduct>orderProduct =orderProductDao.findAll(); 
@@ -71,6 +71,11 @@ public class ProductPredictionServiceImpl {
 		List<IncomingShipmentProduct> incomingProducts = incomingShipmentProductDao.findAll();
 		return predictProduct(allProduct,allProductSet, order,orderProduct,incomingShipment,incomingProducts,year,month);
 
+	}
+
+	private List<Product> getAllSortedProducts() {
+		List<Product>product =productDao.findAll();
+		return productServiceImpl.arrangeProductbySortField(product);
 	}
 
 	private List<ProductPredictionDto> predictProduct(List<Product> allProduct, List<ProductSet> allProductSet,
@@ -85,6 +90,7 @@ public class ProductPredictionServiceImpl {
 				productPredictionDto.setProductId(product.getProductId());
 				productPredictionDto.setProductName(product.getProductName());
 				productPredictionDto.setDescription(product.getDescription());
+				productPredictionDto.setColor(product.getColor());
 				List<ProductSet> productsetList= allProductSet.stream()
 						.filter(predicate->predicate.getSetId()==product.getProductId())
 						.collect(Collectors.toList());
@@ -120,6 +126,7 @@ public class ProductPredictionServiceImpl {
 			productPredictionDto.setDescription(" ");
 			productPredictionDto.setObicNo(" ");
 			productPredictionDto.setProductName("Individual Product");
+			productPredictionDto.setColor("");
 			for(Product product:allProduct.stream()
 					.filter(predicate->predicate.isActive()&&!predicate.isSet()&&predicate.isDisplay())
 					.collect(Collectors.toList())) {
@@ -129,6 +136,7 @@ public class ProductPredictionServiceImpl {
 			productDataDto.setProductId(product.getProductId());
 			productDataDto.setObicNo(product.getObicNo());
 			productDataDto.setProductName(product.getProductName());
+			productDataDto.setColor(product.getColor());
 			List<PredictionData> data  =calculateAccordingToDate(product, year,month
 					,predictionDataList,order,incomingShipment,orderProduct,allProduct,allProductSet,incomingProducts);
 			productDataDto.setValues(data);
