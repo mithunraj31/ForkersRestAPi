@@ -11,6 +11,8 @@ public class ProductPredictionDto {
 	private String description;
 
 	private String obicNo;
+	
+	private String color;
 
 	List<ProductDataDto>products;
 
@@ -52,5 +54,13 @@ public class ProductPredictionDto {
 
 	public void setProducts(List<ProductDataDto> products) {
 		this.products = products;
+	}
+
+	public String getColor() {
+		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
 	}
 }

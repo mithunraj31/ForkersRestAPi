@@ -112,6 +112,7 @@ public class ForecastServiceImpl {
 		forecastProductDto.setOrderId(unfulfilledorder.getOrderId());
 		forecastProductDto.setProposalNo(unfulfilledorder.getProposalNo());
 		forecastProductDto.setReceivedDate(unfulfilledorder.getReceivedDate());
+		forecastProductDto.setFixed(unfulfilledorder.isFixed());
 		Set<Entry<Integer, List<Mappingfields>>>productMap=productDetails.entrySet();
 		for(Entry<Integer, List<Mappingfields>> update:productMap) {
 			int productKey = update.getKey();
