@@ -75,10 +75,7 @@ public class ProductPredictionServiceImpl {
 
 	private List<Product> getAllSortedProducts() {
 		List<Product>product =productDao.findAll();
-		List<Product>activeProduct= product.stream()
-				.filter(predicate->!predicate.isSet())
-				.collect(Collectors.toList());
-		return productServiceImpl.arrangeProductbySortField(activeProduct);
+		return productServiceImpl.arrangeProductbySortField(product);
 	}
 
 	private List<ProductPredictionDto> predictProduct(List<Product> allProduct, List<ProductSet> allProductSet,
