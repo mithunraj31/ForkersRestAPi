@@ -29,6 +29,8 @@ public class OrderModel{
 	    private boolean forecast;
 	    
 	    private boolean fulfilled;
+	    
+	    private boolean fixed;
 
 		public int getOrderId() {
 			return orderId;
@@ -132,6 +134,14 @@ public class OrderModel{
 
 		public void setDeliveryDate(LocalDateTime deliveryDate) {
 			this.deliveryDate = deliveryDate;
+		}
+
+		public boolean isFixed() {
+			return fixed;
+		}
+
+		public void setFixed(boolean fixed) {
+			this.fixed = fixed;
 		}
 
 

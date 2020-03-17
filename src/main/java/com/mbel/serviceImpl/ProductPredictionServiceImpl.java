@@ -3,7 +3,6 @@ package com.mbel.serviceImpl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,14 +77,17 @@ public class ProductPredictionServiceImpl {
 			List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment,
 			List<IncomingShipmentProduct> incomingProducts, int year, int month) {
 		List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
-		for(Product product:allProduct.stream().filter(predicate->predicate.isActive()&&predicate.isSet()).collect(Collectors.toList())) {
+		for(Product product:allProduct.stream().filter(predicate->predicate.isActive()
+				&&predicate.isSet()&&predicate.isDisplay()).collect(Collectors.toList())) {
 			List<PredictionData> predictionDataList = new ArrayList<>();
 				ProductPredictionDto productPredictionDto =new ProductPredictionDto();
 				productPredictionDto.setObicNo(product.getObicNo());
 				productPredictionDto.setProductId(product.getProductId());
 				productPredictionDto.setProductName(product.getProductName());
 				productPredictionDto.setDescription(product.getDescription());
-				List<ProductSet> productsetList= allProductSet.stream().filter(predicate->predicate.getSetId()==product.getProductId()).collect(Collectors.toList());
+				List<ProductSet> productsetList= allProductSet.stream()
+						.filter(predicate->predicate.getSetId()==product.getProductId())
+						.collect(Collectors.toList());
 				List<ProductDataDto>productDataDtoList=new ArrayList<>();
 				for(int l=0;l< productsetList.size();l++ ) {
 					ProductDataDto productDataDto =new ProductDataDto();
@@ -118,7 +120,9 @@ public class ProductPredictionServiceImpl {
 			productPredictionDto.setDescription(" ");
 			productPredictionDto.setObicNo(" ");
 			productPredictionDto.setProductName("Individual Product");
-			for(Product product:allProduct.stream().filter(predicate->predicate.isActive()&&!predicate.isSet()).collect(Collectors.toList())) {
+			for(Product product:allProduct.stream()
+					.filter(predicate->predicate.isActive()&&!predicate.isSet()&&predicate.isDisplay())
+					.collect(Collectors.toList())) {
 				List<PredictionData> predictionDataList = new ArrayList<>();
 			ProductDataDto productDataDto =new ProductDataDto();
 			productDataDto.setDescription(product.getDescription());
@@ -187,14 +191,14 @@ public class ProductPredictionServiceImpl {
 			predictionData.setDate(dueDate);
 			predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getAvailableStockQuantity());
 			predictionData.setQuantity(product.getQuantity());
-			//predictionData.setRequiredQuantity(0);
+			predictionData.setRequiredQuantity(0);
 			if(productQuantityMap.get(product.getProductId()).getIncomingQuantity()!=0) {
 			predictionData.setIncomingQuantity(productQuantityMap.get(product.getProductId()).getIncomingQuantity());
 			}
 
 		}else if(productQuantityMap.containsKey(product.getProductId())){
 			predictionData.setDate(dueDate);
-			predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getCurrentQuantity());
+			predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getAvailableStockQuantity());
 			predictionData.setRequiredQuantity(productQuantityMap.get(product.getProductId()).getRequiredQuantity());
 			predictionData.setQuantity(product.getQuantity());
 			if(productQuantityMap.get(product.getProductId()).getIncomingQuantity()!=0) {
@@ -205,8 +209,8 @@ public class ProductPredictionServiceImpl {
 			predictionData.setDate(dueDate);
 			predictionData.setCurrentQuantity(product.getQuantity());
 			predictionData.setQuantity(product.getQuantity());
-			//predictionData.setRequiredQuantity(0);
-			//predictionData.setIncomingQuantity(0);
+		    predictionData.setRequiredQuantity(0);
+			predictionData.setIncomingQuantity(0);
 		}
 		predictionDataList.add(predictionData);
 		}
@@ -252,7 +256,8 @@ public class ProductPredictionServiceImpl {
 		return orderProductList;
 	}
 
-	public FetchProductSetDto getProductSetById(int productId, List<Product> allProduct, List<ProductSet> allProductSet) {
+	public FetchProductSetDto getProductSetById(int productId, List<Product> allProduct,
+			List<ProductSet> allProductSet) {
 		Product proCheck = allProduct.stream().filter(predicate->predicate.getProductId()==productId)
 				.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
 					if (list.size() != 1) {
@@ -417,8 +422,8 @@ public class ProductPredictionServiceImpl {
 		List<PopulateIncomingShipmentDto> incomingShipmentDtoList =getAllIncomingShipment(incomingShipment,incomingProducts,allProduct,allProductSet);
 		return incomingShipmentDtoList.stream()
 				.filter(predicate->!predicate.isArrived()
-						&&(predicate.getArrivalDate().getDayOfMonth()< dueDate.getDayOfMonth()
-						||predicate.getArrivalDate().getDayOfMonth()==dueDate.getDayOfMonth()))
+						&&(predicate.getArrivalDate().getDayOfMonth()==dueDate.getDayOfMonth()
+								&& predicate.getArrivalDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
 
 	}
@@ -482,7 +487,8 @@ public class ProductPredictionServiceImpl {
 	private List<Order> getUnfulfilledActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
 				.filter(predicate->predicate.isActive() && !predicate.isFulfilled() 
-						&&( predicate.getDueDate().getDayOfMonth()==dueDate.getDayOfMonth()))
+						&&( predicate.getDueDate().getDayOfMonth()==dueDate.getDayOfMonth()
+						&& predicate.getDueDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
 
 	}

@@ -88,21 +88,30 @@ public class VerifyOrderServiceImpl {
 			}
 		}
 		
-		return verifyProductStatus(productId,productQuantityMap,amountRequired,dueDate);
+		return verifyProductStatus(productId,productQuantityMap,amountRequired,dueDate,allProduct,allProductSet);
 		
 	}
 
 
 
 	private ResponseEntity<Map<String, List<ProductSetModel>>> verifyProductStatus(@Valid int productId,
-			Map<Integer, Mappingfields> productQuantityMap, @Valid int amountRequired, @Valid LocalDateTime dueDate) {
+			Map<Integer, Mappingfields> productQuantityMap, @Valid int amountRequired, @Valid LocalDateTime dueDate,
+			List<Product> allProduct, List<ProductSet> allProductSet) {
 		List<ProductSetModel> productSetModelList = new ArrayList<>();
-		Product availProduct = productDao.findById(productId).orElse(null);
+		Product availProduct = allProduct.stream()
+				.filter(predicate->predicate.getProductId()==productId)
+				.collect(Collectors.collectingAndThen(Collectors.toList(), list->{
+					if(list.isEmpty()) {
+						return null;
+					}else {
+						return list.get(0);
+					}
+				}));
 		if(productQuantityMap.containsKey(productId)) {
 			if(Objects.nonNull(availProduct)&&!availProduct.isSet()) {
 			verifySingleProduct(productId,productQuantityMap,productSetModelList,amountRequired,dueDate);
 			}else {
-				FetchProductSetDto fetchProductSet = productServiceImpl.getProductSetById(productId);
+				FetchProductSetDto fetchProductSet = productPredictionServiceImpl.getProductSetById(productId, allProduct, allProductSet);
 				for(int i=0;i<fetchProductSet.getProducts().size();i++) {
 					int individualProductId=fetchProductSet.getProducts().get(i).getProduct().getProductId();
 					int packageAmountRequired = amountRequired*fetchProductSet.getProducts().get(i).getQuantity();
@@ -111,7 +120,8 @@ public class VerifyOrderServiceImpl {
 			}
 		}else {
 			if(Objects.nonNull(availProduct)){
-			verifyNewIncomingProduct(productId,productQuantityMap,amountRequired,dueDate,productSetModelList,availProduct);
+			verifyNewIncomingProduct(productId,productQuantityMap,amountRequired,
+					dueDate,productSetModelList,availProduct,allProduct,allProductSet);
 			}
 		}
 	
@@ -125,19 +135,28 @@ public class VerifyOrderServiceImpl {
 	}
 	}
 	private void verifyNewIncomingProduct(@Valid int productId, Map<Integer, Mappingfields> productQuantityMap,
-			@Valid int amountRequired, @Valid LocalDateTime dueDate, List<ProductSetModel> productSetModelList, Product availProduct) {
+			@Valid int amountRequired, @Valid LocalDateTime dueDate, List<ProductSetModel> productSetModelList, 
+			Product availProduct, List<Product> allProduct, List<ProductSet> allProductSet) {
 
 		if(!productQuantityMap.get(productId).isSet()) {
 		verifyStockQuantityProduct(availProduct,productSetModelList,amountRequired,dueDate);	
 		}else {
-			FetchProductSetDto fetchProductSet = productServiceImpl.getProductSetById(productId);
+			FetchProductSetDto fetchProductSet = productPredictionServiceImpl.getProductSetById(productId, allProduct, allProductSet);
 			for(int i=0;i<fetchProductSet.getProducts().size();i++) {
 				int individualProductId=fetchProductSet.getProducts().get(i).getProduct().getProductId();
 				if(productQuantityMap.containsKey(productId)) {
 					int packageAmountRequired = amountRequired*fetchProductSet.getProducts().get(i).getQuantity();
 					verifySingleProduct(individualProductId,productQuantityMap,productSetModelList,packageAmountRequired,dueDate);
 				}else {
-				Product productValue = productDao.findById(individualProductId).orElse(null);
+				Product productValue = allProduct.stream()
+						.filter(predicate->predicate.getProductId()==productId)
+						.collect(Collectors.collectingAndThen(Collectors.toList(), list->{
+							if(list.isEmpty()) {
+								return null;
+							}else {
+								return list.get(0);
+							}
+						}));
 				if(Objects.nonNull(productValue)) {
 					verifyStockQuantityProduct(productValue,productSetModelList,amountRequired,dueDate);
 				}

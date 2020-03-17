@@ -74,12 +74,25 @@ public class  ProductController{
 	public List<FetchProductSetDto> allProductSet() {
 		return productServiceImpl.getAllProductSet();
 	}
+	
+	@GetMapping("/productsetsql/")
+	public List<FetchProductSetDto> allProductSetSql() {
+		return productServiceImpl.getAllSqlProductSet();
+	}
 
 	@GetMapping("/productset/{productId}")
 	public FetchProductSetDto productSetById(@PathVariable (value="productId")@NonNull int productId) {
 		return productServiceImpl.getProductSetById(productId);
 
 	}
+	
+	@GetMapping("/productsetsql/{productId}")
+	public FetchProductSetDto productSetSqlById(@PathVariable (value="productId")@NonNull int productId) {
+		return productServiceImpl.getProductSetSqlById(productId);
+
+	}
+	
+	
 	@PutMapping("/productset/{productId}")
 	public Product updateProductSetById(@PathVariable (value="productId")@NonNull int productId,
 			@Valid @RequestBody SaveProductSetDto productSetDetails) {

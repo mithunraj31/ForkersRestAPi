@@ -2,7 +2,6 @@ package com.mbel.controller;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -20,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mbel.model.Customer;
+import com.mbel.dto.CustomerDto;
 import com.mbel.serviceImpl.CustomerServiceImpl;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -35,23 +34,23 @@ public class  CustomerController{
 
 	@PostMapping("/customer/")
 	@ResponseStatus(HttpStatus.CREATED)
-	public Customer saveProduct(@Valid @RequestBody Customer newCustomer) {
+	public CustomerDto saveProduct(@Valid @RequestBody CustomerDto newCustomer) {
 		return customerServiceImpl.save(newCustomer);
 	}
 
 	@GetMapping("/customer/")
-	public List<Customer> allCustomer()  {
+	public List<CustomerDto> allCustomer()  {
 		return customerServiceImpl.getAllCustomers();
 	}
 	@GetMapping("/customer/{customerId}")
-	public Optional<Customer> customerById(@PathVariable (value="customerId") @Valid int customerId) {
+	public CustomerDto customerById(@PathVariable (value="customerId") @Valid int customerId) {
 		return customerServiceImpl.getCustomerById(customerId);
 
 	}
 
 	@PutMapping("/customer/{customerId}")
-	public Customer updateCustomerById(@PathVariable (value="customerId")int customerId,
-			@Valid @RequestBody Customer customerDetails)   {
+	public CustomerDto updateCustomerById(@PathVariable (value="customerId")int customerId,
+			@Valid @RequestBody CustomerDto customerDetails)   {
 		return customerServiceImpl.getupdateCustomerById(customerId,customerDetails);
 
 

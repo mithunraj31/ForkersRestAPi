@@ -24,7 +24,6 @@ public class Order{
 	    @Column(name = "due_date")
 	    private LocalDateTime dueDate;
 	    
-	    @NotNull(message="* Please Enter deliveryDate")
 	    @Column(name = "delivery_date")
 	    private LocalDateTime deliveryDate;
 	    
@@ -32,15 +31,12 @@ public class Order{
 	    @Column(name = "customer_id")
 	    private int customerId;
 	    
-	    @NotNull(message="* Please Enter salesDestinationId")
 	    @Column(name = "sales_destination_id")
 	    private int salesDestinationId;
 	    
-	    @NotNull(message="* Please Enter contractorId")
 	    @Column(name = "contractor_id")
 	    private int contractorId;
 	    
-	    @NotNull(message="* Please Enter receivedDate")
 	    @Column(name = "received_date")
 	    private LocalDateTime receivedDate;
 	    
@@ -72,6 +68,9 @@ public class Order{
 	    
 	    @Column(name = "fulfilled")
 	    private boolean fulfilled;
+	    
+	    @Column(name = "fixed")
+	    private boolean fixed;
 		
 		public int getOrderId() {
 			return OrderId;
@@ -171,6 +170,12 @@ public class Order{
 		}
 		public void setFulfilled(boolean fulfilled) {
 			this.fulfilled = fulfilled;
+		}
+		public boolean isFixed() {
+			return fixed;
+		}
+		public void setFixed(boolean fixed) {
+			this.fixed = fixed;
 		}
 	    
 	

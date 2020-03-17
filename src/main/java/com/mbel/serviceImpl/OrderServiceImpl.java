@@ -86,6 +86,7 @@ public class OrderServiceImpl  {
 			populate.setActive(order.isActive());
 			populate.setForecast(order.isForecast());
 			populate.setFulfilled(order.isFulfilled());
+			populate.setFixed(order.isFixed());
 			populate.setUser(getUser(userList,order.getUserId()));
 			populate.setSalesUser(getUser(userList,order.getSalesUserId()));
 			populate.setEditReason(order.getEditReason());
@@ -119,6 +120,7 @@ public class OrderServiceImpl  {
 		populate.setActive(order.isActive());
 		populate.setForecast(order.isForecast());
 		populate.setFulfilled(order.isFulfilled());
+		populate.setFixed(order.isFixed());
 		populate.setUser(getUser(userList,order.getUserId()));
 		populate.setSalesUser(getUser(userList,order.getSalesUserId()));
 		populate.setEditReason(order.getEditReason());
@@ -137,7 +139,7 @@ public class OrderServiceImpl  {
 		.filter(predicate->predicate.getUserId()==userId)
 		.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
             if (list.size() != 1) {
-                throw new IllegalStateException();
+                return null;
             }
             return list.get(0);
         }));
@@ -148,7 +150,7 @@ public class OrderServiceImpl  {
 		.filter(predicate->predicate.getCustomerId()==customerId)
 		.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
             if (list.size() != 1) {
-                throw new IllegalStateException();
+            	return null;
             }
             return list.get(0);
         }));
@@ -173,6 +175,7 @@ public class OrderServiceImpl  {
 		order.setUpdatedAt(LocalDateTime.now());
 		order.setActive(true);
 		order.setForecast(true);
+		order.setFixed(newOrderSet.isFixed());
 		order.setFulfilled(newOrderSet.isFulfilled());
 		order.setUserId(jwt.getUserdetails().getUserId());
 		order.setSalesUserId(newOrderSet.getSalesUserId());
@@ -217,6 +220,7 @@ public class OrderServiceImpl  {
 		order.setActive(true);
 		order.setForecast(true);
 		order.setFulfilled(false);
+		order.setFixed(newOrderSet.isFixed());
 		order.setUserId(jwt.getUserdetails().getUserId());
 		order.setSalesUserId(newOrderSet.getSalesUserId());
 		order.setEditReason(newOrderSet.getEditReason());

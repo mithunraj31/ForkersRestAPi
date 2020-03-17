@@ -64,6 +64,15 @@ public class Product {
     @Column(name = "currency")
     private String currency;
     
+    @Column(name = "sort")
+    private int sort;
+    
+    @Column(name = "color")
+    private String color;
+    
+    @Column(name = "display")
+    private boolean display;
+    
 	public int getProductId() {
 		return productId;
 	}
@@ -148,6 +157,24 @@ public class Product {
 	}
 	public void setCurrency(String currency) {
 		this.currency = currency;
+	}
+	public int getSort() {
+		return sort;
+	}
+	public void setSort(int sort) {
+		this.sort = sort;
+	}
+	public String getColor() {
+		return color;
+	}
+	public void setColor(String color) {
+		this.color = color;
+	}
+	public boolean isDisplay() {
+		return display;
+	}
+	public void setDisplay(boolean display) {
+		this.display = display;
 	}
     
 }
