@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.mbel.dao.IncomingShipmentDao;
-import com.mbel.dao.IncomingShipmentProductDao;
 import com.mbel.dao.OrderDao;
 import com.mbel.dao.OrderProductDao;
 import com.mbel.dao.ProductDao;
@@ -24,7 +23,6 @@ import com.mbel.dao.ProductSetDao;
 import com.mbel.dto.FetchOrderdProducts;
 import com.mbel.dto.FetchProductSetDto;
 import com.mbel.model.IncomingShipment;
-import com.mbel.model.IncomingShipmentProduct;
 import com.mbel.model.Order;
 import com.mbel.model.OrderProduct;
 import com.mbel.model.Product;
@@ -58,9 +56,6 @@ public class VerifyOrderServiceImpl {
 	@Autowired
 	IncomingShipmentDao incomingShipmentDao;
 
-	@Autowired 
-	IncomingShipmentProductDao incomingShipmentProductDao;
-	
 	@Autowired
 	ProductPredictionServiceImpl productPredictionServiceImpl;
 
@@ -75,7 +70,6 @@ public class VerifyOrderServiceImpl {
 		List<ProductSet> allProductSet =productSetDao.findAll();
 		List<OrderProduct>orderProduct =orderProductDao.findAll(); 
 		List<IncomingShipment> incomingShipmentList = incomingShipmentDao.findAll();
-		List<IncomingShipmentProduct> incomingProductsList = incomingShipmentProductDao.findAll();
 		Map<Integer,Mappingfields>productQuantityMap=new HashMap<>();
 		Map<Integer,List<Integer>>incomingShipmentMap=new HashMap<>();
 		for(Order unfulfilledorder:sortedOrder) {
@@ -84,7 +78,7 @@ public class VerifyOrderServiceImpl {
 			List<FetchOrderdProducts> orderdProducts= productPredictionServiceImpl.getAllProducts(unfulfilledorder,orderProduct,allProduct,allProductSet);
 			for(FetchOrderdProducts product:orderdProducts) {
 				forecastServiceImpl.checkProductStatus(product,unfulfilledorder.getDueDate(),productDetails,
-						productQuantityMap,incomingShipmentMap,forecastOrder,allProduct,allProductSet,incomingShipmentList,incomingProductsList);
+						productQuantityMap,incomingShipmentMap,forecastOrder,allProduct,allProductSet,incomingShipmentList);
 			}
 		}
 		
