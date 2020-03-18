@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mbel.dto.FetchIncomingOrderdProducts;
 import com.mbel.dto.IncomingShipmentDto;
-import com.mbel.dto.PopulateIncomingShipmentDto;
 import com.mbel.model.IncomingShipment;
 import com.mbel.serviceImpl.IncomingShipmentServiceImpl;
 
@@ -41,11 +41,11 @@ public class  IncomingShipmentController{
 	}
 
 	@GetMapping("/shipment/incoming/")
-	public List<PopulateIncomingShipmentDto> allIncomingShipment()  {
+	public List<FetchIncomingOrderdProducts> allIncomingShipment()  {
 		return incomingShipmentServiceImpl.getAllIncomingShipment();
 	}
 	@GetMapping("/shipment/incoming/{incomingShipmentId}")
-	public PopulateIncomingShipmentDto incomingShipmentById(@PathVariable (value="incomingShipmentId") @Valid int incomingShipmentId) {
+	public FetchIncomingOrderdProducts incomingShipmentById(@PathVariable (value="incomingShipmentId") @Valid int incomingShipmentId) {
 		return incomingShipmentServiceImpl.getIncomingShipmentById(incomingShipmentId);
 
 	}

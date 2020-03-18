@@ -1,20 +1,22 @@
 package com.mbel.serviceImpl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.mbel.dao.IncomingShipmentDao;
-import com.mbel.dao.IncomingShipmentProductDao;
 import com.mbel.dao.ProductDao;
 import com.mbel.dao.ProductSetDao;
 import com.mbel.dto.FetchIncomingOrderdProducts;
 import com.mbel.model.IncomingShipment;
-import com.mbel.model.IncomingShipmentProduct;
 import com.mbel.model.Product;
 import com.mbel.model.ProductSet;
 
@@ -37,21 +39,30 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 		@Autowired 
 		ProductSetDao productSetDao;
 
-		@Autowired 
-		IncomingShipmentProductDao incomingShipmentProductDao;
-		
-		public void updateQuantity(int incomingShipmentId, boolean isArrived) {
+		public ResponseEntity<Map<String, String>> updateQuantity(int incomingShipmentId, boolean isArrived) {
 			List<Product> allProduct = productDao.findAll();
 			List<ProductSet> allProductSet =productSetDao.findAll();
-			List<IncomingShipmentProduct> incomingProducts = incomingShipmentProductDao.findAll();
-			
+			IncomingShipment incoming =incomingShipmentDao.findById(incomingShipmentId).orElse(null);
+			Map<String, String> response = new HashMap<>();
+			if(Objects.nonNull(incoming)&&incoming.isFixed()) {
 			List<FetchIncomingOrderdProducts> allIncomingProducts=
-					productPredictionServiceImpl.getAllIncomingProduct(incomingShipmentId, incomingProducts, allProduct, allProductSet);
-				updateArrivedQuantity(incomingShipmentId,allIncomingProducts,allProduct,isArrived);
+					productPredictionServiceImpl.getAllIncomingProduct(incoming, allProduct, allProductSet);
+				updateArrivedQuantity(incomingShipmentId,allIncomingProducts,allProduct,isArrived,incoming);
+				response.put("message", "Incoming Quantity Updated");
+				response.put("incomingShipmentId", String.valueOf(incomingShipmentId));
+
+				return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
+			}else {
+				response.put("message", "Incoming Quantity is not fixed");
+				response.put("incomingShipmentId", String.valueOf(incomingShipmentId));
+
+				return new ResponseEntity<Map<String,String>>(response, HttpStatus.NOT_ACCEPTABLE);
+			}
 		
 		}
 
-		private void updateArrivedQuantity(int shipmentId, List<FetchIncomingOrderdProducts> allIncomingProducts, List<Product> allProduct, boolean isArrived) {
+		private void updateArrivedQuantity(int shipmentId, List<FetchIncomingOrderdProducts> allIncomingProducts,
+				List<Product> allProduct, boolean isArrived, IncomingShipment incoming) {
 			List<Product> productList =new ArrayList<>();
 			for(FetchIncomingOrderdProducts incomingProduct: allIncomingProducts) {
 			Product product =allProduct.stream()
@@ -64,23 +75,22 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 						}
 					}));
 			if(Objects.nonNull(product)&&isArrived) {
-			product.setQuantity(product.getQuantity()+incomingProduct.getQuantity());
+			product.setQuantity(product.getQuantity()+incomingProduct.getConfirmedQty());
 			product.setPrice(product.getPrice()+incomingProduct.getPrice());
 			productList.add(product);
 			}else if(Objects.nonNull(product)) {
-				product.setQuantity(product.getQuantity()-incomingProduct.getQuantity());
+				product.setQuantity(product.getQuantity()-incomingProduct.getConfirmedQty());
 				product.setPrice(product.getPrice()-incomingProduct.getPrice());
 				productList.add(product);
 			}
 			}
 			productDao.saveAll(productList);
-			IncomingShipment incomingShipmentUpdate = incomingShipmentDao.findById(shipmentId).orElse(null);
-			if(Objects.nonNull(incomingShipmentUpdate) && isArrived) {
-			incomingShipmentUpdate.setArrived(true);
-			}else if(Objects.nonNull(incomingShipmentUpdate)) {
-			incomingShipmentUpdate.setArrived(false);
+			if(Objects.nonNull(incoming) && isArrived) {
+				incoming.setArrived(true);
+			}else if(Objects.nonNull(incoming)) {
+				incoming.setArrived(false);
 			}
-			incomingShipmentDao.save(incomingShipmentUpdate);	
+			incomingShipmentDao.save(incoming);	
 			
 			}
 			
