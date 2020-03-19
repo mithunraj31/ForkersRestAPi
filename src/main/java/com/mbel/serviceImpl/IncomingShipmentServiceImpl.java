@@ -90,6 +90,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingDto.setFixed(incoming.isFixed());
 			incomingDto.setPartial(incoming.isPartial());		
 			incomingDto.setFixedDeliveryDate(incoming.getFixedDeliveryDate());
+			incomingDto.setDesiredDeliveryDate(incoming.getDesiredDeliveryDate());
 			incomingDto.setOrderDate(incoming.getOrderDate());
 			incomingDto.setVendor(incoming.getVendor());
 			incomingDto.setPendingQty(incoming.getPendingQty());
@@ -138,6 +139,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingDto.setFixed(incoming.isFixed());
 			incomingDto.setPartial(incoming.isPartial());
 			incomingDto.setFixedDeliveryDate(incoming.getFixedDeliveryDate());
+			incomingDto.setDesiredDeliveryDate(incoming.getDesiredDeliveryDate());
 			incomingDto.setOrderDate(incoming.getOrderDate());
 			incomingDto.setVendor(incoming.getVendor());
 			incomingDto.setPendingQty(incoming.getPendingQty());

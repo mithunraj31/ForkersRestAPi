@@ -40,14 +40,15 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 		ProductSetDao productSetDao;
 
 		public ResponseEntity<Map<String, String>> updateQuantity(int incomingShipmentId, boolean isArrived) {
+			List<IncomingShipment> incomingShipment =new ArrayList<>();
 			List<Product> allProduct = productDao.findAll();
-			List<ProductSet> allProductSet =productSetDao.findAll();
 			IncomingShipment incoming =incomingShipmentDao.findById(incomingShipmentId).orElse(null);
+			incomingShipment.add(incoming);
 			Map<String, String> response = new HashMap<>();
 			if(Objects.nonNull(incoming)&&incoming.isFixed()) {
 			List<FetchIncomingOrderdProducts> allIncomingProducts=
-					productPredictionServiceImpl.getAllIncomingProduct(incoming, allProduct, allProductSet);
-				updateArrivedQuantity(incomingShipmentId,allIncomingProducts,allProduct,isArrived,incoming);
+					productPredictionServiceImpl.getAllIncomingShipment(incomingShipment, allProduct);
+				updateArrivedQuantity(allIncomingProducts,allProduct,isArrived,incoming);
 				response.put("message", "Incoming Quantity Updated");
 				response.put("incomingShipmentId", String.valueOf(incomingShipmentId));
 
@@ -61,9 +62,8 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 		
 		}
 
-		private void updateArrivedQuantity(int shipmentId, List<FetchIncomingOrderdProducts> allIncomingProducts,
+		private void updateArrivedQuantity(List<FetchIncomingOrderdProducts> allIncomingProducts,
 				List<Product> allProduct, boolean isArrived, IncomingShipment incoming) {
-			List<Product> productList =new ArrayList<>();
 			for(FetchIncomingOrderdProducts incomingProduct: allIncomingProducts) {
 			Product product =allProduct.stream()
 					.filter(predicate->predicate.getProductId()==incomingProduct.getProduct().getProductId())
@@ -77,18 +77,14 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 			if(Objects.nonNull(product)&&isArrived) {
 			product.setQuantity(product.getQuantity()+incomingProduct.getConfirmedQty());
 			product.setPrice(product.getPrice()+incomingProduct.getPrice());
-			productList.add(product);
+			productDao.save(product);
+			incoming.setArrived(true);
 			}else if(Objects.nonNull(product)) {
 				product.setQuantity(product.getQuantity()-incomingProduct.getConfirmedQty());
 				product.setPrice(product.getPrice()-incomingProduct.getPrice());
-				productList.add(product);
-			}
-			}
-			productDao.saveAll(productList);
-			if(Objects.nonNull(incoming) && isArrived) {
-				incoming.setArrived(true);
-			}else if(Objects.nonNull(incoming)) {
+				productDao.save(product);
 				incoming.setArrived(false);
+			}
 			}
 			incomingShipmentDao.save(incoming);	
 			

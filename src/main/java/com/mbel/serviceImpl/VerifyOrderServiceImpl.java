@@ -105,7 +105,7 @@ public class VerifyOrderServiceImpl {
 			if(Objects.nonNull(availProduct)&&!availProduct.isSet()) {
 			verifySingleProduct(productId,productQuantityMap,productSetModelList,amountRequired,dueDate);
 			}else {
-				FetchProductSetDto fetchProductSet = productPredictionServiceImpl.getProductSetById(productId, allProduct, allProductSet);
+				FetchProductSetDto fetchProductSet = productPredictionServiceImpl.getProductById(productId, allProduct);
 				for(int i=0;i<fetchProductSet.getProducts().size();i++) {
 					int individualProductId=fetchProductSet.getProducts().get(i).getProduct().getProductId();
 					int packageAmountRequired = amountRequired*fetchProductSet.getProducts().get(i).getQuantity();
@@ -135,7 +135,7 @@ public class VerifyOrderServiceImpl {
 		if(!productQuantityMap.get(productId).isSet()) {
 		verifyStockQuantityProduct(availProduct,productSetModelList,amountRequired,dueDate);	
 		}else {
-			FetchProductSetDto fetchProductSet = productPredictionServiceImpl.getProductSetById(productId, allProduct, allProductSet);
+			FetchProductSetDto fetchProductSet = productPredictionServiceImpl.getProductById(productId, allProduct);
 			for(int i=0;i<fetchProductSet.getProducts().size();i++) {
 				int individualProductId=fetchProductSet.getProducts().get(i).getProduct().getProductId();
 				if(productQuantityMap.containsKey(productId)) {

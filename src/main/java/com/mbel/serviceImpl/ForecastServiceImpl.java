@@ -23,7 +23,6 @@ import com.mbel.dao.ProductSetDao;
 import com.mbel.dto.FetchIncomingOrderdProducts;
 import com.mbel.dto.FetchOrderdProducts;
 import com.mbel.dto.FetchProductSetDto;
-import com.mbel.dto.PopulateIncomingShipmentDto;
 import com.mbel.dto.PopulateOrderDto;
 import com.mbel.model.IncomingShipment;
 import com.mbel.model.Order;
@@ -145,14 +144,14 @@ public class ForecastServiceImpl {
 		if(!product.getProduct().isSet()) {
 
 			productStockCaluculate(product,dueDate,productDetails,
-					productQuantityMap,incomingShipmentMap,forecastOrder,allProduct,allProductSet,incomingShipmentList);
+					productQuantityMap,incomingShipmentMap,forecastOrder,allProduct,incomingShipmentList);
 		}else {
 			List<String>forecastPackage =new ArrayList<>();
 			Mappingfields mappingPackage =new Mappingfields();
 			mappingPackage.setPackageProduct(product.getProduct());
 			for(ProductSetModel individualProduct:product.getProduct().getProducts()) {
 				productSetStockCaluculate(product,individualProduct,dueDate,
-						productDetails,productQuantityMap,incomingShipmentMap,forecastOrder,forecastPackage,allProduct,allProductSet,incomingShipmentList);
+						productDetails,productQuantityMap,incomingShipmentMap,forecastOrder,forecastPackage,allProduct,incomingShipmentList);
 			}
 			mappingPackage.setPackageQuantity(product.getQuantity());
 			if(forecastPackage.contains(Constants.STRING_FALSE)) {
@@ -249,7 +248,8 @@ public class ForecastServiceImpl {
 	public void productSetStockCaluculate(FetchOrderdProducts product,
 			ProductSetModel individualProduct,LocalDateTime dueDate, Map<Integer, List<Mappingfields>> productDetails,
 			Map<Integer, Mappingfields> productQuantityMap, 
-			Map<Integer, List<Integer>> incomingShipmentMap,List<String> forecastOrder, List<String> forecastPackage, List<Product> allProduct, List<ProductSet> allProductSet, List<IncomingShipment> incomingShipmentList) {
+			Map<Integer, List<Integer>> incomingShipmentMap,List<String> forecastOrder, List<String> forecastPackage,
+			List<Product> allProduct, List<IncomingShipment> incomingShipmentList) {
 		Mappingfields mappingFields =new Mappingfields();
 		int stockQuantity=0;
 		int orderdQunatity = 0;
@@ -262,7 +262,7 @@ public class ForecastServiceImpl {
 		updateStockValues(individualProduct.getProduct(),
 				stockQuantity,orderdQunatity,dueDate,
 				mappingFields,productQuantityMap,incomingShipmentMap,forecastOrder
-				,allProduct,allProductSet,incomingShipmentList);
+				,allProduct,incomingShipmentList);
 		forecastPackage.add(String.valueOf(mappingFields.isForecast()));
 		multipleProductOrder(productDetails,product.getProduct().getProductId(),mappingFields);
 	}
@@ -271,7 +271,7 @@ public class ForecastServiceImpl {
 
 	public void productStockCaluculate(FetchOrderdProducts product, LocalDateTime dueDate,
 			Map<Integer, List<Mappingfields>> productDetails, Map<Integer, Mappingfields> productQuantityMap,
-			Map<Integer, List<Integer>> incomingShipmentMap, List<String> forecastOrder, List<Product> allProduct, List<ProductSet> allProductSet, List<IncomingShipment> incomingShipmentList) {
+			Map<Integer, List<Integer>> incomingShipmentMap, List<String> forecastOrder, List<Product> allProduct, List<IncomingShipment> incomingShipmentList) {
 		int stockQuantity=0;
 		int orderdQunatity = 0;
 		Mappingfields mappingFields =new Mappingfields();
@@ -284,16 +284,18 @@ public class ForecastServiceImpl {
 		mappingFields.setSet(false);
 		updateStockValues(productValue,stockQuantity,
 				orderdQunatity,dueDate,mappingFields,productQuantityMap,incomingShipmentMap,forecastOrder,
-				allProduct,allProductSet,incomingShipmentList);
+				allProduct,incomingShipmentList);
 		multipleProductOrder(productDetails,productValue.getProductId(),mappingFields);
 	}
 
 	public void updateStockValues(Product product, int stockQuantity, int orderdQunatity, LocalDateTime dueDate,
-			Mappingfields mappingFields, Map<Integer, Mappingfields> productQuantityMap, Map<Integer, List<Integer>> incomingShipmentMap, List<String> forecastOrder, List<Product> allProduct, List<ProductSet> allProductSet, List<IncomingShipment> incomingShipmentList) {
+			Mappingfields mappingFields, Map<Integer, Mappingfields> productQuantityMap, 
+			Map<Integer, List<Integer>> incomingShipmentMap, List<String> forecastOrder,
+			List<Product> allProduct, List<IncomingShipment> incomingShipmentList) {
 		int tillDateQuantity=0;
 		if(!productQuantityMap.containsKey(product.getProductId())) {
 			tillDateQuantity =getTillDateQuantity(product,stockQuantity,dueDate,incomingShipmentMap,
-					allProduct,allProductSet,incomingShipmentList);
+					allProduct,incomingShipmentList);
 			updateOrder(orderdQunatity,tillDateQuantity,mappingFields,forecastOrder);
 
 			mappingFields.setCurrentQuantity(tillDateQuantity);
@@ -302,7 +304,7 @@ public class ForecastServiceImpl {
 		}else {
 			stockQuantity = productQuantityMap.get(product.getProductId()).getAvailableStockQuantity();
 			tillDateQuantity =getTillDateQuantity(product,stockQuantity,dueDate,incomingShipmentMap,
-					allProduct,allProductSet,incomingShipmentList);
+					allProduct,incomingShipmentList);
 			updateOrder(orderdQunatity,tillDateQuantity,mappingFields,forecastOrder);
 			mappingFields.setCurrentQuantity(tillDateQuantity);
 			mappingFields.setAvailableStockQuantity(tillDateQuantity-orderdQunatity);
@@ -333,31 +335,54 @@ public class ForecastServiceImpl {
 	}
 
 	public int getTillDateQuantity(Product newproduct, int stockQuantity, LocalDateTime dueDate, 
-			Map<Integer, List<Integer>> incomingShipmentMap, List<Product> allProduct, List<ProductSet> allProductSet, List<IncomingShipment> incomingShipment) {
+			Map<Integer, List<Integer>> incomingShipmentMap, List<Product> allProduct, List<IncomingShipment> incomingShipment) {
 		List<Integer>incomingOrderList=new ArrayList<>();
 		int tillDateQuantity = stockQuantity;
-		List<PopulateIncomingShipmentDto> incomingShipmentList=productPredictionServiceImpl.getAllUnarrivedDueDateIncomingShipment(incomingShipment,dueDate,allProduct,allProductSet);
-		for(PopulateIncomingShipmentDto arrivedOrder:incomingShipmentList) {
-			for(FetchIncomingOrderdProducts incomingProduct: arrivedOrder.getProducts()) {
-				if(newproduct.getProductId() == incomingProduct.getProduct().getProductId()) {
-					tillDateQuantity=addArrivedQuantity(tillDateQuantity,incomingShipmentMap,newproduct,arrivedOrder,incomingOrderList,incomingProduct);
-				}
+		List<FetchIncomingOrderdProducts> incomingShipmentList=getAllUnarrivedDueDateIncomingShipment(incomingShipment,dueDate,allProduct);
+		for(FetchIncomingOrderdProducts arrivedOrder:incomingShipmentList) {
+				if(newproduct.getProductId() == arrivedOrder.getProduct().getProductId()) {
+					tillDateQuantity=addArrivedQuantity(tillDateQuantity,incomingShipmentMap,newproduct,arrivedOrder,incomingOrderList);
 			}
 		}
 		return tillDateQuantity;
 
 	}
 
+	public List<FetchIncomingOrderdProducts> getAllUnarrivedDueDateIncomingShipment(
+			List<IncomingShipment> incomingShipment, 
+			LocalDateTime dueDate, List<Product> allProduct) {
+		List<FetchIncomingOrderdProducts> incomingShipmentFixedList = new ArrayList<>();
+		List<FetchIncomingOrderdProducts> incomingShipmentDtoList =productPredictionServiceImpl.getAllIncomingShipment(incomingShipment,allProduct);
+		for(int i=0;i<incomingShipmentDtoList.size();i++) {
+			if(incomingShipmentDtoList.get(i).isFixed()&&!incomingShipmentDtoList.get(i).isArrived()) {
+				if(incomingShipmentDtoList.get(i).getFixedDeliveryDate().isBefore(dueDate.plusDays(1))) {
+					incomingShipmentFixedList.add(incomingShipmentDtoList.get(i));
+
+				}
+
+			}else if(!incomingShipmentDtoList.get(i).isFixed()&&!incomingShipmentDtoList.get(i).isArrived()) {
+				if(incomingShipmentDtoList.get(i).getDesiredDeliveryDate().isBefore(dueDate.plusDays(1))){
+					incomingShipmentFixedList.add(incomingShipmentDtoList.get(i));
+
+				}
+
+			}
+
+		}
+		return incomingShipmentFixedList;
+
+	}
+
 	private int addArrivedQuantity(int tillDateQuantity, Map<Integer, List<Integer>> incomingShipmentMap, 
-			Product newproduct, PopulateIncomingShipmentDto arrivedOrder, List<Integer> incomingOrderList, FetchIncomingOrderdProducts incomingProduct) {
+			Product newproduct, FetchIncomingOrderdProducts arrivedOrder, List<Integer> incomingOrderList) {
 		if(!incomingShipmentMap.containsKey(newproduct.getProductId())){ 
-			tillDateQuantity+=incomingProduct.getQuantity();
+			tillDateQuantity+=arrivedOrder.isFixed()?arrivedOrder.getConfirmedQty():arrivedOrder.getPendingQty();
 			incomingOrderList.add(arrivedOrder.getIncomingShipmentId());
 			incomingShipmentMap.put(newproduct.getProductId(),incomingOrderList);
 		}else {
 			List<Integer> idList=incomingShipmentMap.get(newproduct.getProductId());
 			if(!idList.contains(arrivedOrder.getIncomingShipmentId())){
-				tillDateQuantity+=incomingProduct.getQuantity();
+				tillDateQuantity+=arrivedOrder.isFixed()?arrivedOrder.getConfirmedQty():arrivedOrder.getPendingQty();
 				incomingOrderList.addAll(incomingShipmentMap.get(newproduct.getProductId()));
 				incomingOrderList.add(arrivedOrder.getIncomingShipmentId());
 				incomingShipmentMap.put(newproduct.getProductId(),incomingOrderList);
