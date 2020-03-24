@@ -66,7 +66,7 @@ public class IncomingShipmentServiceImpl  {
 		incomingShipment.setVendor(newIncomingShipment.getVendor());
 		incomingShipment.setPendingQty(newIncomingShipment.getPendingQty());
 		incomingShipment.setFixed((Boolean)newIncomingShipment.isFixed()==null?false:newIncomingShipment.isFixed());
-		incomingShipment.setPartial((Boolean)newIncomingShipment.isFixed()==null?false:newIncomingShipment.isFixed());
+		incomingShipment.setPartial((Boolean)newIncomingShipment.isPartial()==null?false:newIncomingShipment.isPartial());
 		return incomingShipmentDao.save(incomingShipment);
 
 	}
