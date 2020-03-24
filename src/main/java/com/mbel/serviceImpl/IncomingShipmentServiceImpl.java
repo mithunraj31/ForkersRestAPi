@@ -62,7 +62,7 @@ public class IncomingShipmentServiceImpl  {
 		incomingShipment.setConfirmedQty(newIncomingShipment.getConfirmedQty());
 		incomingShipment.setDesiredDeliveryDate(newIncomingShipment.getDesiredDeliveryDate());
 		incomingShipment.setFixedDeliveryDate(newIncomingShipment.getFixedDeliveryDate());
-		incomingShipment.setOrderDate(LocalDateTime.now());
+		incomingShipment.setOrderDate(newIncomingShipment.getOrderDate());
 		incomingShipment.setVendor(newIncomingShipment.getVendor());
 		incomingShipment.setPendingQty(newIncomingShipment.getPendingQty());
 		incomingShipment.setFixed((Boolean)newIncomingShipment.isFixed()==null?false:newIncomingShipment.isFixed());
@@ -213,7 +213,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingShipment.setFixed(newIncomingShipment.isFixed());
 			incomingShipment.setPartial(newIncomingShipment.isPartial());
 			incomingShipment.setFixedDeliveryDate(newIncomingShipment.getFixedDeliveryDate());
-			incomingShipment.setOrderDate(LocalDateTime.now());
+			incomingShipment.setOrderDate(newIncomingShipment.getOrderDate());
 			incomingShipment.setVendor(newIncomingShipment.getVendor());
 			incomingShipment.setPendingQty(newIncomingShipment.getPendingQty());
 			incomingShipment.setCurrency(newIncomingShipment.getCurrency());
