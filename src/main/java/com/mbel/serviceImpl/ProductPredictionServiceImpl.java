@@ -105,6 +105,7 @@ public class ProductPredictionServiceImpl {
 							productDataDto.setProductId(component.getProductId());
 							productDataDto.setObicNo(component.getObicNo());
 							productDataDto.setProductName(component.getProductName());
+							productDataDto.setColor(component.getColor());
 							List<PredictionData> data =calculateAccordingToDate(component, year,month,predictionDataList,order,
 									incomingShipment,orderProduct,allProduct,allProductSet);
 							productDataDto.setValues(data);
@@ -131,6 +132,7 @@ public class ProductPredictionServiceImpl {
 			productDataDto.setProductId(product.getProductId());
 			productDataDto.setObicNo(product.getObicNo());
 			productDataDto.setProductName(product.getProductName());
+			productDataDto.setColor(product.getColor());
 			List<PredictionData> data  =calculateAccordingToDate(product, year,month
 					,predictionDataList,order,incomingShipment,orderProduct,allProduct,allProductSet);
 			productDataDto.setValues(data);
