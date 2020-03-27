@@ -8,11 +8,13 @@ public class PredictionData {
 	
 	private int currentQuantity;
 	
-	private int requiredQuantity;
-	
-	private int incomingQuantity;
-	
 	private int quantity;
+	
+	ProductIncomingShipmentModel incoming;
+	
+	ProductOutgoingShipmentModel outgoing;
+
+
 
 	public LocalDateTime getDate() {
 		return date;
@@ -30,21 +32,6 @@ public class PredictionData {
 		this.currentQuantity = currentQuantity;
 	}
 
-	public int getRequiredQuantity() {
-		return requiredQuantity;
-	}
-
-	public void setRequiredQuantity(int requiredQuantity) {
-		this.requiredQuantity = requiredQuantity;
-	}
-
-	public int getIncomingQuantity() {
-		return incomingQuantity;
-	}
-
-	public void setIncomingQuantity(int incomingQuantity) {
-		this.incomingQuantity = incomingQuantity;
-	}
 
 	public int getQuantity() {
 		return quantity;
@@ -54,7 +41,21 @@ public class PredictionData {
 		this.quantity = quantity;
 	}
 
+	public ProductIncomingShipmentModel getIncoming() {
+		return incoming;
+	}
 
-	
+	public void setIncoming(ProductIncomingShipmentModel incoming) {
+		this.incoming = incoming;
+	}
+
+	public ProductOutgoingShipmentModel getOutgoing() {
+		return outgoing;
+	}
+
+	public void setOutgoing(ProductOutgoingShipmentModel outgoing) {
+		this.outgoing = outgoing;
+	}
+
 
 }

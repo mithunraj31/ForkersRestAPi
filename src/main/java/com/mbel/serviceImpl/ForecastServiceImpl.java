@@ -423,6 +423,10 @@ class Mappingfields{
 	private boolean forecast;
 
 	private boolean set;
+	
+	private boolean incomingFixed;
+	
+	private boolean outgoingFixed;
 
 	private Product product;
 
@@ -507,6 +511,23 @@ class Mappingfields{
 	public void setIncomingQuantity(int incomingQuantity) {
 		this.incomingQuantity = incomingQuantity;
 	}
+
+	public boolean isIncomingFixed() {
+		return incomingFixed;
+	}
+
+	public void setIncomingFixed(boolean incomingFixed) {
+		this.incomingFixed = incomingFixed;
+	}
+
+	public boolean isOutgoingFixed() {
+		return outgoingFixed;
+	}
+
+	public void setOutgoingFixed(boolean outgoingFixed) {
+		this.outgoingFixed = outgoingFixed;
+	}
+
 
 
 
