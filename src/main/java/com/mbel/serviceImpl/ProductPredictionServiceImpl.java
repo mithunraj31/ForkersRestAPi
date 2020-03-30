@@ -185,13 +185,14 @@ public class ProductPredictionServiceImpl {
 				if(incomingQuantity!=0) {
 					Mappingfields mapping=productQuantityMap.get(product.getProductId());
 					if(mapping!=null) {
-						mapping.setAvailableStockQuantity(mapping.getAvailableStockQuantity()+incomingQuantity);
+						int availableQunatity=mapping.getAvailableStockQuantity()==0?mapping.getCurrentQuantity():mapping.getAvailableStockQuantity();
+						mapping.setAvailableStockQuantity(availableQunatity+incomingQuantity);
 						mapping.setIncomingQuantity(incomingQuantity);
 						mapping.setIncomingFixed(fixed);
 						productQuantityMap.put(product.getProductId(), mapping);
 					}else {
 						Mappingfields mappingfields =  new Mappingfields();
-						mappingfields.setAvailableStockQuantity(incomingQuantity);
+						mappingfields.setAvailableStockQuantity(product.getQuantity()+incomingQuantity);
 						mappingfields.setIncomingQuantity(incomingQuantity);
 						mappingfields.setIncomingFixed(fixed);
 						productQuantityMap.put(product.getProductId(), mappingfields);
