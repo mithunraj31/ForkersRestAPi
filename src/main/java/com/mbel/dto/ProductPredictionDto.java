@@ -15,6 +15,16 @@ public class ProductPredictionDto {
 	private String color;
 
 	List<ProductDataDto>products;
+    
+	List<OrderDataDto>order;
+	
+	public List<OrderDataDto> getOrder() {
+		return order;
+	}
+
+	public void setOrder(List<OrderDataDto> order) {
+		this.order = order;
+	}
 
 	public int getProductId() {
 		return productId;
