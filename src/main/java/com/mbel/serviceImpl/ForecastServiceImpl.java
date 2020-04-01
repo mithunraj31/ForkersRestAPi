@@ -409,7 +409,7 @@ public class ForecastServiceImpl {
 class Mappingfields{
 
 	private int currentQuantity;
-
+	
 	private int requiredQuantity;
 
 	private int availableStockQuantity;
@@ -419,6 +419,8 @@ class Mappingfields{
 	private int orderdQuantity;
 
 	private int packageQuantity;
+	
+	private int orderId;
 
 	private boolean forecast;
 
@@ -427,6 +429,14 @@ class Mappingfields{
 	private boolean incomingFixed;
 	
 	private boolean outgoingFixed;
+	
+	private boolean orderFixed;
+	
+	private int customer;
+	
+	private String proposalNo;
+	
+	
 
 	private Product product;
 
@@ -528,6 +538,37 @@ class Mappingfields{
 		this.outgoingFixed = outgoingFixed;
 	}
 
+	public int getOrderId() {
+		return orderId;
+	}
+
+	public boolean isOrderFixed() {
+		return orderFixed;
+	}
+
+	public void setOrderId(int orderId) {
+		this.orderId = orderId;
+	}
+
+	public void setOrderFixed(boolean orderFixed) {
+		this.orderFixed = orderFixed;
+	}
+
+	public int getCustomer() {
+		return customer;
+	}
+
+	public String getProposalNo() {
+		return proposalNo;
+	}
+
+	public void setCustomer(int customer) {
+		this.customer = customer;
+	}
+
+	public void setProposalNo(String proposalNo) {
+		this.proposalNo = proposalNo;
+	}
 
 
 
