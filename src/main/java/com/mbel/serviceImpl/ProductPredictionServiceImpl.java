@@ -99,6 +99,7 @@ public class ProductPredictionServiceImpl {
 						List<ProductDataDto>productDataDtoList=new ArrayList<>();
 						for(int l=0;l< productsetList.size();l++ ) {
 							ProductDataDto productDataDto =new ProductDataDto();
+							predictionDataList = new ArrayList<>();
 							int productComponentId =productsetList.get(l).getProductComponentId();
 							Product component =allProduct.stream().filter(predicate->predicate.getProductId()==productComponentId)
 									.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
