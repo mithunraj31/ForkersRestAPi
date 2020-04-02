@@ -239,7 +239,7 @@ public class ProductPredictionServiceImpl {
 			List<Mappingfields> orderedTimes=productDetails.get(product.getProductId());
 			int requiredQuantity =0;
 			int currentQuantity =0;
-			boolean outgoingFixed = false;
+			boolean outgoingFixed = true;
 			List<OrderData>orderDataList =new ArrayList<>();
 			for(int i=0;i < orderedTimes.size();i++) {
 				OrderData orderData = new OrderData();
@@ -251,7 +251,9 @@ public class ProductPredictionServiceImpl {
 				orderDataList.add(orderData);
 				requiredQuantity+=orderedTimes.get(i).getRequiredQuantity();
 				currentQuantity=orderedTimes.get(0).getCurrentQuantity();
-				outgoingFixed=orderedTimes.get(0).isOutgoingFixed();
+				if(!orderedTimes.get(i).isOutgoingFixed()&& outgoingFixed==true) {
+					outgoingFixed=false;
+				}
 			}
 			ProductIncomingShipmentModel incomingShipmentValues =new ProductIncomingShipmentModel();
 			ProductOutgoingShipmentModel outgoingShipmentValues =new ProductOutgoingShipmentModel();
