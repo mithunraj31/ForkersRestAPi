@@ -58,7 +58,6 @@ public class IncomingShipmentServiceImpl  {
 		incomingShipment.setQuantity(newIncomingShipment.getQuantity());
 		incomingShipment.setCurrency(newIncomingShipment.getCurrency());
 		incomingShipment.setPrice(newIncomingShipment.getPrice());
-		incomingShipment.setBranch(newIncomingShipment.getBranch());
 		incomingShipment.setConfirmedQty(newIncomingShipment.getConfirmedQty());
 		incomingShipment.setDesiredDeliveryDate(newIncomingShipment.getDesiredDeliveryDate());
 		incomingShipment.setFixedDeliveryDate(newIncomingShipment.getFixedDeliveryDate());
@@ -67,8 +66,20 @@ public class IncomingShipmentServiceImpl  {
 		incomingShipment.setPendingQty(newIncomingShipment.getPendingQty());
 		incomingShipment.setFixed((Boolean)newIncomingShipment.isFixed()==null?false:newIncomingShipment.isFixed());
 		incomingShipment.setPartial((Boolean)newIncomingShipment.isPartial()==null?false:newIncomingShipment.isPartial());
+		incomingShipment.setBranch(getCurrentBranchNumber(newIncomingShipment));
 		return incomingShipmentDao.save(incomingShipment);
 
+	}
+
+	private String getCurrentBranchNumber(@Valid IncomingShipmentDto newIncomingShipment) {
+		String branch ="1";
+		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll().stream()
+				.filter(predicate->predicate.getShipmentNo().equals(newIncomingShipment.getShipmentNo()))
+				.collect(Collectors.toList());
+		if(!incomingShipment.isEmpty()&&newIncomingShipment.isFixed()) {
+			branch=String.valueOf(incomingShipment.size()+1);
+		}
+		return branch;
 	}
 
 	public List<FetchIncomingOrderdProducts> getAllIncomingShipment() {
@@ -188,12 +199,40 @@ public class IncomingShipmentServiceImpl  {
 
 	public ResponseEntity<Map<String, String>> deleteIncomingShipmentById(@Valid int incomingShipmentId) {
 		Map<String, String> response = new HashMap<>();
-		incomingShipmentDao.deleteById(incomingShipmentId);
+		List<IncomingShipment> incomingShipmentList = incomingShipmentDao.findAll();
+		
+		IncomingShipment incomingShipment=incomingShipmentList.stream()
+		.filter(predicate->predicate.getIncomingShipmentId()==incomingShipmentId)
+		.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
+            if (list.size() != 1) {
+            	return null;
+            }
+            return list.get(0);
+        }));
+		List<IncomingShipment> incomingShipmentPartial=incomingShipmentList.stream()
+				.filter(predicate->predicate.getShipmentNo().equals(incomingShipment.getShipmentNo())
+						&& !predicate.isArrived())
+				.collect(Collectors.toList());
+		
+		if(incomingShipment!=null && !incomingShipment.isFixed()) {
+			incomingShipmentDao.deleteAll(incomingShipmentPartial);
+		}else if(incomingShipment!=null && incomingShipment.isFixed()){
+			IncomingShipment addIncomingShipment=incomingShipmentPartial.stream()
+			.filter(predicate->!predicate.isFixed())
+			.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
+	            if (list.size() != 1) {
+	            	return null;
+	            }
+	            return list.get(0);
+	        }));
+			addIncomingShipment.setPendingQty(addIncomingShipment.getPendingQty()+incomingShipment.getConfirmedQty());
+			incomingShipmentDao.deleteById(incomingShipmentId);
+			incomingShipmentDao.save(addIncomingShipment);
+		}
 		response.put("message", "IncomingShipment has been deleted");
 		response.put("IncomingShipmentId", String.valueOf(incomingShipmentId));
 		return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
 	}
-
 	public IncomingShipment getUpdateIncomingShipmentId(int incomingShipmentId,
 			@Valid IncomingShipmentDto newIncomingShipment) {
 		IncomingShipment incomingShipment = incomingShipmentDao.findById(incomingShipmentId).orElse(null);
@@ -203,7 +242,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingShipment.setShipmentNo(newIncomingShipment.getShipmentNo());
 			incomingShipment.setUpdatedAt(LocalDateTime.now());
 			incomingShipment.setUserId(jwt.getUserdetails().getUserId());
-			incomingShipment.setArrived(false);
+			incomingShipment.setArrived(newIncomingShipment.isArrived());
 			incomingShipment.setProductId(newIncomingShipment.getProductId());
 			incomingShipment.setQuantity(newIncomingShipment.getQuantity());
 			incomingShipment.setPrice(newIncomingShipment.getPrice());
