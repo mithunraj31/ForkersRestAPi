@@ -54,6 +54,7 @@ public class IncomingShipmentServiceImpl  {
 		incomingShipment.setUpdatedAt(LocalDateTime.now());
 		incomingShipment.setUserId(jwt.getUserdetails().getUserId());
 		incomingShipment.setArrived(false);
+		incomingShipment.setActive(true);
 		incomingShipment.setProductId(newIncomingShipment.getProductId());
 		incomingShipment.setQuantity(newIncomingShipment.getQuantity());
 		incomingShipment.setCurrency(newIncomingShipment.getCurrency());
@@ -76,15 +77,34 @@ public class IncomingShipmentServiceImpl  {
 		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll().stream()
 				.filter(predicate->predicate.getShipmentNo().equals(newIncomingShipment.getShipmentNo()))
 				.collect(Collectors.toList());
-		if(!incomingShipment.isEmpty()&&newIncomingShipment.isFixed()) {
-			branch=String.valueOf(incomingShipment.size()+1);
+//		if(!incomingShipment.isEmpty()&&newIncomingShipment.isFixed()) {
+//			branch=String.valueOf(incomingShipment.size()+1);
+//		}
+		if(!incomingShipment.isEmpty()) {
+			Map<Integer,String>branchValue = new HashMap<>();
+			for(IncomingShipment incomingProductShipment:incomingShipment) {
+				if(!branchValue.containsKey(incomingProductShipment.getProductId())) {
+					branchValue.put(incomingProductShipment.getProductId(),incomingProductShipment.getBranch());
+				}else if(branchValue.isEmpty()) {
+					branchValue.put(incomingProductShipment.getProductId(),branch);
+				}
+				
+			}
+			if(!branchValue.containsKey(newIncomingShipment.getProductId())) {
+			branch=String.valueOf(branchValue.size()+1);
+			}else if(branchValue.containsKey(newIncomingShipment.getProductId())){
+				branch=branchValue.get(newIncomingShipment.getProductId());
+			}
+			
 		}
 		return branch;
 	}
 
 	public List<FetchIncomingOrderdProducts> getAllIncomingShipment() {
 		List<FetchIncomingOrderdProducts> incomingShipmentDtoList = new ArrayList<>(); 
-		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll();
+		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll().stream()
+				.filter(predicate->predicate.isActive())
+				.collect(Collectors.toList());
 		List<UserEntity> userEntityList = userDao.findAll();
 		List<Product> allProducts = productDao.findAll();
 		for(IncomingShipment incoming :incomingShipment ) {
@@ -95,6 +115,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingDto.setUpdatedAt(LocalDateTime.now());
 			incomingDto.setUser(getUserDetails(userEntityList,incoming.getUserId()));
 			incomingDto.setArrived(incoming.isArrived());
+			incomingDto.setActive(incoming.isActive());
 			incomingDto.setProduct(getProduct(incoming,allProducts));
 			incomingDto.setBranch(incoming.getBranch());
 			incomingDto.setConfirmedQty(incoming.getConfirmedQty());
@@ -144,6 +165,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingDto.setUpdatedAt(LocalDateTime.now());
 			incomingDto.setUser(userDao.findById(incoming.getUserId()).orElse(null));
 			incomingDto.setArrived(incoming.isArrived());
+			incomingDto.setActive(incoming.isActive());
 			incomingDto.setProduct(getProduct(incoming,allProducts));
 			incomingDto.setBranch(incoming.getBranch());
 			incomingDto.setConfirmedQty(incoming.getConfirmedQty());
@@ -198,6 +220,7 @@ public class IncomingShipmentServiceImpl  {
 
 
 	public ResponseEntity<Map<String, String>> deleteIncomingShipmentById(@Valid int incomingShipmentId) {
+		List<IncomingShipment>saveIncomingList =new ArrayList<>(); 
 		Map<String, String> response = new HashMap<>();
 		List<IncomingShipment> incomingShipmentList = incomingShipmentDao.findAll();
 		
@@ -211,11 +234,15 @@ public class IncomingShipmentServiceImpl  {
         }));
 		List<IncomingShipment> incomingShipmentPartial=incomingShipmentList.stream()
 				.filter(predicate->predicate.getShipmentNo().equals(incomingShipment.getShipmentNo())
-						&& !predicate.isArrived())
+						&& !predicate.isArrived()&&predicate.getProductId()==incomingShipment.getProductId())
 				.collect(Collectors.toList());
 		
 		if(incomingShipment!=null && !incomingShipment.isFixed()) {
-			incomingShipmentDao.deleteAll(incomingShipmentPartial);
+			for(IncomingShipment incoming:incomingShipmentPartial) {
+				incoming.setActive(false);
+				saveIncomingList.add(incoming);
+				
+			}
 		}else if(incomingShipment!=null && incomingShipment.isFixed()){
 			IncomingShipment addIncomingShipment=incomingShipmentPartial.stream()
 			.filter(predicate->!predicate.isFixed())
@@ -226,9 +253,11 @@ public class IncomingShipmentServiceImpl  {
 	            return list.get(0);
 	        }));
 			addIncomingShipment.setPendingQty(addIncomingShipment.getPendingQty()+incomingShipment.getConfirmedQty());
-			incomingShipmentDao.deleteById(incomingShipmentId);
-			incomingShipmentDao.save(addIncomingShipment);
+			saveIncomingList.add(addIncomingShipment);
+			incomingShipment.setActive(false);
+			saveIncomingList.add(incomingShipment);
 		}
+		incomingShipmentDao.saveAll(saveIncomingList);
 		response.put("message", "IncomingShipment has been deleted");
 		response.put("IncomingShipmentId", String.valueOf(incomingShipmentId));
 		return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
@@ -243,6 +272,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingShipment.setUpdatedAt(LocalDateTime.now());
 			incomingShipment.setUserId(jwt.getUserdetails().getUserId());
 			incomingShipment.setArrived(newIncomingShipment.isArrived());
+			incomingShipment.setActive(newIncomingShipment.isActive());
 			incomingShipment.setProductId(newIncomingShipment.getProductId());
 			incomingShipment.setQuantity(newIncomingShipment.getQuantity());
 			incomingShipment.setPrice(newIncomingShipment.getPrice());

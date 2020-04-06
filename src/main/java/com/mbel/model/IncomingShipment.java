@@ -55,6 +55,17 @@ public class IncomingShipment {
 
 	@Column(name = "fixed")
 	private boolean fixed;
+	
+	@Column(name = "active")
+	private boolean active;
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
 
 	@Column(name = "partial")
 	private boolean partial;

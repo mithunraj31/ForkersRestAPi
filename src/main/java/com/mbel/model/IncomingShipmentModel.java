@@ -24,6 +24,8 @@ public class IncomingShipmentModel {
 	
 	private boolean fixed;
 	
+	private boolean active;
+	
 	private String branch;
 	
 	private String vendor;
@@ -194,6 +196,16 @@ public class IncomingShipmentModel {
 
 	public void setCurrency(String currency) {
 		this.currency = currency;
+	}
+
+
+	public boolean isActive() {
+		return active;
+	}
+
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 	
 
