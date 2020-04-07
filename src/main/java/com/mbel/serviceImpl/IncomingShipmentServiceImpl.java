@@ -77,9 +77,6 @@ public class IncomingShipmentServiceImpl  {
 		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll().stream()
 				.filter(predicate->predicate.getShipmentNo().equals(newIncomingShipment.getShipmentNo()))
 				.collect(Collectors.toList());
-//		if(!incomingShipment.isEmpty()&&newIncomingShipment.isFixed()) {
-//			branch=String.valueOf(incomingShipment.size()+1);
-//		}
 		if(!incomingShipment.isEmpty()) {
 			Map<Integer,String>branchValue = new HashMap<>();
 			for(IncomingShipment incomingProductShipment:incomingShipment) {
@@ -272,7 +269,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingShipment.setUpdatedAt(LocalDateTime.now());
 			incomingShipment.setUserId(jwt.getUserdetails().getUserId());
 			incomingShipment.setArrived(newIncomingShipment.isArrived());
-			incomingShipment.setActive(newIncomingShipment.isActive());
+			incomingShipment.setActive(true);
 			incomingShipment.setProductId(newIncomingShipment.getProductId());
 			incomingShipment.setQuantity(newIncomingShipment.getQuantity());
 			incomingShipment.setPrice(newIncomingShipment.getPrice());
