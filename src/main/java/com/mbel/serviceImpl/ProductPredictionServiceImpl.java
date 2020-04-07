@@ -166,8 +166,19 @@ public class ProductPredictionServiceImpl {
 	private List<PredictionData> calculateAccordingToDate(Product product, int year, int month, List<PredictionData> predictionDataList, 
 			List<Order> order, List<IncomingShipment> incomingShipment, List<OrderProduct> orderProduct, List<Product> allProduct, 
 			List<ProductSet> allProductSet, List<Customer> allCustomer) {
+		LocalDateTime today = LocalDateTime.now();
 		LocalDate initial = LocalDate.of(year, month, 1);
 		LocalDateTime dueDateStart =LocalDateTime.of(year, month, 1, 0, 0);
+		if(month==1) {
+			dueDateStart=LocalDateTime.of(year-1, 12, 1, 0, 0);
+		}else if(dueDateStart.getMonthValue()<=today.getMonthValue()&&
+				dueDateStart.getYear()==today.getYear()){
+			dueDateStart=LocalDateTime.of(year, month-1, 1, 0, 0);
+		}else if(dueDateStart.getYear()<today.getYear()) {
+			dueDateStart=LocalDateTime.of(year, month-1, 1, 0, 0);
+		}else {
+			dueDateStart=LocalDateTime.of(year, today.getMonth().minus(1), 1, 0, 0);
+		}
 		LocalDateTime dueDateEnd =LocalDateTime.of(year, month, initial.lengthOfMonth(), 0, 0);
 		Map<Integer,Mappingfields>productQuantityMap=new HashMap<>();
 		for(LocalDateTime dueDate=dueDateStart;dueDate.isBefore(dueDateEnd)||
@@ -224,9 +235,11 @@ public class ProductPredictionServiceImpl {
 				}
 			}
 			int numOrdered=productNumOrdered(unfulfilledorder,product,orderProduct,allProduct,allProductSet);
+			if(dueDate.getMonth()==initial.getMonth()) {
 			updateDailyStockValues(numOrdered,productDetails,predictionData,allCustomer,
 					dueDate,productQuantityMap,product,
 					predictionDataList,incomingQuantity,fixed);
+			}
 		}
 		return predictionDataList;
 	}
