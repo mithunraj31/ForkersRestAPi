@@ -376,6 +376,7 @@ public class ProductServiceImpl  {
 			product.setCurrency(productSetDetails.getCurrency());
 			product.setColor(productSetDetails.getColor());
 			product.setDisplay(productSetDetails.isDisplay());
+			product.setSort(productSetDetails.getSort());
 			Product productupdate=productDao.save(product);
 			int setValue  =productSetDetails.getProducts().size();
 			productSetDao.deleteBySet(productId);
