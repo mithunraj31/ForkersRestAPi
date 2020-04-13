@@ -681,8 +681,8 @@ public class ProductPredictionServiceImpl {
 	private List<Order> getUnfulfilledActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
 				.filter(predicate->predicate.isActive() && !predicate.isFulfilled() 
-						&&( predicate.getDueDate().getDayOfMonth()==dueDate.getDayOfMonth()
-						&& predicate.getDueDate().getMonth()==dueDate.getMonth()))
+						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
+						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
 
 	}
