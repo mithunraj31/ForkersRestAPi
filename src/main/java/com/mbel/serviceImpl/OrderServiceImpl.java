@@ -174,7 +174,7 @@ public class OrderServiceImpl  {
 		order.setReceivedDate(newOrderSet.getReceivedDate());
 		order.setUpdatedAt(LocalDateTime.now());
 		order.setActive(true);
-		order.setForecast(true);
+		order.setForecast(newOrderSet.isFixed());
 		order.setFixed(newOrderSet.isFixed());
 		order.setFulfilled(newOrderSet.isFulfilled());
 		order.setUserId(jwt.getUserdetails().getUserId());
