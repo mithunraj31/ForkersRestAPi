@@ -53,6 +53,7 @@ public class Order{
 	    @Column(name = "user_id")
 	    private int userId;
 	    
+	    @NotNull(message="* Please Enter salesUserId")
 	    @Column(name = "sales_user_id")
 	    private int salesUserId;
 	    
