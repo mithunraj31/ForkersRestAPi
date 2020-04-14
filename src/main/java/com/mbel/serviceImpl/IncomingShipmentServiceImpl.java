@@ -21,7 +21,6 @@ import com.mbel.dao.ProductDao;
 import com.mbel.dao.UserDao;
 import com.mbel.dto.FetchIncomingOrderdProducts;
 import com.mbel.dto.FetchProductSetDto;
-import com.mbel.dto.IncomingShipmentDto;
 import com.mbel.model.IncomingShipment;
 import com.mbel.model.Product;
 import com.mbel.model.UserEntity;
@@ -45,7 +44,8 @@ public class IncomingShipmentServiceImpl  {
 	@Autowired 
 	ProductDao productDao;
 
-	public IncomingShipment save(@Valid IncomingShipmentDto newIncomingShipment) {
+	public @Valid List<IncomingShipment> save(@Valid List<IncomingShipment> incomingShipmentList) {
+		for(IncomingShipment newIncomingShipment:incomingShipmentList) {
 		IncomingShipment incomingShipment = new IncomingShipment();
 		incomingShipment.setIncomingShipmentId(newIncomingShipment.getIncomingShipmentId()!=0?
 				newIncomingShipment.getIncomingShipmentId():0);
@@ -68,11 +68,13 @@ public class IncomingShipmentServiceImpl  {
 		incomingShipment.setFixed((Boolean)newIncomingShipment.isFixed()==null?false:newIncomingShipment.isFixed());
 		incomingShipment.setPartial((Boolean)newIncomingShipment.isPartial()==null?false:newIncomingShipment.isPartial());
 		incomingShipment.setBranch(getCurrentBranchNumber(newIncomingShipment));
-		return incomingShipmentDao.save(incomingShipment);
+		incomingShipmentDao.save(incomingShipment);
+		}
+		return incomingShipmentList;
 
 	}
 
-	private String getCurrentBranchNumber(@Valid IncomingShipmentDto newIncomingShipment) {
+	private String getCurrentBranchNumber(@Valid IncomingShipment newIncomingShipment) {
 		String branch ="1";
 		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll().stream()
 				.filter(predicate->predicate.getShipmentNo().equals(newIncomingShipment.getShipmentNo()))
@@ -260,7 +262,7 @@ public class IncomingShipmentServiceImpl  {
 		return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
 	}
 	public IncomingShipment getUpdateIncomingShipmentId(int incomingShipmentId,
-			@Valid IncomingShipmentDto newIncomingShipment) {
+			@Valid IncomingShipment newIncomingShipment) {
 		IncomingShipment incomingShipment = incomingShipmentDao.findById(incomingShipmentId).orElse(null);
 		if(Objects.nonNull(incomingShipment)) {
 			incomingShipment.setFixedDeliveryDate(newIncomingShipment.getFixedDeliveryDate());

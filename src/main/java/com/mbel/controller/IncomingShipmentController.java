@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mbel.dto.FetchIncomingOrderdProducts;
-import com.mbel.dto.IncomingShipmentDto;
 import com.mbel.model.IncomingShipment;
 import com.mbel.serviceImpl.IncomingShipmentServiceImpl;
 
@@ -36,7 +35,7 @@ public class  IncomingShipmentController{
 
 	@PostMapping("/shipment/incoming/")
 	@ResponseStatus(HttpStatus.CREATED)
-	public IncomingShipment saveIncomingShipment(@Valid @RequestBody IncomingShipmentDto incomingShipment) {
+	public @Valid List<IncomingShipment> saveIncomingShipment(@Valid @RequestBody List<IncomingShipment> incomingShipment) {
 		return incomingShipmentServiceImpl.save(incomingShipment);
 	}
 
@@ -52,7 +51,7 @@ public class  IncomingShipmentController{
 
 	@PutMapping("/shipment/incoming/{incomingShipmentId}")
 	public IncomingShipment updateIncomingShipmentById(@PathVariable (value="incomingShipmentId")int incomingShipmentId,
-			@Valid @RequestBody IncomingShipmentDto incomingShipmentDetails)   {
+			@Valid @RequestBody IncomingShipment incomingShipmentDetails)   {
 		return incomingShipmentServiceImpl.getUpdateIncomingShipmentId(incomingShipmentId,incomingShipmentDetails);
 
 
