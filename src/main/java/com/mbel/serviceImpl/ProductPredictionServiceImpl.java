@@ -263,7 +263,7 @@ public class ProductPredictionServiceImpl {
 				orderData.setProposalNo(orderedTimes.get(i).getProposalNo());
 				orderDataList.add(orderData);
 				requiredQuantity+=orderedTimes.get(i).getRequiredQuantity();
-				currentQuantity=orderedTimes.get(0).getAvailableStockQuantity();
+				currentQuantity=orderedTimes.get(i).getAvailableStockQuantity();
 				if(!orderedTimes.get(i).isOutgoingFixed()&& outgoingFixed==true) {
 					outgoingFixed=false;
 				}
