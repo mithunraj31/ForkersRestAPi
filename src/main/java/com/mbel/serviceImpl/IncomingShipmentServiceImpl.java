@@ -67,7 +67,7 @@ public class IncomingShipmentServiceImpl  {
 		incomingShipment.setPendingQty(newIncomingShipment.getPendingQty());
 		incomingShipment.setFixed((Boolean)newIncomingShipment.isFixed()==null?false:newIncomingShipment.isFixed());
 		incomingShipment.setPartial((Boolean)newIncomingShipment.isPartial()==null?false:newIncomingShipment.isPartial());
-		incomingShipment.setBranch(getCurrentBranchNumber(newIncomingShipment));
+		incomingShipment.setBranch(newIncomingShipment.isPartial()||!newIncomingShipment.getBranch().equals("")?newIncomingShipment.getBranch():getCurrentBranchNumber(newIncomingShipment));
 		incomingShipmentDao.save(incomingShipment);
 		}
 		return incomingShipmentList;
@@ -77,7 +77,8 @@ public class IncomingShipmentServiceImpl  {
 	private String getCurrentBranchNumber(@Valid IncomingShipment newIncomingShipment) {
 		String branch ="1";
 		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll().stream()
-				.filter(predicate->predicate.getShipmentNo().equals(newIncomingShipment.getShipmentNo()))
+				.filter(predicate->predicate.getShipmentNo().equals(newIncomingShipment.getShipmentNo())
+						&&predicate.isActive())
 				.collect(Collectors.toList());
 		if(!incomingShipment.isEmpty()) {
 			Map<Integer,String>branchValue = new HashMap<>();
@@ -89,7 +90,7 @@ public class IncomingShipmentServiceImpl  {
 				}
 				
 			}
-			if(!branchValue.containsKey(newIncomingShipment.getProductId())) {
+			if(branchValue.containsKey(newIncomingShipment.getProductId())&&!newIncomingShipment.isPartial()) {
 			branch=String.valueOf(branchValue.size()+1);
 			}else if(branchValue.containsKey(newIncomingShipment.getProductId())){
 				branch=branchValue.get(newIncomingShipment.getProductId());
@@ -233,7 +234,8 @@ public class IncomingShipmentServiceImpl  {
         }));
 		List<IncomingShipment> incomingShipmentPartial=incomingShipmentList.stream()
 				.filter(predicate->predicate.getShipmentNo().equals(incomingShipment.getShipmentNo())
-						&& !predicate.isArrived()&&predicate.getProductId()==incomingShipment.getProductId())
+						&& !predicate.isArrived()&&predicate.getProductId()==incomingShipment.getProductId()
+						&& predicate.getBranch().equals(incomingShipment.getBranch()))
 				.collect(Collectors.toList());
 		
 		if(incomingShipment!=null && !incomingShipment.isFixed()) {
