@@ -73,7 +73,7 @@ public class ForecastServiceImpl {
 		List<Product> allProduct = productDao.findAll();
 		List<ProductSet> allProductSet =productSetDao.findAll();
 		List<OrderProduct>orderProduct =orderProductDao.findAll(); 
-		List<IncomingShipment> incomingShipmentList = incomingShipmentDao.findAll();
+		List<IncomingShipment> incomingShipmentList = incomingShipmentDao.findAll().stream().filter(IncomingShipment::isActive).collect(Collectors.toList());
 		List<PopulateOrderDto> forecastProductDtoList =new ArrayList<>();
 		Map<Integer,Mappingfields>productQuantityMap=new HashMap<>();
 		Map<Integer,List<Integer>>incomingShipmentMap=new HashMap<>();

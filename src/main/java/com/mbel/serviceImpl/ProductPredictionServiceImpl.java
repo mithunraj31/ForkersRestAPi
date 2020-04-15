@@ -69,7 +69,7 @@ public class ProductPredictionServiceImpl {
 		List<ProductSet> allProductSet =productSetDao.findAll();
 		List<Order>order =orderDao.findAll().stream().filter(Order::isActive).collect(Collectors.toList()); 
 		List<OrderProduct>orderProduct =orderProductDao.findAll(); 
-		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll();
+		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll().stream().filter(IncomingShipment::isActive).collect(Collectors.toList()); 
 		List<Customer> allCustomer = customerDao.findAll();
 		return predictProduct(allCustomer,allProduct,allProductSet, order,orderProduct,incomingShipment,year,month);
 
