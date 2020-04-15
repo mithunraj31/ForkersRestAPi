@@ -78,7 +78,7 @@ public class IncomingShipmentServiceImpl  {
 		String branch ="1";
 		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll().stream()
 				.filter(predicate->predicate.getShipmentNo().equals(newIncomingShipment.getShipmentNo())
-						&&predicate.isActive())
+						&&predicate.isActive()&&!predicate.isPartial())
 				.collect(Collectors.toList());
 		if(!incomingShipment.isEmpty()) {
 			Map<Integer,String>branchValue = new HashMap<>();
@@ -91,8 +91,12 @@ public class IncomingShipmentServiceImpl  {
 				
 			}
 			if(branchValue.containsKey(newIncomingShipment.getProductId())&&!newIncomingShipment.isPartial()) {
-			branch=String.valueOf(branchValue.size()+1);
-			}else if(branchValue.containsKey(newIncomingShipment.getProductId())){
+			branch=String.valueOf(incomingShipment.size()+1);
+			}
+			else if(!branchValue.containsKey(newIncomingShipment.getProductId())){
+				branch=String.valueOf(incomingShipment.size()+1);
+			}
+			else if(branchValue.containsKey(newIncomingShipment.getProductId())){
 				branch=branchValue.get(newIncomingShipment.getProductId());
 			}
 			
@@ -237,6 +241,10 @@ public class IncomingShipmentServiceImpl  {
 						&& !predicate.isArrived()&&predicate.getProductId()==incomingShipment.getProductId()
 						&& predicate.getBranch().equals(incomingShipment.getBranch()))
 				.collect(Collectors.toList());
+		if(incomingShipmentPartial.isEmpty()) {
+			incomingShipment.setActive(false);
+			saveIncomingList.add(incomingShipment);
+		}
 		
 		if(incomingShipment!=null && !incomingShipment.isFixed()) {
 			for(IncomingShipment incoming:incomingShipmentPartial) {

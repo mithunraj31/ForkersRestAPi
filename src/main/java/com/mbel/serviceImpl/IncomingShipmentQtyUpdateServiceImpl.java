@@ -18,7 +18,6 @@ import com.mbel.dao.ProductSetDao;
 import com.mbel.dto.FetchIncomingOrderdProducts;
 import com.mbel.model.IncomingShipment;
 import com.mbel.model.Product;
-import com.mbel.model.ProductSet;
 
 @Service("IncomingShipmentQtyUpdateServiceImpl")
 public class IncomingShipmentQtyUpdateServiceImpl {
