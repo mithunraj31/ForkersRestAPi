@@ -57,7 +57,7 @@ public class FullfillOrderServiceImpl {
 		Map<String, List<ProductSetModel>> response = new HashMap<>();
 		Map<Integer,Product>quantityUpdate=new HashMap<>();
 		List<FetchOrderdProducts> orderdProducts = order.getOrderedProducts();
-		if(!order.isFixed()) {
+		if(order.isFixed()) {
 		for(FetchOrderdProducts product:orderdProducts) {
 			fulfillOrder(product,productSetModelList,quantityUpdate,allProduct,allProductSet,isFulfillment);				
 		}
