@@ -217,9 +217,6 @@ public class IncomingShipmentServiceImpl  {
 			componentSet.setDisplay(proCheck.isDisplay());
 		}
 		return componentSet;
-
-
-
 	}
 
 
@@ -236,23 +233,52 @@ public class IncomingShipmentServiceImpl  {
             }
             return list.get(0);
         }));
+		if(incomingShipment!=null&&incomingShipment.isArrived()) {
+			updatingArrivedIncomingShipment(incomingShipmentList,incomingShipment,saveIncomingList);
+			
+		}else {
+			updationgUnArrivedIncomingShipment(incomingShipmentList,incomingShipment,saveIncomingList);
+		}
+		incomingShipmentDao.saveAll(saveIncomingList);
+		response.put("message", "IncomingShipment has been deleted");
+		response.put("IncomingShipmentId", String.valueOf(incomingShipmentId));
+		return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
+	}
+	private void updatingArrivedIncomingShipment(List<IncomingShipment> incomingShipmentList, IncomingShipment incomingShipment, List<IncomingShipment> saveIncomingList) {
+	
+		List<IncomingShipment> incomingShipmentPartial=incomingShipmentList.stream()
+				.filter(predicate->predicate.getShipmentNo().equals(incomingShipment.getShipmentNo())
+						&& predicate.isArrived()&&predicate.getProductId()==incomingShipment.getProductId()
+						&& predicate.getBranch().equals(incomingShipment.getBranch()))
+				.collect(Collectors.toList());
+		
+		if(incomingShipment!=null && !incomingShipment.isPartial()) {
+			for(IncomingShipment incoming:incomingShipmentPartial) {
+				incoming.setActive(false);
+				saveIncomingList.add(incoming);
+			}
+		}else if(incomingShipment!=null && incomingShipment.isPartial()){
+					incomingShipment.setActive(false);
+					saveIncomingList.add(incomingShipment);
+		}
+		
+	}
+
+	private void updationgUnArrivedIncomingShipment(List<IncomingShipment> incomingShipmentList, IncomingShipment incomingShipment, List<IncomingShipment> saveIncomingList) {
+
 		List<IncomingShipment> incomingShipmentPartial=incomingShipmentList.stream()
 				.filter(predicate->predicate.getShipmentNo().equals(incomingShipment.getShipmentNo())
 						&& !predicate.isArrived()&&predicate.getProductId()==incomingShipment.getProductId()
 						&& predicate.getBranch().equals(incomingShipment.getBranch()))
 				.collect(Collectors.toList());
-		if(incomingShipmentPartial.isEmpty()) {
-			incomingShipment.setActive(false);
-			saveIncomingList.add(incomingShipment);
-		}
 		
-		if(incomingShipment!=null && !incomingShipment.isFixed()) {
+		if(incomingShipment!=null && !incomingShipment.isPartial()) {
 			for(IncomingShipment incoming:incomingShipmentPartial) {
 				incoming.setActive(false);
 				saveIncomingList.add(incoming);
 				
 			}
-		}else if(incomingShipment!=null && incomingShipment.isFixed()){
+		}else if(incomingShipment!=null && incomingShipment.isPartial()){
 			IncomingShipment addIncomingShipment=incomingShipmentPartial.stream()
 			.filter(predicate->!predicate.isFixed())
 			.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
@@ -266,11 +292,11 @@ public class IncomingShipmentServiceImpl  {
 			incomingShipment.setActive(false);
 			saveIncomingList.add(incomingShipment);
 		}
-		incomingShipmentDao.saveAll(saveIncomingList);
-		response.put("message", "IncomingShipment has been deleted");
-		response.put("IncomingShipmentId", String.valueOf(incomingShipmentId));
-		return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
+		
+		
 	}
+
+
 	public IncomingShipment getUpdateIncomingShipmentId(int incomingShipmentId,
 			@Valid IncomingShipment newIncomingShipment) {
 		IncomingShipment incomingShipment = incomingShipmentDao.findById(incomingShipmentId).orElse(null);
