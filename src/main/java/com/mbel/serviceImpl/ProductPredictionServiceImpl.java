@@ -169,15 +169,14 @@ public class ProductPredictionServiceImpl {
 		LocalDateTime today = LocalDateTime.now();
 		LocalDate initial = LocalDate.of(year, month, 1);
 		LocalDateTime dueDateStart =LocalDateTime.of(year, month, 1, 0, 0);
-		if(month==1) {
-			dueDateStart=LocalDateTime.of(year-1, 12, 1, 0, 0);
-		}else if(dueDateStart.getMonthValue()<=today.getMonthValue()&&
+			if(dueDateStart.getMonthValue()<=today.getMonthValue()&&
 				dueDateStart.getYear()==today.getYear()){
-			dueDateStart=LocalDateTime.of(year, month-1, 1, 0, 0);
-		}else if(dueDateStart.getYear()<today.getYear()) {
-			dueDateStart=LocalDateTime.of(year, month-1, 1, 0, 0);
-		}else {
-			dueDateStart=LocalDateTime.of(year, today.getMonth().minus(1), 1, 0, 0);
+			dueDateStart=dueDateStart.minusMonths(3);
+		}else if(dueDateStart.getMonthValue()>today.getMonthValue()&&
+				dueDateStart.getYear()==today.getYear()){
+			dueDateStart=LocalDateTime.of(year, today.getMonth().minus(3), 1, 0, 0);
+		}else if(dueDateStart.getYear()<today.getYear()||dueDateStart.getYear()>today.getYear()) {
+			dueDateStart=dueDateStart.minusMonths(3);
 		}
 		LocalDateTime dueDateEnd =LocalDateTime.of(year, month, initial.lengthOfMonth(), 0, 0);
 		Map<Integer,Mappingfields>productQuantityMap=new HashMap<>();
