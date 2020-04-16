@@ -298,7 +298,6 @@ public class ProductPredictionServiceImpl {
 		predictionData.setQuantity(product.getQuantity());
 		incomingShipmentValues.setQuantity(0);
 		incomingShipmentValues.setFixed(true);
-		incomingShipmentValues.setFulfilled(true);
 		if(productQuantityMap.get(product.getProductId()).getIncomingQuantity()!=0) {
 			incomingShipmentValues.setQuantity(productQuantityMap.get(product.getProductId()).getIncomingQuantity());
 			incomingShipmentValues.setFixed(productQuantityMap.get(product.getProductId()).isIncomingFixed());
