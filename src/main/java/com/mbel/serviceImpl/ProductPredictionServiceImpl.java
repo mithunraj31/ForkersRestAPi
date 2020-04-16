@@ -199,39 +199,7 @@ public class ProductPredictionServiceImpl {
 					}
 				}
 			}else {
-				List<FetchIncomingOrderdProducts> incomingProductList=getAllUnarrivedDueDateIncomingShipment(incomingShipment, dueDate, allProduct);
-				for(int i=0;i<incomingProductList.size();i++) {
-					if(incomingProductList.get(i).getProduct().getProductId()==product.getProductId()) {
-						if(incomingProductList.get(i).isFixed()) {
-							incomingQuantity+=incomingProductList.get(i).getConfirmedQty();
-						}else {
-							incomingQuantity+=incomingProductList.get(i).getPendingQty();
-							fixed=false;
-						}
-					}
-				}
-				if(incomingQuantity!=0) {
-					Mappingfields mapping=productQuantityMap.get(product.getProductId());
-					if(mapping!=null) {
-						int availableQunatity=mapping.getAvailableStockQuantity()==0?mapping.getCurrentQuantity():mapping.getAvailableStockQuantity();
-						mapping.setAvailableStockQuantity(availableQunatity+incomingQuantity);
-						mapping.setIncomingQuantity(incomingQuantity);
-						mapping.setIncomingFixed(fixed);
-						productQuantityMap.put(product.getProductId(), mapping);
-					}else {
-						Mappingfields mappingfields =  new Mappingfields();
-						mappingfields.setAvailableStockQuantity(product.getQuantity()+incomingQuantity);
-						mappingfields.setIncomingQuantity(incomingQuantity);
-						mappingfields.setIncomingFixed(fixed);
-						productQuantityMap.put(product.getProductId(), mappingfields);
-					}
-				}else {
-					Mappingfields mapping=productQuantityMap.get(product.getProductId());
-					if(mapping!=null) {
-						mapping.setIncomingQuantity(incomingQuantity);
-						productQuantityMap.put(product.getProductId(), mapping);
-					}
-				}
+				updateIncomingOrder(incomingQuantity,fixed,product,productQuantityMap,incomingShipment,dueDate,allProduct);
 			}
 			int numOrdered=productNumOrdered(unfulfilledorder,product,orderProduct,allProduct,allProductSet);
 			if(dueDate.getMonth()==initial.getMonth()) {
@@ -243,90 +211,54 @@ public class ProductPredictionServiceImpl {
 		return predictionDataList;
 	}
 
+	private void updateIncomingOrder(int incomingQuantity, boolean fixed, Product product, Map<Integer, Mappingfields> productQuantityMap, List<IncomingShipment> incomingShipment, LocalDateTime dueDate, List<Product> allProduct) {
+
+		List<FetchIncomingOrderdProducts> incomingProductList=getAllUnarrivedDueDateIncomingShipment(incomingShipment, dueDate, allProduct);
+		for(int i=0;i<incomingProductList.size();i++) {
+			if(incomingProductList.get(i).getProduct().getProductId()==product.getProductId()) {
+				if(incomingProductList.get(i).isFixed()) {
+					incomingQuantity+=incomingProductList.get(i).getConfirmedQty();
+				}else {
+					incomingQuantity+=incomingProductList.get(i).getPendingQty();
+					fixed=false;
+				}
+			}
+		}
+		if(incomingQuantity!=0) {
+			Mappingfields mapping=productQuantityMap.get(product.getProductId());
+			if(mapping!=null) {
+				int availableQunatity=mapping.getAvailableStockQuantity()==0?mapping.getCurrentQuantity():mapping.getAvailableStockQuantity();
+				mapping.setAvailableStockQuantity(availableQunatity+incomingQuantity);
+				mapping.setIncomingQuantity(incomingQuantity);
+				mapping.setIncomingFixed(fixed);
+				productQuantityMap.put(product.getProductId(), mapping);
+			}else {
+				Mappingfields mappingfields =  new Mappingfields();
+				mappingfields.setAvailableStockQuantity(product.getQuantity()+incomingQuantity);
+				mappingfields.setIncomingQuantity(incomingQuantity);
+				mappingfields.setIncomingFixed(fixed);
+				productQuantityMap.put(product.getProductId(), mappingfields);
+			}
+		}else {
+			Mappingfields mapping=productQuantityMap.get(product.getProductId());
+			if(mapping!=null) {
+				mapping.setIncomingQuantity(incomingQuantity);
+				productQuantityMap.put(product.getProductId(), mapping);
+			}
+		}
+	
+		
+	}
 	public void updateDailyStockValues(int numOrdered,
 			Map<Integer, List<Mappingfields>> productDetails, PredictionData predictionData, List<Customer> allCustomer, LocalDateTime dueDate, 
 			Map<Integer, Mappingfields> productQuantityMap, Product product,
 			List<PredictionData> predictionDataList, int incomingQuantity, boolean fixed) {
 		if(numOrdered > 1) {
-			List<Mappingfields> orderedTimes=productDetails.get(product.getProductId());
-			int requiredQuantity =0;
-			int currentQuantity =0;
-			boolean outgoingFixed = true;
-			List<OrderData>orderDataList =new ArrayList<>();
-			for(int i=0;i < orderedTimes.size();i++) {
-				OrderData orderData = new OrderData();
-				orderData.setOrderId(orderedTimes.get(i).getOrderId());
-				orderData.setCustomer(getCustomer(allCustomer, orderedTimes.get(i).getCustomer()));
-				orderData.setFixed(orderedTimes.get(i).isOrderFixed());
-				orderData.setQuantity(orderedTimes.get(i).getRequiredQuantity());
-				orderData.setProposalNo(orderedTimes.get(i).getProposalNo());
-				orderDataList.add(orderData);
-				requiredQuantity+=orderedTimes.get(i).getRequiredQuantity();
-				currentQuantity=orderedTimes.get(i).getAvailableStockQuantity();
-				if(!orderedTimes.get(i).isOutgoingFixed()&& outgoingFixed==true) {
-					outgoingFixed=false;
-				}
-			}
-			ProductIncomingShipmentModel incomingShipmentValues =new ProductIncomingShipmentModel();
-			ProductOutgoingShipmentModel outgoingShipmentValues =new ProductOutgoingShipmentModel();
-			predictionData.setDate(dueDate);
-			predictionData.setCurrentQuantity(currentQuantity);
-			outgoingShipmentValues.setQuantity(requiredQuantity);
-			outgoingShipmentValues.setFixed(outgoingFixed);
-			outgoingShipmentValues.setOrders(orderDataList);
-			predictionData.setOutgoing(outgoingShipmentValues);
-			predictionData.setQuantity(product.getQuantity());
-			incomingShipmentValues.setQuantity(0);
-			incomingShipmentValues.setFixed(true);
-			if(productQuantityMap.get(product.getProductId()).getIncomingQuantity()!=0) {
-				incomingShipmentValues.setFixed(productQuantityMap.get(product.getProductId()).isIncomingFixed());
-				incomingShipmentValues.setQuantity(productQuantityMap.get(product.getProductId()).getIncomingQuantity());
-			}
-			predictionData.setIncoming(incomingShipmentValues);
-
+			updateMultipleOrderStockValues(productDetails,predictionData,productQuantityMap,product,allCustomer,dueDate);
 		}else if(numOrdered==0&&productQuantityMap.containsKey(product.getProductId())) {
-			ProductIncomingShipmentModel incomingShipmentValues =new ProductIncomingShipmentModel();
-			ProductOutgoingShipmentModel outgoingShipmentValues =new ProductOutgoingShipmentModel();
-			predictionData.setDate(dueDate);
-			predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getAvailableStockQuantity());
-			predictionData.setQuantity(product.getQuantity());
-			outgoingShipmentValues.setQuantity(0);
-			outgoingShipmentValues.setFixed(true);
-			predictionData.setOutgoing(outgoingShipmentValues);
-			incomingShipmentValues.setQuantity(0);
-			incomingShipmentValues.setFixed(true);
-			if(productQuantityMap.get(product.getProductId()).getIncomingQuantity()!=0) {
-				incomingShipmentValues.setQuantity(productQuantityMap.get(product.getProductId()).getIncomingQuantity());
-				incomingShipmentValues.setFixed(productQuantityMap.get(product.getProductId()).isIncomingFixed());
-			}
-			predictionData.setIncoming(incomingShipmentValues);
-
+			updateNoOrderStockValue(predictionData,productQuantityMap,dueDate,product);
 		}else if(productQuantityMap.containsKey(product.getProductId())){
-			ProductIncomingShipmentModel incomingShipmentValues =new ProductIncomingShipmentModel();
-			ProductOutgoingShipmentModel outgoingShipmentValues =new ProductOutgoingShipmentModel();
-			List<OrderData>orderDataList =new ArrayList<>();
-			OrderData orderData = new OrderData();
-			orderData.setOrderId(productQuantityMap.get(product.getProductId()).getOrderId());
-			orderData.setCustomer(getCustomer(allCustomer,productQuantityMap.get(product.getProductId()).getCustomer()));
-			orderData.setFixed(productQuantityMap.get(product.getProductId()).isOrderFixed());
-			orderData.setQuantity(productQuantityMap.get(product.getProductId()).getRequiredQuantity());
-			orderData.setProposalNo(productQuantityMap.get(product.getProductId()).getProposalNo());
-			orderDataList.add(orderData);
-			predictionData.setDate(dueDate);
-			predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getAvailableStockQuantity());
-			outgoingShipmentValues.setQuantity(productQuantityMap.get(product.getProductId()).getRequiredQuantity());
-			outgoingShipmentValues.setFixed(productQuantityMap.get(product.getProductId()).isOutgoingFixed());
-			outgoingShipmentValues.setOrders(orderDataList);
-			predictionData.setOutgoing(outgoingShipmentValues);
-			predictionData.setQuantity(product.getQuantity());
-			incomingShipmentValues.setQuantity(0);
-			incomingShipmentValues.setFixed(true);
-			if(productQuantityMap.get(product.getProductId()).getIncomingQuantity()!=0) {
-				incomingShipmentValues.setQuantity(productQuantityMap.get(product.getProductId()).getIncomingQuantity());
-				incomingShipmentValues.setFixed(productQuantityMap.get(product.getProductId()).isIncomingFixed());
-			}
-			predictionData.setIncoming(incomingShipmentValues);
-
+			updateSingleOrderStockValue(predictionData,productQuantityMap,dueDate,product,allCustomer);
 		}else {
 			ProductIncomingShipmentModel incomingShipmentValues =new ProductIncomingShipmentModel();
 			ProductOutgoingShipmentModel outgoingShipmentValues =new ProductOutgoingShipmentModel();
@@ -345,6 +277,98 @@ public class ProductPredictionServiceImpl {
 	}
 
 
+	private void updateSingleOrderStockValue(PredictionData predictionData, Map<Integer, Mappingfields> productQuantityMap, LocalDateTime dueDate, Product product, List<Customer> allCustomer) {
+
+		ProductIncomingShipmentModel incomingShipmentValues =new ProductIncomingShipmentModel();
+		ProductOutgoingShipmentModel outgoingShipmentValues =new ProductOutgoingShipmentModel();
+		List<OrderData>orderDataList =new ArrayList<>();
+		OrderData orderData = new OrderData();
+		orderData.setOrderId(productQuantityMap.get(product.getProductId()).getOrderId());
+		orderData.setCustomer(getCustomer(allCustomer,productQuantityMap.get(product.getProductId()).getCustomer()));
+		orderData.setFixed(productQuantityMap.get(product.getProductId()).isOrderFixed());
+		orderData.setQuantity(productQuantityMap.get(product.getProductId()).getRequiredQuantity());
+		orderData.setProposalNo(productQuantityMap.get(product.getProductId()).getProposalNo());
+		orderDataList.add(orderData);
+		predictionData.setDate(dueDate);
+		predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getAvailableStockQuantity());
+		outgoingShipmentValues.setQuantity(productQuantityMap.get(product.getProductId()).getRequiredQuantity());
+		outgoingShipmentValues.setFixed(productQuantityMap.get(product.getProductId()).isOutgoingFixed());
+		outgoingShipmentValues.setOrders(orderDataList);
+		predictionData.setOutgoing(outgoingShipmentValues);
+		predictionData.setQuantity(product.getQuantity());
+		incomingShipmentValues.setQuantity(0);
+		incomingShipmentValues.setFixed(true);
+		incomingShipmentValues.setFulfilled(true);
+		if(productQuantityMap.get(product.getProductId()).getIncomingQuantity()!=0) {
+			incomingShipmentValues.setQuantity(productQuantityMap.get(product.getProductId()).getIncomingQuantity());
+			incomingShipmentValues.setFixed(productQuantityMap.get(product.getProductId()).isIncomingFixed());
+		}
+		predictionData.setIncoming(incomingShipmentValues);
+
+	
+		
+	}
+	private void updateNoOrderStockValue(PredictionData predictionData, Map<Integer, Mappingfields> productQuantityMap, LocalDateTime dueDate, Product product) {
+
+		ProductIncomingShipmentModel incomingShipmentValues =new ProductIncomingShipmentModel();
+		ProductOutgoingShipmentModel outgoingShipmentValues =new ProductOutgoingShipmentModel();
+		predictionData.setDate(dueDate);
+		predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getAvailableStockQuantity());
+		predictionData.setQuantity(product.getQuantity());
+		outgoingShipmentValues.setQuantity(0);
+		outgoingShipmentValues.setFixed(true);
+		predictionData.setOutgoing(outgoingShipmentValues);
+		incomingShipmentValues.setQuantity(0);
+		incomingShipmentValues.setFixed(true);
+		if(productQuantityMap.get(product.getProductId()).getIncomingQuantity()!=0) {
+			incomingShipmentValues.setQuantity(productQuantityMap.get(product.getProductId()).getIncomingQuantity());
+			incomingShipmentValues.setFixed(productQuantityMap.get(product.getProductId()).isIncomingFixed());
+		}
+		predictionData.setIncoming(incomingShipmentValues);
+
+	
+		
+	}
+	private void updateMultipleOrderStockValues(Map<Integer, List<Mappingfields>> productDetails,
+			PredictionData predictionData, Map<Integer, Mappingfields> productQuantityMap, Product product, List<Customer> allCustomer, LocalDateTime dueDate) {
+
+		List<Mappingfields> orderedTimes=productDetails.get(product.getProductId());
+		int requiredQuantity =0;
+		int currentQuantity =0;
+		boolean outgoingFixed = true;
+		List<OrderData>orderDataList =new ArrayList<>();
+		for(int i=0;i < orderedTimes.size();i++) {
+			OrderData orderData = new OrderData();
+			orderData.setOrderId(orderedTimes.get(i).getOrderId());
+			orderData.setCustomer(getCustomer(allCustomer, orderedTimes.get(i).getCustomer()));
+			orderData.setFixed(orderedTimes.get(i).isOrderFixed());
+			orderData.setQuantity(orderedTimes.get(i).getRequiredQuantity());
+			orderData.setProposalNo(orderedTimes.get(i).getProposalNo());
+			orderDataList.add(orderData);
+			requiredQuantity+=orderedTimes.get(i).getRequiredQuantity();
+			currentQuantity=orderedTimes.get(i).getAvailableStockQuantity();
+			if(!orderedTimes.get(i).isOutgoingFixed()&& outgoingFixed==true) {
+				outgoingFixed=false;
+			}
+		}
+		ProductIncomingShipmentModel incomingShipmentValues =new ProductIncomingShipmentModel();
+		ProductOutgoingShipmentModel outgoingShipmentValues =new ProductOutgoingShipmentModel();
+		predictionData.setDate(dueDate);
+		predictionData.setCurrentQuantity(currentQuantity);
+		outgoingShipmentValues.setQuantity(requiredQuantity);
+		outgoingShipmentValues.setFixed(outgoingFixed);
+		outgoingShipmentValues.setOrders(orderDataList);
+		predictionData.setOutgoing(outgoingShipmentValues);
+		predictionData.setQuantity(product.getQuantity());
+		incomingShipmentValues.setQuantity(0);
+		incomingShipmentValues.setFixed(true);
+		if(productQuantityMap.get(product.getProductId()).getIncomingQuantity()!=0) {
+			incomingShipmentValues.setFixed(productQuantityMap.get(product.getProductId()).isIncomingFixed());
+			incomingShipmentValues.setQuantity(productQuantityMap.get(product.getProductId()).getIncomingQuantity());
+		}
+		predictionData.setIncoming(incomingShipmentValues);
+
+	}
 	private int productNumOrdered(List<Order> unfulfilledorder, Product product, List<OrderProduct> orderProduct, List<Product> allProduct, List<ProductSet> allProductSet) {
 		List<FetchOrderdProducts> filteredProductSet=new ArrayList<>();
 		List<ProductSetModel> filteredProduct=new ArrayList<>();

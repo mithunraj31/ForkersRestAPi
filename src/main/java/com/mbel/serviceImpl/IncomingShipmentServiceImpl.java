@@ -78,7 +78,7 @@ public class IncomingShipmentServiceImpl  {
 		String branch ="1";
 		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll().stream()
 				.filter(predicate->predicate.getShipmentNo().equals(newIncomingShipment.getShipmentNo())
-						&&predicate.isActive()&&!predicate.isPartial())
+						&&!predicate.isPartial())
 				.collect(Collectors.toList());
 		if(!incomingShipment.isEmpty()) {
 			Map<Integer,String>branchValue = new HashMap<>();
