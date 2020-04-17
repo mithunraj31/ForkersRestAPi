@@ -323,20 +323,36 @@ public class ProductServiceImpl  {
 					}
 					return list.get(0);
 				}));
-		List<Product>productListAfterSortValue=allproduct.stream()
-				.filter(predicate->predicate.getSort()>previouslySavedProduct.getSort()
-						&& predicate.getSort()<=productionDetails.getSort())
+		List<Product>productListAfterSortValue=new ArrayList<>();
+		if(previouslySavedProduct.getSort()>productionDetails.getSort()) {
+		productListAfterSortValue=allproduct.stream()
+				.filter(predicate->predicate.getSort()>=productionDetails.getSort()
+						&& predicate.getSort()<previouslySavedProduct.getSort())
 				.collect(Collectors.toList());
 		List<Product>sortedProductList=arrangeProductbySortField(productListAfterSortValue);
-		int sortValue=previouslySavedProduct.getSort();
 		saveProductsList.add(productionDetails);
 		for(int i=0;i<sortedProductList.size();i++) {
-			sortedProductList.get(i).setSort(sortValue);
-			sortValue++;
+			sortedProductList.get(i).setSort(sortedProductList.get(i).getSort()+1);
 			saveProductsList.add(sortedProductList.get(i));
 		}
 		productDao.saveAll(saveProductsList);
 		return productionDetails;
+		}else {
+			productListAfterSortValue=allproduct.stream()
+					.filter(predicate->predicate.getSort()>previouslySavedProduct.getSort()
+							&& predicate.getSort()<=productionDetails.getSort())
+					.collect(Collectors.toList());
+			saveProductsList.add(productionDetails);
+			List<Product>sortedProductList=arrangeProductbySortField(productListAfterSortValue);
+			for(int i=0;i<sortedProductList.size();i++) {
+				sortedProductList.get(i).setSort(sortedProductList.get(i).getSort()-1);
+				saveProductsList.add(sortedProductList.get(i));
+			}
+			productDao.saveAll(saveProductsList);
+			return productionDetails;
+			
+		}
+		
 
 	}
 
@@ -376,8 +392,11 @@ public class ProductServiceImpl  {
 			product.setCurrency(productSetDetails.getCurrency());
 			product.setColor(productSetDetails.getColor());
 			product.setDisplay(productSetDetails.isDisplay());
-			product.setSort(productSetDetails.getSort());
-			Product productupdate=productDao.save(product);
+			if(product.getSort()!=productSetDetails.getSort()) {
+				 reArrangeProductSetDataBySort(allproduct,productSetDetails.getSort(),productId,product);
+			}else {
+			productDao.save(product);
+			}
 			int setValue  =productSetDetails.getProducts().size();
 			productSetDao.deleteBySet(productId);
 			List<ProductSet> productSetList =new ArrayList<>();
@@ -390,11 +409,54 @@ public class ProductServiceImpl  {
 			}
 			productSetDao.saveAll(productSetList);
 
-			return productupdate;
+			return product;
 		}
 		return product;
 
 	}
+
+	private void reArrangeProductSetDataBySort(List<Product> allproduct, int sort, int productId, Product product) {
+		List<Product>saveProductsList=new ArrayList<>();
+		Product previouslySavedProduct =allproduct.stream().filter(predicate->predicate.getProductId()==productId)
+				.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
+					if (list.size() != 1) {
+						return null;
+					}
+					return list.get(0);
+				}));
+		List<Product>productListAfterSortValue=new ArrayList<>();
+		if(previouslySavedProduct.getSort()>sort) {
+		productListAfterSortValue=allproduct.stream()
+				.filter(predicate->predicate.getSort()>=sort
+						&& predicate.getSort()<previouslySavedProduct.getSort())
+				.collect(Collectors.toList());
+		List<Product>sortedProductList=arrangeProductbySortField(productListAfterSortValue);
+		product.setSort(sort);
+		saveProductsList.add(product);
+		for(int i=0;i<sortedProductList.size();i++) {
+			sortedProductList.get(i).setSort(sortedProductList.get(i).getSort()+1);
+			saveProductsList.add(sortedProductList.get(i));
+		}
+		productDao.saveAll(saveProductsList);
+		}else {
+			productListAfterSortValue=allproduct.stream()
+					.filter(predicate->predicate.getSort()>previouslySavedProduct.getSort()
+							&& predicate.getSort()<=sort)
+					.collect(Collectors.toList());
+			product.setSort(sort);
+			saveProductsList.add(product);
+			List<Product>sortedProductList=arrangeProductbySortField(productListAfterSortValue);
+			for(int i=0;i<sortedProductList.size();i++) {
+				sortedProductList.get(i).setSort(sortedProductList.get(i).getSort()-1);
+				saveProductsList.add(sortedProductList.get(i));
+			}
+			productDao.saveAll(saveProductsList);
+			
+		}
+		
+
+	}
+		
 
 	public Product deleteProductSetById(int productId) {
 		return deleteProductById(productId);
