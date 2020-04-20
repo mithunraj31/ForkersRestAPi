@@ -1,6 +1,8 @@
 package com.mbel.dto;
 
-public class FetchIncomingOrderdProducts   {
+import com.mbel.model.IncomingShipmentModel;
+
+public class FetchIncomingOrderdProducts extends IncomingShipmentModel  {
 	
 	private FetchProductSetDto product;
 	

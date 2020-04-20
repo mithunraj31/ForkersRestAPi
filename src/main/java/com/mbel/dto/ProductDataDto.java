@@ -17,7 +17,7 @@ public class ProductDataDto {
 	private String color;
 	
 	List<PredictionData>values;
-
+	
 	public int getProductId() {
 		return productId;
 	}
