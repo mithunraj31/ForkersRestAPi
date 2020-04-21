@@ -537,6 +537,7 @@ public class ProductPredictionServiceImpl {
 		mappingFields.setCustomer(individualOrder.getCustomerId());
 		mappingFields.setOrderFixed(individualOrder.isFixed());
 		mappingFields.setProposalNo(individualOrder.getProposalNo());
+		mappingFields.setOutgoingFulfilment(false);
 		stockQuantity=individualProduct.getProduct().getQuantity();
 		updateStockValues(individualProduct.getProduct(),stockQuantity,orderdQunatity,
 				dueDate,mappingFields,productQuantityMap,incomingShipmentMap,incomingShipment,allProduct,allProductSet);
@@ -561,6 +562,7 @@ public class ProductPredictionServiceImpl {
 		mappingFields.setProposalNo(individualOrder.getProposalNo());
 		mappingFields.setCustomer(individualOrder.getCustomerId());
 		mappingFields.setOrderFixed(individualOrder.isFixed());
+		mappingFields.setOutgoingFulfilment(false);
 		updateStockValues(productValue,stockQuantity,orderdQunatity,dueDate,mappingFields,
 				productQuantityMap,incomingShipmentMap,incomingShipment, allProduct, allProductSet);
 		multipleProductOrder(productDetails,productCheck.getProduct().getProductId(),mappingFields);    
@@ -678,8 +680,14 @@ public class ProductPredictionServiceImpl {
 
 	private int addArrivedQuantity(int tillDateQuantity, Map<Integer, List<Integer>> incomingShipmentMap, 
 			Product newproduct, FetchIncomingOrderdProducts arrivedOrder, List<Integer> incomingOrderList, Mappingfields mappingFields) {
-		mappingFields.setIncomingQuantity(arrivedOrder.isFixed()?arrivedOrder.getConfirmedQty():arrivedOrder.getPendingQty());
+		int incomingQuantity=arrivedOrder.isFixed()?arrivedOrder.getConfirmedQty():arrivedOrder.getPendingQty();
+		if(mappingFields.getIncomingQuantity()==0) {
+		mappingFields.setIncomingQuantity(incomingQuantity);
 		mappingFields.setIncomingFixed(arrivedOrder.isFixed());
+		}else {
+			mappingFields.setIncomingQuantity(mappingFields.getIncomingQuantity()+incomingQuantity);
+			mappingFields.setIncomingFixed(mappingFields.isIncomingFixed()&&arrivedOrder.isFixed());
+		}
 		if(!incomingShipmentMap.containsKey(newproduct.getProductId())){ 
 			tillDateQuantity+=arrivedOrder.isFixed()?arrivedOrder.getConfirmedQty():arrivedOrder.getPendingQty();
 			incomingOrderList.add(arrivedOrder.getIncomingShipmentId());
