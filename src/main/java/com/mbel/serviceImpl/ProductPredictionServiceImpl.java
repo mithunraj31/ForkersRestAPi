@@ -159,7 +159,7 @@ public class ProductPredictionServiceImpl {
             if (list.size() != 1) {
             	return null;
             }
-            return list.get(0).getContactName();
+            return list.get(0).getCustomerName();
         }));
 	}
 
