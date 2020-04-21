@@ -537,7 +537,6 @@ public class ProductPredictionServiceImpl {
 		mappingFields.setCustomer(individualOrder.getCustomerId());
 		mappingFields.setOrderFixed(individualOrder.isFixed());
 		mappingFields.setProposalNo(individualOrder.getProposalNo());
-		mappingFields.setOutgoingFulfilment(false);
 		stockQuantity=individualProduct.getProduct().getQuantity();
 		updateStockValues(individualProduct.getProduct(),stockQuantity,orderdQunatity,
 				dueDate,mappingFields,productQuantityMap,incomingShipmentMap,incomingShipment,allProduct,allProductSet);
@@ -562,7 +561,6 @@ public class ProductPredictionServiceImpl {
 		mappingFields.setProposalNo(individualOrder.getProposalNo());
 		mappingFields.setCustomer(individualOrder.getCustomerId());
 		mappingFields.setOrderFixed(individualOrder.isFixed());
-		mappingFields.setOutgoingFulfilment(false);
 		updateStockValues(productValue,stockQuantity,orderdQunatity,dueDate,mappingFields,
 				productQuantityMap,incomingShipmentMap,incomingShipment, allProduct, allProductSet);
 		multipleProductOrder(productDetails,productCheck.getProduct().getProductId(),mappingFields);    
