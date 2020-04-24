@@ -184,6 +184,7 @@ public class ProductPredictionServiceImpl {
 				dueDate.isEqual(dueDateEnd);dueDate=dueDate.plusDays(1)) {
 			boolean fixed=true;
 			List<Order> unfulfilledorder =getUnfulfilledActiveOrder(order,dueDate);
+			List<Integer>productIdList =new ArrayList<>();
 			PredictionData predictionData=new PredictionData();
 			int incomingQuantity =0;
 			Map<Integer,List<Mappingfields>>productDetails=new HashMap<>();
@@ -194,11 +195,11 @@ public class ProductPredictionServiceImpl {
 					for(FetchOrderdProducts productCheck:orderdProducts) {
 						checkProductStatus(productDetails,productCheck, dueDate,
 								productQuantityMap, incomingShipmentMap,incomingShipment,
-								allProduct,allProductSet,individualOrder);
+								allProduct,allProductSet,individualOrder,productIdList);
 
 					}
 				}
-			}else {
+			}if(unfulfilledorder.isEmpty()||!productIdList.contains(product.getProductId())) {
 				updateIncomingOrder(incomingQuantity,fixed,product,productQuantityMap,incomingShipment,dueDate,allProduct);
 			}
 			int numOrdered=productNumOrdered(unfulfilledorder,product,orderProduct,allProduct,allProductSet);
@@ -499,17 +500,18 @@ public class ProductPredictionServiceImpl {
 	public void checkProductStatus(Map<Integer, List<Mappingfields>> productDetails, FetchOrderdProducts product, LocalDateTime dueDate,
 			Map<Integer, Mappingfields> productQuantityMap,
 			Map<Integer, List<Integer>> incomingShipmentMap, List<IncomingShipment> incomingShipment,
-			List<Product> allProduct, List<ProductSet> allProductSet, Order individualOrder) {
+			List<Product> allProduct, List<ProductSet> allProductSet, Order individualOrder, List<Integer> productIdList) {
 
 		int productId = product.getProduct().getProductId();
 		if(!product.getProduct().isSet()) {
-
+			productIdList.add(productId);
 			productStockCaluculate(productDetails,product,dueDate,
 					productQuantityMap,incomingShipmentMap,incomingShipment,allProduct,allProductSet,individualOrder);
 		}else {
 			Mappingfields mappingPackage =new Mappingfields();
 			mappingPackage.setPackageProduct(product.getProduct());
 			for(ProductSetModel individualProduct:product.getProduct().getProducts()) {
+				productIdList.add(individualProduct.getProduct().getProductId());
 				productSetStockCaluculate(productDetails,product,individualProduct,dueDate,
 						productQuantityMap,incomingShipmentMap,incomingShipment,allProduct,allProductSet,individualOrder);
 			}
