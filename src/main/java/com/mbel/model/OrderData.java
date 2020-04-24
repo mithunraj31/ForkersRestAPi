@@ -12,7 +12,7 @@ public class OrderData {
 	
 	private String proposalNo;
 	
-	private boolean fulfiled;
+	private boolean fulfilled;
 	
 	public String getProposalNo() {
 		return proposalNo;
@@ -54,13 +54,14 @@ public class OrderData {
 		this.fixed = fixed;
 	}
 
-	public boolean isFulfiled() {
-		return fulfiled;
+	public boolean isFulfilled() {
+		return fulfilled;
 	}
 
-	public void setFulfiled(boolean fulfiled) {
-		this.fulfiled = fulfiled;
+	public void setFulfilled(boolean fulfilled) {
+		this.fulfilled = fulfilled;
 	}
+
 
 
 

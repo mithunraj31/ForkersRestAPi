@@ -10,7 +10,7 @@ public class IncomingOrderData {
 	
 	private int quantity;
 	
-	private boolean fulfiled;
+	private boolean fulfilled;
 
 	public int getIncomingshipmentId() {
 		return incomingshipmentId;
@@ -26,10 +26,6 @@ public class IncomingOrderData {
 
 	public int getQuantity() {
 		return quantity;
-	}
-
-	public boolean isFulfiled() {
-		return fulfiled;
 	}
 
 	public void setIncomingshipmentId(int incomingshipmentId) {
@@ -48,12 +44,13 @@ public class IncomingOrderData {
 		this.quantity = quantity;
 	}
 
-	public void setFulfiled(boolean fulfiled) {
-		this.fulfiled = fulfiled;
+	public boolean isFulfilled() {
+		return fulfilled;
 	}
-	
 
-
+	public void setFulfilled(boolean fulfilled) {
+		this.fulfilled = fulfilled;
+	}
 
 	
 
