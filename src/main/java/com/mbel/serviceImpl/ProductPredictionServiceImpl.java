@@ -414,7 +414,7 @@ public class ProductPredictionServiceImpl {
 					incomingOrderData.setQuantity(productQuantityMap.get(product.getProductId()).getIndividualIncomingQty().get(i));
 					incomingFinalQuantity+=productQuantityMap.get(product.getProductId()).getIndividualIncomingQty().get(i);
 					incomingOrderData.setFixed(productQuantityMap.get(product.getProductId()).getIncomingFixed().get(i));
-					incomingOrderData.setFulfiled(productQuantityMap.get(product.getProductId()).getIncomingFulfilment().get(i));
+					incomingOrderData.setFulfilled(productQuantityMap.get(product.getProductId()).getIncomingFulfilment().get(i));
 					incomingOrderList.add(incomingOrderData);
 				}
 			}
@@ -427,7 +427,7 @@ public class ProductPredictionServiceImpl {
 				incomingOrderData.setQuantity(arrivedIncomingDetails.get(product.getProductId()).getIndividualIncomingQty().get(i));
 				incomingFinalQuantity+=arrivedIncomingDetails.get(product.getProductId()).getIndividualIncomingQty().get(i);
 				incomingOrderData.setFixed(arrivedIncomingDetails.get(product.getProductId()).getIncomingFixed().get(i));
-				incomingOrderData.setFulfiled(arrivedIncomingDetails.get(product.getProductId()).getIncomingFulfilment().get(i));
+				incomingOrderData.setFulfilled(arrivedIncomingDetails.get(product.getProductId()).getIncomingFulfilment().get(i));
 				incomingOrderList.add(incomingOrderData);
 			}
 		}
@@ -481,7 +481,7 @@ public class ProductPredictionServiceImpl {
 			orderData.setOrderId(productQuantityMap.get(product.getProductId()).getOrderId());
 			orderData.setCustomer(getCustomer(allCustomer,productQuantityMap.get(product.getProductId()).getCustomer()));
 			orderData.setFixed(productQuantityMap.get(product.getProductId()).isOrderFixed());
-			orderData.setFulfiled(productQuantityMap.get(product.getProductId()).isOutgoingFulfilment());
+			orderData.setFulfilled(productQuantityMap.get(product.getProductId()).isOutgoingFulfilment());
 			orderData.setQuantity(productQuantityMap.get(product.getProductId()).getRequiredQuantity());
 			orderData.setProposalNo(productQuantityMap.get(product.getProductId()).getProposalNo());
 			outgoingShipmentValues.setQuantity(productQuantityMap.get(product.getProductId()).getRequiredQuantity());
@@ -493,7 +493,7 @@ public class ProductPredictionServiceImpl {
 			orderData.setOrderId(productDetails.get(product.getProductId()).get(0).getOrderId());
 			orderData.setCustomer(getCustomer(allCustomer,productDetails.get(product.getProductId()).get(0).getCustomer()));
 			orderData.setFixed(productDetails.get(product.getProductId()).get(0).isOrderFixed());
-			orderData.setFulfiled(productDetails.get(product.getProductId()).get(0).isOutgoingFulfilment());
+			orderData.setFulfilled(productDetails.get(product.getProductId()).get(0).isOutgoingFulfilment());
 			orderData.setQuantity(productDetails.get(product.getProductId()).get(0).getRequiredQuantity());
 			orderData.setProposalNo(productDetails.get(product.getProductId()).get(0).getProposalNo());
 			outgoingShipmentValues.setQuantity(productDetails.get(product.getProductId()).get(0).getRequiredQuantity());
@@ -517,7 +517,7 @@ public class ProductPredictionServiceImpl {
 			List<Boolean>fulfillmentList=new ArrayList<>();
 			for(int i=0;i<incomingOrderList.size();i++) {
 				fixedtList.add(incomingOrderList.get(i).isFixed());
-				fulfillmentList.add(incomingOrderList.get(i).isFulfiled());
+				fulfillmentList.add(incomingOrderList.get(i).isFulfilled());
 			}
 			if(fixedtList.contains(false)){
 				incomingShipmentValues.setFixed(false);
@@ -560,7 +560,7 @@ public class ProductPredictionServiceImpl {
 			List<Boolean>fulfillmentList=new ArrayList<>();
 			for(int i=0;i<incomingOrderList.size();i++) {
 				fixedtList.add(incomingOrderList.get(i).isFixed());
-				fulfillmentList.add(incomingOrderList.get(i).isFulfiled());
+				fulfillmentList.add(incomingOrderList.get(i).isFulfilled());
 			}
 			if(fixedtList.contains(false)){
 				incomingShipmentValues.setFixed(false);
@@ -598,7 +598,7 @@ public class ProductPredictionServiceImpl {
 			orderData.setOrderId(orderedTimes.get(i).getOrderId());
 			orderData.setCustomer(getCustomer(allCustomer, orderedTimes.get(i).getCustomer()));
 			orderData.setFixed(orderedTimes.get(i).isOrderFixed());
-			orderData.setFulfiled(orderedTimes.get(i).isOutgoingFulfilment());
+			orderData.setFulfilled(orderedTimes.get(i).isOutgoingFulfilment());
 			outgoingFulfilList.add(orderedTimes.get(i).isOutgoingFulfilment());
 			orderData.setQuantity(orderedTimes.get(i).getRequiredQuantity());
 			orderData.setProposalNo(orderedTimes.get(i).getProposalNo());
@@ -637,7 +637,7 @@ public class ProductPredictionServiceImpl {
 			List<Boolean>fulfillmentList=new ArrayList<>();
 			for(int i=0;i<incomingOrderList.size();i++) {
 				fixedtList.add(incomingOrderList.get(i).isFixed());
-				fulfillmentList.add(incomingOrderList.get(i).isFulfiled());
+				fulfillmentList.add(incomingOrderList.get(i).isFulfilled());
 			}
 			if(fixedtList.contains(false)){
 				incomingShipmentValues.setFixed(false);
