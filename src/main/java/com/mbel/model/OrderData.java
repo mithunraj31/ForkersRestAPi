@@ -12,6 +12,8 @@ public class OrderData {
 	
 	private String proposalNo;
 	
+	private boolean fulfiled;
+	
 	public String getProposalNo() {
 		return proposalNo;
 	}
@@ -51,6 +53,15 @@ public class OrderData {
 	public void setFixed(boolean fixed) {
 		this.fixed = fixed;
 	}
+
+	public boolean isFulfiled() {
+		return fulfiled;
+	}
+
+	public void setFulfiled(boolean fulfiled) {
+		this.fulfiled = fulfiled;
+	}
+
 
 
 

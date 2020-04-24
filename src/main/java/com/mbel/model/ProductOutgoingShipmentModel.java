@@ -8,6 +8,8 @@ public class ProductOutgoingShipmentModel{
 	
 	private Boolean fixed;
 	
+	private int fulfilled;
+	
 	private List<OrderData> orders;
 
 
@@ -34,6 +36,15 @@ public class ProductOutgoingShipmentModel{
 	public void setOrders(List<OrderData> orders) {
 		this.orders = orders;
 	}
+
+	public int getFulfilled() {
+		return fulfilled;
+	}
+
+	public void setFulfilled(int fulfilled) {
+		this.fulfilled = fulfilled;
+	}
+
 
 	
 	
