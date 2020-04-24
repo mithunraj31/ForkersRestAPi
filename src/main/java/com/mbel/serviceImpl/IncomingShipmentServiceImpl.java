@@ -107,7 +107,7 @@ public class IncomingShipmentServiceImpl  {
 	public List<FetchIncomingOrderdProducts> getAllIncomingShipment() {
 		List<FetchIncomingOrderdProducts> incomingShipmentDtoList = new ArrayList<>(); 
 		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll().stream()
-				.filter(predicate->predicate.isActive())
+				.filter(predicate->predicate.isActive()&&!predicate.isArrived())
 				.collect(Collectors.toList());
 		List<UserEntity> userEntityList = userDao.findAll();
 		List<Product> allProducts = productDao.findAll();
@@ -335,6 +335,43 @@ public class IncomingShipmentServiceImpl  {
 									||predicate.getFixedDeliveryDate().isEqual(dueDate)))
 					.collect(Collectors.toList());
 
+		}
+
+		public List<FetchIncomingOrderdProducts> getAllArrivedIncomingShipment() {
+
+			List<FetchIncomingOrderdProducts> incomingShipmentDtoList = new ArrayList<>(); 
+			List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll().stream()
+					.filter(predicate->!predicate.isActive()&&predicate.isArrived())
+					.collect(Collectors.toList());
+			List<UserEntity> userEntityList = userDao.findAll();
+			List<Product> allProducts = productDao.findAll();
+			for(IncomingShipment incoming :incomingShipment ) {
+				FetchIncomingOrderdProducts incomingDto = new FetchIncomingOrderdProducts();
+				incomingDto.setIncomingShipmentId(incoming.getIncomingShipmentId());
+				incomingDto.setCreatedAt(incoming.getCreatedAt());
+				incomingDto.setShipmentNo(incoming.getShipmentNo());
+				incomingDto.setUpdatedAt(LocalDateTime.now());
+				incomingDto.setUser(getUserDetails(userEntityList,incoming.getUserId()));
+				incomingDto.setArrived(incoming.isArrived());
+				incomingDto.setActive(incoming.isActive());
+				incomingDto.setProduct(getProduct(incoming,allProducts));
+				incomingDto.setBranch(incoming.getBranch());
+				incomingDto.setConfirmedQty(incoming.getConfirmedQty());
+				incomingDto.setFixed(incoming.isFixed());
+				incomingDto.setPartial(incoming.isPartial());		
+				incomingDto.setFixedDeliveryDate(incoming.getFixedDeliveryDate());
+				incomingDto.setDesiredDeliveryDate(incoming.getDesiredDeliveryDate());
+				incomingDto.setOrderDate(incoming.getOrderDate());
+				incomingDto.setVendor(incoming.getVendor());
+				incomingDto.setPendingQty(incoming.getPendingQty());
+				incomingDto.setQuantity(incoming.getQuantity());
+				incomingDto.setCurrency(incoming.getCurrency());
+				incomingDto.setPrice(incoming.getPrice());
+				incomingShipmentDtoList.add(incomingDto);
+			}
+
+			return incomingShipmentDtoList;
+		
 		}
 
 	}

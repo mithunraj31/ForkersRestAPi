@@ -61,15 +61,15 @@ public class OrderServiceImpl  {
 	 JwtAuthenticationFilter jwt;
 	
 
-	public List<Order> getActiveOrders() {
+	public List<Order> getActiveUnfulfilledOrders() {
 		List<Order>order =orderDao.findAll(); 
 		return order.stream()
-				.filter(Order::isActive)
+				.filter(predicate->predicate.isActive()&&!predicate.isFulfilled())
 				.collect(Collectors.toList());
 	}
 
 	public List<PopulateOrderDto> getAllOrders() {
-		List<Order>activeOrder =getActiveOrders();
+		List<Order>activeOrder =getActiveUnfulfilledOrders();
 		List<UserEntity> userList = userDao.findAll();
 		List<Customer> customerList = customerDao.findAll();
 		List<Product> allProduct = productDao.findAll();
@@ -250,6 +250,49 @@ public class OrderServiceImpl  {
 		}
 		return estimationValue;
 		
+	}
+
+	public List<PopulateOrderDto> getAllFulfilledOrders() {
+		List<Order>activeOrder =getInActivefulfilledOrders();
+		List<UserEntity> userList = userDao.findAll();
+		List<Customer> customerList = customerDao.findAll();
+		List<Product> allProduct = productDao.findAll();
+		List<ProductSet> allProductSet =productSetDao.findAll();
+		List<OrderProduct>orderProduct =orderProductDao.findAll(); 
+		List<PopulateOrderDto>populateList =new ArrayList<>();
+		for(Order order:activeOrder) {
+			PopulateOrderDto populate = new PopulateOrderDto();
+			populate.setOrderId(order.getOrderId());
+			populate.setProposalNo(order.getProposalNo());
+			populate.setReceivedDate(order.getReceivedDate());
+			populate.setDueDate(order.getDueDate());
+			populate.setDeliveryDate(order.getDeliveryDate());
+			populate.setActive(order.isActive());
+			populate.setForecast(order.isForecast());
+			populate.setFulfilled(order.isFulfilled());
+			populate.setFixed(order.isFixed());
+			populate.setUser(getUser(userList,order.getUserId()));
+			populate.setSalesUser(getUser(userList,order.getSalesUserId()));
+			populate.setEditReason(order.getEditReason());
+			populate.setCreatedAt(order.getCreatedAt());
+			populate.setUpdatedAt(order.getUpdatedAt());
+			populate.setCustomer(getCustomer(customerList,order.getCustomerId()));
+			populate.setSalesDestination(getCustomer(customerList,order.getSalesDestinationId()));
+			populate.setContractor(getCustomer(customerList,order.getContractorId()));
+			populate.setOrderedProducts(productPredictionServiceImpl.getAllProducts(order,orderProduct,allProduct,allProductSet));
+			populateList.add(populate);
+		}
+
+		return populateList;
+
+	}
+
+	private List<Order> getInActivefulfilledOrders() {
+		List<Order>order =orderDao.findAll(); 
+		return order.stream()
+				.filter(predicate->!predicate.isActive()&&predicate.isFulfilled())
+				.collect(Collectors.toList());
+	
 	}
 	
 	

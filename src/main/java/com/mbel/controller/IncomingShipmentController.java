@@ -43,6 +43,12 @@ public class  IncomingShipmentController{
 	public List<FetchIncomingOrderdProducts> allIncomingShipment()  {
 		return incomingShipmentServiceImpl.getAllIncomingShipment();
 	}
+	
+	@GetMapping("/shipment/incoming/arrived/")
+	public List<FetchIncomingOrderdProducts> arivedIncomingShipment()  {
+		return incomingShipmentServiceImpl.getAllArrivedIncomingShipment();
+	}
+	
 	@GetMapping("/shipment/incoming/{incomingShipmentId}")
 	public FetchIncomingOrderdProducts incomingShipmentById(@PathVariable (value="incomingShipmentId") @Valid int incomingShipmentId) {
 		return incomingShipmentServiceImpl.getIncomingShipmentById(incomingShipmentId);

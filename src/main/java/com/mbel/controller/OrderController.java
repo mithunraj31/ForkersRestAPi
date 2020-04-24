@@ -40,6 +40,11 @@ public class  OrderController{
 	public List<PopulateOrderDto> allOrder() {
 		return orderServiceImpl.getAllOrders();
 	}
+	
+	@GetMapping("/order/fulfilled/")
+	public List<PopulateOrderDto> allFulfilledOrder() {
+		return orderServiceImpl.getAllFulfilledOrders();
+	}
 
 	@GetMapping("/order/{orderId}")
 	public PopulateOrderDto orderById(@PathVariable (value="orderId")@NotNull int orderId) {
