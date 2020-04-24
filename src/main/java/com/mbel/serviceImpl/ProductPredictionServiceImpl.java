@@ -159,7 +159,7 @@ public class ProductPredictionServiceImpl {
             if (list.size() != 1) {
             	return null;
             }
-            return list.get(0).getContactName();
+            return list.get(0).getCustomerName();
         }));
 	}
 
@@ -680,8 +680,14 @@ public class ProductPredictionServiceImpl {
 
 	private int addArrivedQuantity(int tillDateQuantity, Map<Integer, List<Integer>> incomingShipmentMap, 
 			Product newproduct, FetchIncomingOrderdProducts arrivedOrder, List<Integer> incomingOrderList, Mappingfields mappingFields) {
-		mappingFields.setIncomingQuantity(arrivedOrder.isFixed()?arrivedOrder.getConfirmedQty():arrivedOrder.getPendingQty());
+		int incomingQuantity=arrivedOrder.isFixed()?arrivedOrder.getConfirmedQty():arrivedOrder.getPendingQty();
+		if(mappingFields.getIncomingQuantity()==0) {
+		mappingFields.setIncomingQuantity(incomingQuantity);
 		mappingFields.setIncomingFixed(arrivedOrder.isFixed());
+		}else {
+			mappingFields.setIncomingQuantity(mappingFields.getIncomingQuantity()+incomingQuantity);
+			mappingFields.setIncomingFixed(mappingFields.isIncomingFixed()&&arrivedOrder.isFixed());
+		}
 		if(!incomingShipmentMap.containsKey(newproduct.getProductId())){ 
 			tillDateQuantity+=arrivedOrder.isFixed()?arrivedOrder.getConfirmedQty():arrivedOrder.getPendingQty();
 			incomingOrderList.add(arrivedOrder.getIncomingShipmentId());
