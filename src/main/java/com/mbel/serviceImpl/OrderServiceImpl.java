@@ -290,7 +290,7 @@ public class OrderServiceImpl  {
 	private List<Order> getInActivefulfilledOrders() {
 		List<Order>order =orderDao.findAll(); 
 		return order.stream()
-				.filter(predicate->!predicate.isActive()&&predicate.isFulfilled())
+				.filter(predicate->!predicate.isActive()||predicate.isFulfilled())
 				.collect(Collectors.toList());
 	
 	}
