@@ -5,6 +5,8 @@ public class IncomingOrderData {
 	private int incomingshipmentId;
 	
 	private String shipmentNo;
+	
+	private String branch;
 
 	private boolean fixed;
 	
@@ -50,6 +52,14 @@ public class IncomingOrderData {
 
 	public void setFulfilled(boolean fulfilled) {
 		this.fulfilled = fulfilled;
+	}
+
+	public String getBranch() {
+		return branch;
+	}
+
+	public void setBranch(String branch) {
+		this.branch = branch;
 	}
 
 	
