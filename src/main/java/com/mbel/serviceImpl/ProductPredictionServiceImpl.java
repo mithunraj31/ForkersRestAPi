@@ -224,6 +224,7 @@ public class ProductPredictionServiceImpl {
 			LocalDateTime dueDate, List<Product> allProduct, Map<Integer, Mappingfields> arrivedIncomingDetails) {
 		List<Integer>incomingOrderIdList=new ArrayList<>();
 		List<String>shipmentNoList=new ArrayList<>();
+		List<String>branchNoList=new ArrayList<>();
 		List<Integer>incomingQtyList=new ArrayList<>();
 		List<Boolean>incomingFulfillList=new ArrayList<>();
 		List<Boolean>incomingfixedList=new ArrayList<>();
@@ -233,6 +234,7 @@ public class ProductPredictionServiceImpl {
 				incomingOrderIdList.add(incomingProductList.get(i).getIncomingShipmentId());
 				shipmentNoList.add(incomingProductList.get(i).getShipmentNo());
 				incomingFulfillList.add(true);
+				branchNoList.add(incomingProductList.get(i).getBranch());
 				if(incomingProductList.get(i).isFixed()) {
 					incomingQuantity+=incomingProductList.get(i).getConfirmedQty();
 					incomingQtyList.add(incomingProductList.get(i).getConfirmedQty());
@@ -253,6 +255,7 @@ public class ProductPredictionServiceImpl {
 			mapping.setIncomingOrderId(incomingOrderIdList);
 			mapping.setShipmnetNo(shipmentNoList);
 			mapping.setIndividualIncomingQty(incomingQtyList);
+			mapping.setBranch(branchNoList);
 			arrivedIncomingDetails.put(product.getProductId(), mapping);
 		}
 	}
@@ -338,11 +341,13 @@ public class ProductPredictionServiceImpl {
 		List<Integer>incomingQtyList=new ArrayList<>();
 		List<Boolean>incomingFulfillList=new ArrayList<>();
 		List<Boolean>incomingfixedList=new ArrayList<>();
+		List<String>branchNoList=new ArrayList<>();
 		List<FetchIncomingOrderdProducts> incomingProductList=getAllUnarrivedDueDateIncomingShipment(incomingShipment, dueDate, allProduct);
 		for(int i=0;i<incomingProductList.size();i++) {
 			if(incomingProductList.get(i).getProduct().getProductId()==product.getProductId()) {
 				incomingOrderIdList.add(incomingProductList.get(i).getIncomingShipmentId());
 				shipmentNoList.add(incomingProductList.get(i).getShipmentNo());
+				branchNoList.add(incomingProductList.get(i).getBranch());
 				incomingFulfillList.add(false);
 				if(incomingProductList.get(i).isFixed()) {
 					incomingQuantity+=incomingProductList.get(i).getConfirmedQty();
@@ -373,6 +378,7 @@ public class ProductPredictionServiceImpl {
 				mapping.setIncomingOrderId(incomingOrderIdList);
 				mapping.setShipmnetNo(shipmentNoList);
 				mapping.setIndividualIncomingQty(incomingQtyList);
+				mapping.setBranch(branchNoList);
 				productQuantityMap.put(product.getProductId(), mapping);
 			}else {
 				Mappingfields mappingfields =  new Mappingfields();
@@ -383,6 +389,7 @@ public class ProductPredictionServiceImpl {
 				mappingfields.setIncomingOrderId(incomingOrderIdList);
 				mappingfields.setShipmnetNo(shipmentNoList);
 				mappingfields.setIndividualIncomingQty(incomingQtyList);
+				mappingfields.setBranch(branchNoList);
 				productQuantityMap.put(product.getProductId(), mappingfields);
 			}
 		}else {
@@ -415,6 +422,7 @@ public class ProductPredictionServiceImpl {
 					incomingFinalQuantity+=productQuantityMap.get(product.getProductId()).getIndividualIncomingQty().get(i);
 					incomingOrderData.setFixed(productQuantityMap.get(product.getProductId()).getIncomingFixed().get(i));
 					incomingOrderData.setFulfilled(productQuantityMap.get(product.getProductId()).getIncomingFulfilment().get(i));
+					incomingOrderData.setBranch(productQuantityMap.get(product.getProductId()).getBranch().get(i));
 					incomingOrderList.add(incomingOrderData);
 				}
 			}
@@ -428,6 +436,7 @@ public class ProductPredictionServiceImpl {
 				incomingFinalQuantity+=arrivedIncomingDetails.get(product.getProductId()).getIndividualIncomingQty().get(i);
 				incomingOrderData.setFixed(arrivedIncomingDetails.get(product.getProductId()).getIncomingFixed().get(i));
 				incomingOrderData.setFulfilled(arrivedIncomingDetails.get(product.getProductId()).getIncomingFulfilment().get(i));
+				incomingOrderData.setBranch(arrivedIncomingDetails.get(product.getProductId()).getBranch().get(i));
 				incomingOrderList.add(incomingOrderData);
 			}
 		}
@@ -977,12 +986,14 @@ public class ProductPredictionServiceImpl {
 		List<Integer>incomingQtyList=new ArrayList<>();
 		List<Boolean>incomingFulfillList=new ArrayList<>();
 		List<Boolean>incomingfixedList=new ArrayList<>();
+		List<String>branchNoList=new ArrayList<>();
 		incomingOrderIdList.add(arrivedOrder.getIncomingShipmentId());
 		shipmentNoList.add(arrivedOrder.getShipmentNo());
 		int incomingQuantity=arrivedOrder.isFixed()?arrivedOrder.getConfirmedQty():arrivedOrder.getPendingQty();
 		incomingQtyList.add(incomingQuantity);
 		incomingFulfillList.add(false);
 		incomingfixedList.add(arrivedOrder.isFixed());
+		branchNoList.add(arrivedOrder.getBranch());
 		if(mappingFields.getIncomingQuantity()==0) {
 			mappingFields.setIncomingQuantity(incomingQuantity);
 			mappingFields.setIncomingFixed(incomingfixedList);
@@ -990,18 +1001,21 @@ public class ProductPredictionServiceImpl {
 			mappingFields.setShipmnetNo(shipmentNoList);
 			mappingFields.setIndividualIncomingQty(incomingQtyList);
 			mappingFields.setIncomingFulfilment(incomingFulfillList);
+			mappingFields.setBranch(branchNoList);
 		}else {
 			incomingOrderIdList.addAll(mappingFields.getIncomingOrderId());
 			shipmentNoList.addAll(mappingFields.getShipmnetNo());
 			incomingQtyList.addAll(mappingFields.getIndividualIncomingQty());
 			incomingFulfillList.addAll(mappingFields.getIncomingFulfilment());
 			incomingfixedList.addAll(mappingFields.getIncomingFixed());
+			branchNoList.addAll(mappingFields.getBranch());
 			mappingFields.setIncomingQuantity(mappingFields.getIncomingQuantity()+incomingQuantity);
 			mappingFields.setIncomingFixed(incomingfixedList);
 			mappingFields.setIncomingOrderId(incomingOrderIdList);
 			mappingFields.setShipmnetNo(shipmentNoList);
 			mappingFields.setIndividualIncomingQty(incomingQtyList);
 			mappingFields.setIncomingFulfilment(incomingFulfillList);
+			mappingFields.setBranch(branchNoList);
 		}
 		if(!incomingShipmentMap.containsKey(newproduct.getProductId())){ 
 			tillDateQuantity+=arrivedOrder.isFixed()?arrivedOrder.getConfirmedQty():arrivedOrder.getPendingQty();

@@ -449,6 +449,8 @@ class Mappingfields{
 	private List<String> shipmnetNo;
 	
 	private List<Integer> individualIncomingQty;
+	
+	private List<String> branch;
 
 	public int getCurrentQuantity() {
 		return currentQuantity;
@@ -617,6 +619,14 @@ class Mappingfields{
 
 	public void setIncomingFixed(List<Boolean> incomingFixed) {
 		this.incomingFixed = incomingFixed;
+	}
+
+	public List<String> getBranch() {
+		return branch;
+	}
+
+	public void setBranch(List<String> branch) {
+		this.branch = branch;
 	}
 
 
