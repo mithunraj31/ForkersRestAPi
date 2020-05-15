@@ -10,6 +10,8 @@ public class ProductOutgoingShipmentModel{
 	
 	private int fulfilled;
 	
+	private Boolean delayed;
+	
 	private List<OrderData> orders;
 
 
@@ -43,6 +45,14 @@ public class ProductOutgoingShipmentModel{
 
 	public void setFulfilled(int fulfilled) {
 		this.fulfilled = fulfilled;
+	}
+
+	public Boolean getDelayed() {
+		return delayed;
+	}
+
+	public void setDelayed(Boolean delayed) {
+		this.delayed = delayed;
 	}
 
 

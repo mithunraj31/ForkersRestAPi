@@ -121,6 +121,7 @@ public class OrderServiceImpl  {
 		populate.setForecast(order.isForecast());
 		populate.setFulfilled(order.isFulfilled());
 		populate.setFixed(order.isFixed());
+		populate.setDisplay(order.isDisplay());
 		populate.setUser(getUser(userList,order.getUserId()));
 		populate.setSalesUser(getUser(userList,order.getSalesUserId()));
 		populate.setEditReason(order.getEditReason());
@@ -180,6 +181,7 @@ public class OrderServiceImpl  {
 		order.setUserId(jwt.getUserdetails().getUserId());
 		order.setSalesUserId(newOrderSet.getSalesUserId());
 		order.setEditReason(newOrderSet.getEditReason());
+		order.setDisplay(newOrderSet.isDisplay());
 		orderupdate=orderDao.save(order);
 		orderedId  = order.getOrderId();
 		}
@@ -220,6 +222,7 @@ public class OrderServiceImpl  {
 		order.setActive(true);
 		order.setForecast(true);
 		order.setFulfilled(false);
+		order.setDisplay(true);
 		order.setFixed(newOrderSet.isFixed());
 		order.setUserId(jwt.getUserdetails().getUserId());
 		order.setSalesUserId(newOrderSet.getSalesUserId());
@@ -271,6 +274,7 @@ public class OrderServiceImpl  {
 			populate.setForecast(order.isForecast());
 			populate.setFulfilled(order.isFulfilled());
 			populate.setFixed(order.isFixed());
+			populate.setDisplay(order.isDisplay());
 			populate.setUser(getUser(userList,order.getUserId()));
 			populate.setSalesUser(getUser(userList,order.getSalesUserId()));
 			populate.setEditReason(order.getEditReason());

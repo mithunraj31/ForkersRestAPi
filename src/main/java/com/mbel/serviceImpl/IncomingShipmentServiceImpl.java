@@ -45,6 +45,8 @@ public class IncomingShipmentServiceImpl  {
 	ProductDao productDao;
 
 	public @Valid List<IncomingShipment> save(@Valid List<IncomingShipment> incomingShipmentList) {
+		String branch = null;
+		List<IncomingShipment> newIncomingShipmentList = new ArrayList<>();
 		for(IncomingShipment newIncomingShipment:incomingShipmentList) {
 		IncomingShipment incomingShipment = new IncomingShipment();
 		incomingShipment.setIncomingShipmentId(newIncomingShipment.getIncomingShipmentId()!=0?
@@ -67,9 +69,15 @@ public class IncomingShipmentServiceImpl  {
 		incomingShipment.setPendingQty(newIncomingShipment.getPendingQty());
 		incomingShipment.setFixed((Boolean)newIncomingShipment.isFixed()==null?false:newIncomingShipment.isFixed());
 		incomingShipment.setPartial((Boolean)newIncomingShipment.isPartial()==null?false:newIncomingShipment.isPartial());
+		if(branch!=null) {
+			incomingShipment.setBranch(branch);
+		}else {
 		incomingShipment.setBranch(newIncomingShipment.isPartial()||!newIncomingShipment.getBranch().equals("")?newIncomingShipment.getBranch():getCurrentBranchNumber(newIncomingShipment));
-		incomingShipmentDao.save(incomingShipment);
 		}
+		branch =String.valueOf(Integer.valueOf(incomingShipment.getBranch())+1);
+		newIncomingShipmentList.add(incomingShipment);
+		}
+		incomingShipmentDao.saveAll(newIncomingShipmentList);
 		return incomingShipmentList;
 
 	}

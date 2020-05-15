@@ -35,8 +35,8 @@ import com.mbel.model.ProductOutgoingShipmentModel;
 import com.mbel.model.ProductSet;
 import com.mbel.model.ProductSetModel;
 
-@Service("ProductPredictionServiceImpl")
-public class ProductPredictionServiceImpl {
+@Service("KittingBaseServiceImpl")
+public class KittingBaseServiceImpl {
 
 	@Autowired
 	ProductServiceImpl productServiceImpl;
@@ -184,7 +184,7 @@ public class ProductPredictionServiceImpl {
 		for(LocalDateTime dueDate=dueDateStart;dueDate.isBefore(dueDateEnd)||
 				dueDate.isEqual(dueDateEnd);dueDate=dueDate.plusDays(1)) {
 			boolean fixed=true;
-			List<Order> unfulfilledorder =getUnfulfilledActiveOrder(order,dueDate);
+			List<Order> unfulfilledorder =getUnfulfilledDisplayedActiveOrder(order,dueDate);
 			List<Integer>productIdList =new ArrayList<>();
 			PredictionData predictionData=new PredictionData();
 			int incomingQuantity =0;
@@ -984,9 +984,9 @@ public class ProductPredictionServiceImpl {
 
 
 
-	private List<Order> getUnfulfilledActiveOrder(List<Order> order, LocalDateTime dueDate) {
+	private List<Order> getUnfulfilledDisplayedActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
-				.filter(predicate->predicate.isActive() && !predicate.isFulfilled() 
+				.filter(predicate->predicate.isActive() && !predicate.isFulfilled() &&predicate.isDisplay() 
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
 						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
@@ -995,7 +995,7 @@ public class ProductPredictionServiceImpl {
 
 	private List<Order> getFulfilledActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
-				.filter(predicate->predicate.isActive() && predicate.isFulfilled() 
+				.filter(predicate->predicate.isActive() && predicate.isFulfilled() &&predicate.isDisplay()
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
 						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());

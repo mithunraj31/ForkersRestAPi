@@ -31,6 +31,8 @@ public class OrderModel{
 	    private boolean fulfilled;
 	    
 	    private boolean fixed;
+	    
+	    private boolean display;
 
 		public int getOrderId() {
 			return orderId;
@@ -142,6 +144,14 @@ public class OrderModel{
 
 		public void setFixed(boolean fixed) {
 			this.fixed = fixed;
+		}
+
+		public boolean isDisplay() {
+			return display;
+		}
+
+		public void setDisplay(boolean display) {
+			this.display = display;
 		}
 
 

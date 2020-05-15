@@ -71,6 +71,9 @@ public class Order{
 	    
 	    @Column(name = "fixed")
 	    private boolean fixed;
+	    
+	    @Column(name = "display")
+	    private boolean display;
 		
 		public int getOrderId() {
 			return OrderId;
@@ -176,6 +179,12 @@ public class Order{
 		}
 		public void setFixed(boolean fixed) {
 			this.fixed = fixed;
+		}
+		public boolean isDisplay() {
+			return display;
+		}
+		public void setDisplay(boolean display) {
+			this.display = display;
 		}
 	    
 	

@@ -35,8 +35,8 @@ import com.mbel.model.ProductOutgoingShipmentModel;
 import com.mbel.model.ProductSet;
 import com.mbel.model.ProductSetModel;
 
-@Service("ProductPredictionServiceImpl")
-public class ProductPredictionServiceImpl {
+@Service("ShippingBaseServiceImpl")
+public class ShippingBaseServiceImpl {
 
 	@Autowired
 	ProductServiceImpl productServiceImpl;
@@ -308,6 +308,7 @@ public class ProductPredictionServiceImpl {
 		mappingFields.setProposalNo(individualOrder.getProposalNo());
 		mappingFields.setOutgoingFulfilment(true);
 		mappingFields.setAvailableStockQuantity(availableQuantity);
+		mappingFields.setDelayed(individualOrder.getDueDate().isAfter(LocalDateTime.now()));
 		multipleProductOrder(productDetails,individualProduct.getProduct().getProductId(),mappingFields);
 
 	}
@@ -330,6 +331,7 @@ public class ProductPredictionServiceImpl {
 		mappingFields.setOrderFixed(individualOrder.isFixed());
 		mappingFields.setAvailableStockQuantity(availableQuantity);
 		mappingFields.setOutgoingFulfilment(true);
+		mappingFields.setDelayed(individualOrder.getDueDate().isAfter(LocalDateTime.now()));
 		multipleProductOrder(productDetails,product.getProduct().getProductId(),mappingFields);    
 
 
@@ -450,8 +452,8 @@ public class ProductPredictionServiceImpl {
 			outgoingShipmentValues.setQuantity(0);
 			outgoingShipmentValues.setFixed(fixed);
 			outgoingShipmentValues.setFulfilled(0);
+			outgoingShipmentValues.setDelayed(fixed);
 			incomingShipmentValues.setQuantity(incomingQuantity);
-			incomingShipmentValues.setFixed(fixed);
 			incomingShipmentValues.setIncomingOrders(incomingOrderList);
 			predictionData.setIncoming(incomingShipmentValues);
 			predictionData.setOutgoing(outgoingShipmentValues);
@@ -483,11 +485,13 @@ public class ProductPredictionServiceImpl {
 			orderData.setOrderId(productQuantityMap.get(product.getProductId()).getOrderId());
 			orderData.setCustomer(getCustomer(allCustomer,productQuantityMap.get(product.getProductId()).getCustomer()));
 			orderData.setFixed(productQuantityMap.get(product.getProductId()).isOrderFixed());
+			orderData.setDelayed(productQuantityMap.get(product.getProductId()).isDelayed());
 			orderData.setFulfilled(productQuantityMap.get(product.getProductId()).isOutgoingFulfilment());
 			orderData.setQuantity(productQuantityMap.get(product.getProductId()).getRequiredQuantity());
 			orderData.setProposalNo(productQuantityMap.get(product.getProductId()).getProposalNo());
 			outgoingShipmentValues.setQuantity(productQuantityMap.get(product.getProductId()).getRequiredQuantity());
 			outgoingShipmentValues.setFixed(productQuantityMap.get(product.getProductId()).isOutgoingFixed());
+			outgoingShipmentValues.setDelayed(productQuantityMap.get(product.getProductId()).isDelayed());
 			outgoingShipmentValues.setFulfilled(productQuantityMap.get(product.getProductId()).isOutgoingFulfilment()?1:0);
 			orderDataList.add(orderData);
 		}else {
@@ -495,11 +499,13 @@ public class ProductPredictionServiceImpl {
 			orderData.setOrderId(productDetails.get(product.getProductId()).get(0).getOrderId());
 			orderData.setCustomer(getCustomer(allCustomer,productDetails.get(product.getProductId()).get(0).getCustomer()));
 			orderData.setFixed(productDetails.get(product.getProductId()).get(0).isOrderFixed());
+			orderData.setDelayed(productDetails.get(product.getProductId()).get(0).isDelayed());
 			orderData.setFulfilled(productDetails.get(product.getProductId()).get(0).isOutgoingFulfilment());
 			orderData.setQuantity(productDetails.get(product.getProductId()).get(0).getRequiredQuantity());
 			orderData.setProposalNo(productDetails.get(product.getProductId()).get(0).getProposalNo());
 			outgoingShipmentValues.setQuantity(productDetails.get(product.getProductId()).get(0).getRequiredQuantity());
 			outgoingShipmentValues.setFixed(productDetails.get(product.getProductId()).get(0).isOutgoingFixed());
+			outgoingShipmentValues.setDelayed(productDetails.get(product.getProductId()).get(0).isDelayed());
 			outgoingShipmentValues.setFulfilled(productDetails.get(product.getProductId()).get(0).isOutgoingFulfilment()?1:0);
 			orderDataList.add(orderData);
 
@@ -528,6 +534,7 @@ public class ProductPredictionServiceImpl {
 		outgoingShipmentValues.setQuantity(0);
 		outgoingShipmentValues.setFixed(true);
 		outgoingShipmentValues.setFulfilled(0);
+		outgoingShipmentValues.setDelayed(true);
 		predictionData.setOutgoing(outgoingShipmentValues);
 		incomingShipmentValues.setQuantity(0);
 		incomingShipmentValues.setFixed(true);
@@ -571,6 +578,7 @@ public class ProductPredictionServiceImpl {
 		int requiredQuantity =0;
 		int currentQuantity =0;
 		boolean outgoingFixed = true;
+		boolean outgoingDelayed = true;
 		List<OrderData>orderDataList =new ArrayList<>();
 		List<Boolean>outgoingFulfilList =new ArrayList<>();
 		for(int i=0;i < orderedTimes.size();i++) {
@@ -579,6 +587,7 @@ public class ProductPredictionServiceImpl {
 			orderData.setCustomer(getCustomer(allCustomer, orderedTimes.get(i).getCustomer()));
 			orderData.setFixed(orderedTimes.get(i).isOrderFixed());
 			orderData.setFulfilled(orderedTimes.get(i).isOutgoingFulfilment());
+			orderData.setDelayed(orderedTimes.get(i).isDelayed());
 			outgoingFulfilList.add(orderedTimes.get(i).isOutgoingFulfilment());
 			orderData.setQuantity(orderedTimes.get(i).getRequiredQuantity());
 			orderData.setProposalNo(orderedTimes.get(i).getProposalNo());
@@ -587,6 +596,9 @@ public class ProductPredictionServiceImpl {
 			currentQuantity=orderedTimes.get(i).getAvailableStockQuantity();
 			if(!orderedTimes.get(i).isOutgoingFixed()&& outgoingFixed==true) {
 				outgoingFixed=false;
+			}
+			if(!orderedTimes.get(i).isDelayed()&& outgoingFixed==true) {
+				outgoingDelayed=false;
 			}
 		}
 
@@ -597,6 +609,7 @@ public class ProductPredictionServiceImpl {
 		outgoingShipmentValues.setQuantity(requiredQuantity);
 		outgoingShipmentValues.setFixed(outgoingFixed);
 		outgoingShipmentValues.setFulfilled(0);
+		outgoingShipmentValues.setDelayed(outgoingDelayed);
 		outgoingShipmentValues.setOrders(orderDataList);
 		if(outgoingFulfilList.contains(true)&&outgoingFulfilList.contains(false)) {
 			outgoingShipmentValues.setFulfilled(2);
@@ -786,6 +799,7 @@ public class ProductPredictionServiceImpl {
 		mappingFields.setOrderFixed(individualOrder.isFixed());
 		mappingFields.setProposalNo(individualOrder.getProposalNo());
 		mappingFields.setOutgoingFulfilment(false);
+		mappingFields.setDelayed(individualOrder.getDueDate().isAfter(LocalDateTime.now()));
 		stockQuantity=individualProduct.getProduct().getQuantity();
 		updateStockValues(individualProduct.getProduct(),stockQuantity,orderdQunatity,
 				dueDate,mappingFields,productQuantityMap,incomingShipmentMap,incomingShipment,allProduct,allProductSet);
@@ -811,6 +825,7 @@ public class ProductPredictionServiceImpl {
 		mappingFields.setCustomer(individualOrder.getCustomerId());
 		mappingFields.setOrderFixed(individualOrder.isFixed());
 		mappingFields.setOutgoingFulfilment(false);
+		mappingFields.setDelayed(individualOrder.getDueDate().isAfter(LocalDateTime.now()));
 		updateStockValues(productValue,stockQuantity,orderdQunatity,dueDate,mappingFields,
 				productQuantityMap,incomingShipmentMap,incomingShipment, allProduct, allProductSet);
 		multipleProductOrder(productDetails,productCheck.getProduct().getProductId(),mappingFields);    
@@ -986,7 +1001,7 @@ public class ProductPredictionServiceImpl {
 
 	private List<Order> getUnfulfilledActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
-				.filter(predicate->predicate.isActive() && !predicate.isFulfilled() 
+				.filter(predicate->predicate.isActive() && !predicate.isFulfilled() &&!predicate.isFixed() 
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
 						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
@@ -995,7 +1010,7 @@ public class ProductPredictionServiceImpl {
 
 	private List<Order> getFulfilledActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
-				.filter(predicate->predicate.isActive() && predicate.isFulfilled() 
+				.filter(predicate->predicate.isActive() && predicate.isFulfilled() &&!predicate.isFixed()
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
 						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());

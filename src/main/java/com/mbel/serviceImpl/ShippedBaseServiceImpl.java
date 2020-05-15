@@ -35,8 +35,8 @@ import com.mbel.model.ProductOutgoingShipmentModel;
 import com.mbel.model.ProductSet;
 import com.mbel.model.ProductSetModel;
 
-@Service("ProductPredictionServiceImpl")
-public class ProductPredictionServiceImpl {
+@Service("ShippedBaseServiceImpl")
+public class ShippedBaseServiceImpl {
 
 	@Autowired
 	ProductServiceImpl productServiceImpl;
@@ -184,27 +184,27 @@ public class ProductPredictionServiceImpl {
 		for(LocalDateTime dueDate=dueDateStart;dueDate.isBefore(dueDateEnd)||
 				dueDate.isEqual(dueDateEnd);dueDate=dueDate.plusDays(1)) {
 			boolean fixed=true;
-			List<Order> unfulfilledorder =getUnfulfilledActiveOrder(order,dueDate);
+			List<Order> unfulfilledorder =getUnfulfilledDisplayedActiveOrder(order,dueDate);
 			List<Integer>productIdList =new ArrayList<>();
 			PredictionData predictionData=new PredictionData();
 			int incomingQuantity =0;
 			Map<Integer,List<Mappingfields>>productDetails=new HashMap<>();
 			Map<Integer,Mappingfields>arrivedIncomingDetails=new HashMap<>();
 			Map<Integer,List<Integer>>incomingShipmentMap=new HashMap<>();
-			if(!unfulfilledorder.isEmpty()) {
-				for(Order individualOrder:unfulfilledorder) {
-					List<FetchOrderdProducts> orderdProducts= getAllProducts(individualOrder,orderProduct,allProduct,allProductSet);
-					for(FetchOrderdProducts productCheck:orderdProducts) {
-						checkProductStatus(productDetails,productCheck, dueDate,
-								productQuantityMap, incomingShipmentMap,incomingShipment,
-								allProduct,allProductSet,individualOrder,productIdList);
-
-					}
-				}
-			}
-			if(unfulfilledorder.isEmpty()||!productIdList.contains(product.getProductId())) {
-				updateUnArrivedIncomingOrder(incomingQuantity,product,productQuantityMap,incomingShipment,dueDate,allProduct);
-			}
+//			if(!unfulfilledorder.isEmpty()) {
+//				for(Order individualOrder:unfulfilledorder) {
+//					List<FetchOrderdProducts> orderdProducts= getAllProducts(individualOrder,orderProduct,allProduct,allProductSet);
+//					for(FetchOrderdProducts productCheck:orderdProducts) {
+//						checkProductStatus(productDetails,productCheck, dueDate,
+//								productQuantityMap, incomingShipmentMap,incomingShipment,
+//								allProduct,allProductSet,individualOrder,productIdList);
+//
+//					}
+//				}
+//			}
+//			if(unfulfilledorder.isEmpty()||!productIdList.contains(product.getProductId())) {
+//				updateUnArrivedIncomingOrder(incomingQuantity,product,productQuantityMap,incomingShipment,dueDate,allProduct);
+//			}
 			List<Order> fulfilledorder =getFulfilledActiveOrder(order,dueDate);
 			if(!fulfilledorder.isEmpty()) {
 				updatefullfillOrder(productDetails,fulfilledorder,productQuantityMap,orderProduct,allProduct,allProductSet);
@@ -617,7 +617,7 @@ public class ProductPredictionServiceImpl {
 	private int productNumOrdered(List<Order> order, Product product, List<OrderProduct> orderProduct, List<Product> allProduct, List<ProductSet> allProductSet, LocalDateTime dueDate) {
 		List<FetchOrderdProducts> filteredProductSet=new ArrayList<>();
 		List<ProductSetModel> filteredProduct=new ArrayList<>();
-		List<Order> allOrder=getAllActiveOrder(order, dueDate);
+		List<Order> allOrder=getFulfilledActiveOrder(order, dueDate);
 		if(!allOrder.isEmpty()) {
 			for(Order individualOrder:allOrder) {
 				List<FetchOrderdProducts> orderdProducts= getAllProducts(individualOrder,orderProduct,allProduct,allProductSet);
@@ -984,9 +984,9 @@ public class ProductPredictionServiceImpl {
 
 
 
-	private List<Order> getUnfulfilledActiveOrder(List<Order> order, LocalDateTime dueDate) {
+	private List<Order> getUnfulfilledDisplayedActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
-				.filter(predicate->predicate.isActive() && !predicate.isFulfilled() 
+				.filter(predicate->predicate.isActive() && !predicate.isFulfilled() &&predicate.isDisplay() 
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
 						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
@@ -995,7 +995,7 @@ public class ProductPredictionServiceImpl {
 
 	private List<Order> getFulfilledActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
-				.filter(predicate->predicate.isActive() && predicate.isFulfilled() 
+				.filter(predicate->predicate.isActive() && predicate.isFulfilled()
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
 						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());

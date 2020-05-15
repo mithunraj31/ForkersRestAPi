@@ -451,6 +451,8 @@ class Mappingfields{
 	private List<Integer> individualIncomingQty;
 	
 	private List<String> branch;
+	
+	private boolean delayed;
 
 	public int getCurrentQuantity() {
 		return currentQuantity;
@@ -627,6 +629,14 @@ class Mappingfields{
 
 	public void setBranch(List<String> branch) {
 		this.branch = branch;
+	}
+
+	public boolean isDelayed() {
+		return delayed;
+	}
+
+	public void setDelayed(boolean delayed) {
+		this.delayed = delayed;
 	}
 
 
