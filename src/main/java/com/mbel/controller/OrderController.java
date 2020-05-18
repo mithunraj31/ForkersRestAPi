@@ -66,7 +66,35 @@ public class  OrderController{
 
 	}
 	
+	@PostMapping("/order/display/")
+	public Order displayOrder(@Valid @RequestBody OrderDisplay orderDisplay){
+		return orderServiceImpl.orderDisplay(orderDisplay.getOrderId(),orderDisplay.isDisplay());
+	}
 }
 
+
+class OrderDisplay {
+	
+	private int orderId;
+	
+	private boolean display;
+
+	public int getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(int orderId) {
+		this.orderId = orderId;
+	}
+
+	public boolean isDisplay() {
+		return display;
+	}
+
+	public void setDisplay(boolean display) {
+		this.display = display;
+	}
+
+}
 
 

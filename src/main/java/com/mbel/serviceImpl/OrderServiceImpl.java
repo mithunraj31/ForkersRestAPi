@@ -181,7 +181,6 @@ public class OrderServiceImpl  {
 		order.setUserId(jwt.getUserdetails().getUserId());
 		order.setSalesUserId(newOrderSet.getSalesUserId());
 		order.setEditReason(newOrderSet.getEditReason());
-		order.setDisplay(newOrderSet.isDisplay());
 		orderupdate=orderDao.save(order);
 		orderedId  = order.getOrderId();
 		}
@@ -297,6 +296,14 @@ public class OrderServiceImpl  {
 				.filter(predicate->!predicate.isActive()||predicate.isFulfilled())
 				.collect(Collectors.toList());
 	
+	}
+
+	public Order orderDisplay(int orderId,boolean display) {
+		Order order = orderDao.findById(orderId).orElse(null);
+		if(Objects.nonNull(order)) {
+			order.setDisplay(display);
+		}
+		return orderDao.save(order);
 	}
 	
 	
