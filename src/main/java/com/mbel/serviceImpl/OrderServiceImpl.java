@@ -95,6 +95,7 @@ public class OrderServiceImpl  {
 			populate.setCustomer(getCustomer(customerList,order.getCustomerId()));
 			populate.setSalesDestination(getCustomer(customerList,order.getSalesDestinationId()));
 			populate.setContractor(getCustomer(customerList,order.getContractorId()));
+			populate.setDisplay(order.isDisplay());
 			populate.setOrderedProducts(productPredictionServiceImpl.getAllProducts(order,orderProduct,allProduct,allProductSet));
 			populateList.add(populate);
 		}
@@ -302,8 +303,9 @@ public class OrderServiceImpl  {
 		Order order = orderDao.findById(orderId).orElse(null);
 		if(Objects.nonNull(order)) {
 			order.setDisplay(display);
+			orderDao.save(order);
 		}
-		return orderDao.save(order);
+		return order;
 	}
 	
 	
