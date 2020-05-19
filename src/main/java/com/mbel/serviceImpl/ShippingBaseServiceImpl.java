@@ -308,7 +308,7 @@ public class ShippingBaseServiceImpl {
 		mappingFields.setProposalNo(individualOrder.getProposalNo());
 		mappingFields.setOutgoingFulfilment(true);
 		mappingFields.setAvailableStockQuantity(availableQuantity);
-		mappingFields.setDelayed(individualOrder.getDueDate().isAfter(LocalDateTime.now()));
+		mappingFields.setDelayed(!individualOrder.getDueDate().isAfter(LocalDateTime.now()));
 		multipleProductOrder(productDetails,individualProduct.getProduct().getProductId(),mappingFields);
 
 	}
@@ -331,7 +331,7 @@ public class ShippingBaseServiceImpl {
 		mappingFields.setOrderFixed(individualOrder.isFixed());
 		mappingFields.setAvailableStockQuantity(availableQuantity);
 		mappingFields.setOutgoingFulfilment(true);
-		mappingFields.setDelayed(individualOrder.getDueDate().isAfter(LocalDateTime.now()));
+		mappingFields.setDelayed(!individualOrder.getDueDate().isAfter(LocalDateTime.now()));
 		multipleProductOrder(productDetails,product.getProduct().getProductId(),mappingFields);    
 
 
@@ -799,7 +799,7 @@ public class ShippingBaseServiceImpl {
 		mappingFields.setOrderFixed(individualOrder.isFixed());
 		mappingFields.setProposalNo(individualOrder.getProposalNo());
 		mappingFields.setOutgoingFulfilment(false);
-		mappingFields.setDelayed(individualOrder.getDueDate().isAfter(LocalDateTime.now()));
+		mappingFields.setDelayed(!individualOrder.getDueDate().isAfter(LocalDateTime.now()));
 		stockQuantity=individualProduct.getProduct().getQuantity();
 		updateStockValues(individualProduct.getProduct(),stockQuantity,orderdQunatity,
 				dueDate,mappingFields,productQuantityMap,incomingShipmentMap,incomingShipment,allProduct,allProductSet);
@@ -825,7 +825,7 @@ public class ShippingBaseServiceImpl {
 		mappingFields.setCustomer(individualOrder.getCustomerId());
 		mappingFields.setOrderFixed(individualOrder.isFixed());
 		mappingFields.setOutgoingFulfilment(false);
-		mappingFields.setDelayed(individualOrder.getDueDate().isAfter(LocalDateTime.now()));
+		mappingFields.setDelayed(!individualOrder.getDueDate().isAfter(LocalDateTime.now()));
 		updateStockValues(productValue,stockQuantity,orderdQunatity,dueDate,mappingFields,
 				productQuantityMap,incomingShipmentMap,incomingShipment, allProduct, allProductSet);
 		multipleProductOrder(productDetails,productCheck.getProduct().getProductId(),mappingFields);    
@@ -1001,7 +1001,7 @@ public class ShippingBaseServiceImpl {
 
 	private List<Order> getUnfulfilledActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
-				.filter(predicate->predicate.isActive() && !predicate.isFulfilled() &&!predicate.isFixed() 
+				.filter(predicate->predicate.isActive() && !predicate.isFulfilled() &&predicate.isFixed() 
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
 						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
@@ -1010,7 +1010,7 @@ public class ShippingBaseServiceImpl {
 
 	private List<Order> getFulfilledActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
-				.filter(predicate->predicate.isActive() && predicate.isFulfilled() &&!predicate.isFixed()
+				.filter(predicate->predicate.isActive() && predicate.isFulfilled() &&predicate.isFixed()
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
 						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
@@ -1018,7 +1018,7 @@ public class ShippingBaseServiceImpl {
 
 	private List<Order> getAllActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
-				.filter(predicate->predicate.isActive()
+				.filter(predicate->predicate.isActive()&&predicate.isFixed()
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
 						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());

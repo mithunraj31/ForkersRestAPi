@@ -33,6 +33,8 @@ public class OrderModel{
 	    private boolean fixed;
 	    
 	    private boolean display;
+	    
+	    private boolean delayed;
 
 		public int getOrderId() {
 			return orderId;
@@ -152,6 +154,14 @@ public class OrderModel{
 
 		public void setDisplay(boolean display) {
 			this.display = display;
+		}
+
+		public boolean isDelayed() {
+			return delayed;
+		}
+
+		public void setDelayed(boolean delayed) {
+			this.delayed = delayed;
 		}
 
 

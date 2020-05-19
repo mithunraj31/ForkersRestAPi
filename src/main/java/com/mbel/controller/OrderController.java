@@ -70,6 +70,12 @@ public class  OrderController{
 	public Order displayOrder(@Valid @RequestBody OrderDisplay orderDisplay){
 		return orderServiceImpl.orderDisplay(orderDisplay.getOrderId(),orderDisplay.isDisplay());
 	}
+	
+	@GetMapping("/order/delayed/count/")
+	public List<Order> delayedOrderCount() {
+		return orderServiceImpl.getDelayedOrderCount();
+	}
+	
 }
 
 

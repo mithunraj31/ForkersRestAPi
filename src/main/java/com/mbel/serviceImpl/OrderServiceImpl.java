@@ -96,6 +96,7 @@ public class OrderServiceImpl  {
 			populate.setSalesDestination(getCustomer(customerList,order.getSalesDestinationId()));
 			populate.setContractor(getCustomer(customerList,order.getContractorId()));
 			populate.setDisplay(order.isDisplay());
+			populate.setDelayed(!order.getDueDate().isAfter(LocalDateTime.now()));
 			populate.setOrderedProducts(productPredictionServiceImpl.getAllProducts(order,orderProduct,allProduct,allProductSet));
 			populateList.add(populate);
 		}
@@ -128,6 +129,7 @@ public class OrderServiceImpl  {
 		populate.setEditReason(order.getEditReason());
 		populate.setCreatedAt(order.getCreatedAt());
 		populate.setUpdatedAt(order.getUpdatedAt());
+		populate.setDelayed(!order.getDueDate().isAfter(LocalDateTime.now()));
 		populate.setCustomer(getCustomer(customerList,order.getCustomerId()));
 		populate.setSalesDestination(getCustomer(customerList,order.getSalesDestinationId()));
 		populate.setContractor(getCustomer(customerList,order.getContractorId()));
@@ -305,6 +307,14 @@ public class OrderServiceImpl  {
 			order.setDisplay(display);
 			orderDao.save(order);
 		}
+		return order;
+	}
+
+	public List<Order> getDelayedOrderCount() {
+		List<Order> order = orderDao.findAll().stream()
+		.filter(predicate->predicate.isActive() && !predicate.isFulfilled() 
+				&&predicate.isFixed()&&! predicate.getDeliveryDate().isAfter(LocalDateTime.now())) 
+		.collect(Collectors.toList());
 		return order;
 	}
 	
