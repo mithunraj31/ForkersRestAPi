@@ -1003,7 +1003,7 @@ public class KittingBaseServiceImpl {
 
 	private List<Order> getAllActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
-				.filter(predicate->predicate.isActive()
+				.filter(predicate->predicate.isActive()&&predicate.isDisplay()
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
 						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
