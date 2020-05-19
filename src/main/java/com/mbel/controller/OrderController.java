@@ -1,6 +1,7 @@
 package com.mbel.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -72,7 +73,7 @@ public class  OrderController{
 	}
 	
 	@GetMapping("/order/delayed/count/")
-	public List<Order> delayedOrderCount() {
+	public Map<String, Integer> delayedOrderCount() {
 		return orderServiceImpl.getDelayedOrderCount();
 	}
 	

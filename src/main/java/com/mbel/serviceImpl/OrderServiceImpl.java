@@ -2,7 +2,9 @@ package com.mbel.serviceImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -310,12 +312,14 @@ public class OrderServiceImpl  {
 		return order;
 	}
 
-	public List<Order> getDelayedOrderCount() {
+	public Map<String, Integer> getDelayedOrderCount() {
 		List<Order> order = orderDao.findAll().stream()
 		.filter(predicate->predicate.isActive() && !predicate.isFulfilled() 
 				&&predicate.isFixed()&&! predicate.getDeliveryDate().isAfter(LocalDateTime.now())) 
 		.collect(Collectors.toList());
-		return order;
+		Map<String, Integer> response = new HashMap<>();
+		response.put("count", order.size());
+		return response;
 	}
 	
 	
