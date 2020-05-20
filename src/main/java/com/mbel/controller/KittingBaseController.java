@@ -30,7 +30,7 @@ public class KittingBaseController {
 	
 	@GetMapping("/kitting/forecast/")
 	public List<ProductPredictionDto> productPrediction() {
-		 return kittingBaseServiceImpl.getProductPrediction(2020, 02);
+		 return kittingBaseServiceImpl.getProductPrediction(2020, 04);
 	}
 
 }
