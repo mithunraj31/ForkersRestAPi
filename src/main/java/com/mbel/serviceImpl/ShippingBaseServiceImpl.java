@@ -1002,8 +1002,8 @@ public class ShippingBaseServiceImpl {
 	private List<Order> getUnfulfilledActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
 				.filter(predicate->predicate.isActive() && !predicate.isFulfilled() &&predicate.isFixed() 
-						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
-						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
+						&&( predicate.getDueDate().getDayOfMonth()==dueDate.getDayOfMonth()
+						&& predicate.getDueDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
 
 	}
@@ -1011,16 +1011,16 @@ public class ShippingBaseServiceImpl {
 	private List<Order> getFulfilledActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
 				.filter(predicate->predicate.isActive() && predicate.isFulfilled() &&predicate.isFixed()
-						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
-						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
+						&&( predicate.getDueDate().getDayOfMonth()==dueDate.getDayOfMonth()
+						&& predicate.getDueDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
 	}
 
 	private List<Order> getAllActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
 				.filter(predicate->predicate.isActive()&&predicate.isFixed()
-						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
-						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
+						&&( predicate.getDueDate().getDayOfMonth()==dueDate.getDayOfMonth()
+						&& predicate.getDueDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
 	}
 
