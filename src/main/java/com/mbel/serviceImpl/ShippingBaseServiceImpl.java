@@ -308,7 +308,7 @@ public class ShippingBaseServiceImpl {
 		mappingFields.setProposalNo(individualOrder.getProposalNo());
 		mappingFields.setOutgoingFulfilment(true);
 		mappingFields.setAvailableStockQuantity(availableQuantity);
-		mappingFields.setDelayed(!individualOrder.getDueDate().isAfter(LocalDateTime.now()));
+		mappingFields.setDelayed(false);
 		multipleProductOrder(productDetails,individualProduct.getProduct().getProductId(),mappingFields);
 
 	}
@@ -331,7 +331,7 @@ public class ShippingBaseServiceImpl {
 		mappingFields.setOrderFixed(individualOrder.isFixed());
 		mappingFields.setAvailableStockQuantity(availableQuantity);
 		mappingFields.setOutgoingFulfilment(true);
-		mappingFields.setDelayed(!individualOrder.getDueDate().isAfter(LocalDateTime.now()));
+		mappingFields.setDelayed(false);
 		multipleProductOrder(productDetails,product.getProduct().getProductId(),mappingFields);    
 
 

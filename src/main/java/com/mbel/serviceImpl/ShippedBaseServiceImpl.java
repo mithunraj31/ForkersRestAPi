@@ -184,8 +184,8 @@ public class ShippedBaseServiceImpl {
 		for(LocalDateTime dueDate=dueDateStart;dueDate.isBefore(dueDateEnd)||
 				dueDate.isEqual(dueDateEnd);dueDate=dueDate.plusDays(1)) {
 			boolean fixed=true;
-			List<Order> unfulfilledorder =getUnfulfilledDisplayedActiveOrder(order,dueDate);
-			List<Integer>productIdList =new ArrayList<>();
+			//List<Order> unfulfilledorder =getUnfulfilledDisplayedActiveOrder(order,dueDate);
+			//List<Integer>productIdList =new ArrayList<>();
 			PredictionData predictionData=new PredictionData();
 			int incomingQuantity =0;
 			Map<Integer,List<Mappingfields>>productDetails=new HashMap<>();
@@ -405,22 +405,22 @@ public class ShippedBaseServiceImpl {
 			List<PredictionData> predictionDataList, int incomingQuantity, boolean fixed, Map<Integer, Mappingfields> arrivedIncomingDetails) {
 		List<IncomingOrderData>incomingOrderList = new ArrayList<>();
 		int incomingFinalQuantity=0;
-		if(productQuantityMap!=null&&productQuantityMap.get(product.getProductId())!=null) {
-			List<Integer>incomingOrderIdList=productQuantityMap.get(product.getProductId()).getIncomingOrderId();
-			if(incomingOrderIdList!=null) {
-				for(int i=0;i<incomingOrderIdList.size();i++) {
-					IncomingOrderData incomingOrderData =new IncomingOrderData();
-					incomingOrderData.setIncomingshipmentId(incomingOrderIdList.get(i));
-					incomingOrderData.setShipmentNo(productQuantityMap.get(product.getProductId()).getShipmnetNo().get(i));
-					incomingOrderData.setQuantity(productQuantityMap.get(product.getProductId()).getIndividualIncomingQty().get(i));
-					incomingFinalQuantity+=productQuantityMap.get(product.getProductId()).getIndividualIncomingQty().get(i);
-					incomingOrderData.setFixed(productQuantityMap.get(product.getProductId()).getIncomingFixed().get(i));
-					incomingOrderData.setFulfilled(productQuantityMap.get(product.getProductId()).getIncomingFulfilment().get(i));
-					incomingOrderData.setBranch(productQuantityMap.get(product.getProductId()).getBranch().get(i));
-					incomingOrderList.add(incomingOrderData);
-				}
-			}
-		}
+//		if(productQuantityMap!=null&&productQuantityMap.get(product.getProductId())!=null) {
+//			List<Integer>incomingOrderIdList=productQuantityMap.get(product.getProductId()).getIncomingOrderId();
+//			if(incomingOrderIdList!=null) {
+//				for(int i=0;i<incomingOrderIdList.size();i++) {
+//					IncomingOrderData incomingOrderData =new IncomingOrderData();
+//					incomingOrderData.setIncomingshipmentId(incomingOrderIdList.get(i));
+//					incomingOrderData.setShipmentNo(productQuantityMap.get(product.getProductId()).getShipmnetNo().get(i));
+//					incomingOrderData.setQuantity(productQuantityMap.get(product.getProductId()).getIndividualIncomingQty().get(i));
+//					incomingFinalQuantity+=productQuantityMap.get(product.getProductId()).getIndividualIncomingQty().get(i);
+//					incomingOrderData.setFixed(productQuantityMap.get(product.getProductId()).getIncomingFixed().get(i));
+//					incomingOrderData.setFulfilled(productQuantityMap.get(product.getProductId()).getIncomingFulfilment().get(i));
+//					incomingOrderData.setBranch(productQuantityMap.get(product.getProductId()).getBranch().get(i));
+//					incomingOrderList.add(incomingOrderData);
+//				}
+//			}
+//		}
 		if(arrivedIncomingDetails.containsKey(product.getProductId())) {
 			for(int i=0;i<arrivedIncomingDetails.get(product.getProductId()).getIncomingOrderId().size();i++) {
 				IncomingOrderData incomingOrderData =new IncomingOrderData();
@@ -436,9 +436,9 @@ public class ShippedBaseServiceImpl {
 		}
 		if(numOrdered > 1) {
 			updateMultipleOrderStockValues(productDetails,predictionData,product,allCustomer,dueDate,incomingOrderList,incomingFinalQuantity);
-		}else if(numOrdered==0&&productQuantityMap!=null&&productQuantityMap.containsKey(product.getProductId())) {
+		}else if(numOrdered==0) {
 			updateNoOrderStockValue(predictionData,productQuantityMap,dueDate,product,incomingOrderList,incomingFinalQuantity);
-		}else if(productQuantityMap!=null&&productQuantityMap.containsKey(product.getProductId())){
+		}else if(numOrdered==1){
 			updateSingleOrderStockValue(predictionData,productQuantityMap,dueDate,product,allCustomer,
 					incomingOrderList,incomingFinalQuantity,productDetails);
 		}else {
@@ -478,19 +478,7 @@ public class ShippedBaseServiceImpl {
 		ProductIncomingShipmentModel incomingShipmentValues =new ProductIncomingShipmentModel();
 		ProductOutgoingShipmentModel outgoingShipmentValues =new ProductOutgoingShipmentModel();
 		List<OrderData>orderDataList =new ArrayList<>();
-		if(productDetails.isEmpty()) {
-			OrderData orderData = new OrderData();
-			orderData.setOrderId(productQuantityMap.get(product.getProductId()).getOrderId());
-			orderData.setCustomer(getCustomer(allCustomer,productQuantityMap.get(product.getProductId()).getCustomer()));
-			orderData.setFixed(productQuantityMap.get(product.getProductId()).isOrderFixed());
-			orderData.setFulfilled(productQuantityMap.get(product.getProductId()).isOutgoingFulfilment());
-			orderData.setQuantity(productQuantityMap.get(product.getProductId()).getRequiredQuantity());
-			orderData.setProposalNo(productQuantityMap.get(product.getProductId()).getProposalNo());
-			outgoingShipmentValues.setQuantity(productQuantityMap.get(product.getProductId()).getRequiredQuantity());
-			outgoingShipmentValues.setFixed(productQuantityMap.get(product.getProductId()).isOutgoingFixed());
-			outgoingShipmentValues.setFulfilled(productQuantityMap.get(product.getProductId()).isOutgoingFulfilment()?1:0);
-			orderDataList.add(orderData);
-		}else {
+		if(!productDetails.isEmpty()) {
 			OrderData orderData = new OrderData();
 			orderData.setOrderId(productDetails.get(product.getProductId()).get(0).getOrderId());
 			orderData.setCustomer(getCustomer(allCustomer,productDetails.get(product.getProductId()).get(0).getCustomer()));
@@ -505,7 +493,7 @@ public class ShippedBaseServiceImpl {
 
 		}
 		predictionData.setDate(dueDate);
-		predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getAvailableStockQuantity());
+		predictionData.setCurrentQuantity(product.getQuantity());
 
 		outgoingShipmentValues.setOrders(orderDataList);
 		predictionData.setOutgoing(outgoingShipmentValues);
@@ -523,7 +511,7 @@ public class ShippedBaseServiceImpl {
 		ProductIncomingShipmentModel incomingShipmentValues =new ProductIncomingShipmentModel();
 		ProductOutgoingShipmentModel outgoingShipmentValues =new ProductOutgoingShipmentModel();
 		predictionData.setDate(dueDate);
-		predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getAvailableStockQuantity());
+		predictionData.setCurrentQuantity(product.getQuantity());
 		predictionData.setQuantity(product.getQuantity());
 		outgoingShipmentValues.setQuantity(0);
 		outgoingShipmentValues.setFixed(true);
@@ -987,8 +975,8 @@ public class ShippedBaseServiceImpl {
 	private List<Order> getUnfulfilledDisplayedActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
 				.filter(predicate->predicate.isActive() && !predicate.isFulfilled() &&predicate.isDisplay() 
-						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
-						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
+						&&( predicate.getDueDate().getDayOfMonth()==dueDate.getDayOfMonth()
+						&& predicate.getDueDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
 
 	}
@@ -996,18 +984,11 @@ public class ShippedBaseServiceImpl {
 	private List<Order> getFulfilledActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
 				.filter(predicate->predicate.isActive() && predicate.isFulfilled()
-						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
-						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
+						&&( predicate.getDueDate().getDayOfMonth()==dueDate.getDayOfMonth()
+						&& predicate.getDueDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
 	}
 
-	private List<Order> getAllActiveOrder(List<Order> order, LocalDateTime dueDate) {
-		return order.stream()
-				.filter(predicate->predicate.isActive()
-						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
-						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
-				.collect(Collectors.toList());
-	}
 
 	public List<FetchIncomingOrderdProducts> getAllArrivedDueDateIncomingShipment(
 			List<IncomingShipment> incomingShipment, 
