@@ -63,15 +63,15 @@ public class OrderServiceImpl  {
 	 JwtAuthenticationFilter jwt;
 	
 
-	public List<Order> getActiveUnfulfilledOrders() {
+	public List<Order> getActiveOrders() {
 		List<Order>order =orderDao.findAll(); 
 		return order.stream()
-				.filter(predicate->predicate.isActive()&&!predicate.isFulfilled())
+				.filter(Order::isActive)
 				.collect(Collectors.toList());
 	}
 
 	public List<PopulateOrderDto> getAllOrders() {
-		List<Order>activeOrder =getActiveUnfulfilledOrders();
+		List<Order>activeOrder =getActiveOrders();
 		List<UserEntity> userList = userDao.findAll();
 		List<Customer> customerList = customerDao.findAll();
 		List<Product> allProduct = productDao.findAll();

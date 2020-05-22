@@ -115,7 +115,7 @@ public class IncomingShipmentServiceImpl  {
 	public List<FetchIncomingOrderdProducts> getAllIncomingShipment() {
 		List<FetchIncomingOrderdProducts> incomingShipmentDtoList = new ArrayList<>(); 
 		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll().stream()
-				.filter(predicate->predicate.isActive()&&!predicate.isArrived())
+				.filter(predicate->predicate.isActive())
 				.collect(Collectors.toList());
 		List<UserEntity> userEntityList = userDao.findAll();
 		List<Product> allProducts = productDao.findAll();
