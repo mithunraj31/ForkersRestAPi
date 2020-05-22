@@ -77,7 +77,37 @@ public class  OrderController{
 		return orderServiceImpl.getDelayedOrderCount();
 	}
 	
+	@PostMapping("/order/confirm/")
+	public Order confirmOrder(@Valid @RequestBody ConfirmOrder orderDisplay){
+		return orderServiceImpl.orderConfirm(orderDisplay.getOrderId(),orderDisplay.isConfirm());
+	}
+	
 }
+
+class ConfirmOrder {
+	
+	private int orderId;
+	
+	private boolean confirm;
+
+	public int getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(int orderId) {
+		this.orderId = orderId;
+	}
+
+	public boolean isConfirm() {
+		return confirm;
+	}
+
+	public void setConfirm(boolean confirm) {
+		this.confirm = confirm;
+	}
+
+	
+	}
 
 
 class OrderDisplay {

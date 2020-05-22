@@ -321,6 +321,15 @@ public class OrderServiceImpl  {
 		response.put("count", order.size());
 		return response;
 	}
+
+	public Order orderConfirm(int orderId, boolean confirm) {
+		Order order = orderDao.findById(orderId).orElse(null);
+		if(Objects.nonNull(order)) {
+			order.setFixed(confirm);
+			orderDao.save(order);
+		}
+		return order;
+	}
 	
 	
 }
