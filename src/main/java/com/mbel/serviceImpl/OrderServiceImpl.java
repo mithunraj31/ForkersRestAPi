@@ -260,7 +260,7 @@ public class OrderServiceImpl  {
 	}
 
 	public List<PopulateOrderDto> getAllFulfilledOrders() {
-		List<Order>activeOrder =getInActivefulfilledOrders();
+		List<Order>activeOrder =getfulfilledOrders();
 		List<UserEntity> userList = userDao.findAll();
 		List<Customer> customerList = customerDao.findAll();
 		List<Product> allProduct = productDao.findAll();
@@ -295,10 +295,10 @@ public class OrderServiceImpl  {
 
 	}
 
-	private List<Order> getInActivefulfilledOrders() {
+	private List<Order> getfulfilledOrders() {
 		List<Order>order =orderDao.findAll(); 
 		return order.stream()
-				.filter(predicate->!predicate.isActive()||predicate.isFulfilled())
+				.filter(predicate->predicate.isFulfilled())
 				.collect(Collectors.toList());
 	
 	}
