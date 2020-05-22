@@ -83,6 +83,7 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 				product.setPrice(product.getPrice()-incomingProduct.getPrice());
 				productDao.save(product);
 				incoming.setArrived(false);
+				incoming.setActive(true);
 			}
 			}
 			incomingShipmentDao.save(incoming);	
