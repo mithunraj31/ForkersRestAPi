@@ -22,6 +22,7 @@ import com.mbel.dao.UserDao;
 import com.mbel.dto.FetchIncomingOrderdProducts;
 import com.mbel.dto.FetchProductSetDto;
 import com.mbel.model.IncomingShipment;
+import com.mbel.model.Order;
 import com.mbel.model.Product;
 import com.mbel.model.UserEntity;
 
@@ -380,6 +381,15 @@ public class IncomingShipmentServiceImpl  {
 
 			return incomingShipmentDtoList;
 		
+		}
+
+		public IncomingShipment undoConfirmedIncomingOrder(int incomingShipmentId, boolean confirm) {
+			IncomingShipment incomingShipment = incomingShipmentDao.findById(incomingShipmentId).orElse(null);
+			if(Objects.nonNull(incomingShipment)) {
+				incomingShipment.setFixed(confirm);
+				incomingShipmentDao.save(incomingShipment);
+			}
+			return incomingShipment;
 		}
 
 	}

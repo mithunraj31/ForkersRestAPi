@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mbel.dto.FetchIncomingOrderdProducts;
 import com.mbel.model.IncomingShipment;
+import com.mbel.model.Order;
 import com.mbel.serviceImpl.IncomingShipmentServiceImpl;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -69,6 +70,34 @@ public class  IncomingShipmentController{
 
 	}
 	
+	@PostMapping("/shipment/incoming/confirm/")
+	public IncomingShipment undoConfirmOrder(@Valid @RequestBody UndoConfirmedIncomingOrder incomingOrderDisplay){
+		return incomingShipmentServiceImpl.undoConfirmedIncomingOrder(incomingOrderDisplay.getIncomingShipmentId(),incomingOrderDisplay.isConfirm());
+	}
+	
+}
+
+class UndoConfirmedIncomingOrder {
+	
+	private int incomingShipmentId;
+	
+	private boolean confirm;
+
+	public int getIncomingShipmentId() {
+		return incomingShipmentId;
+	}
+
+	public void setIncomingShipmentId(int incomingShipmentId) {
+		this.incomingShipmentId = incomingShipmentId;
+	}
+
+	public boolean isConfirm() {
+		return confirm;
+	}
+
+	public void setConfirm(boolean confirm) {
+		this.confirm = confirm;
+	}
 }
 
 
