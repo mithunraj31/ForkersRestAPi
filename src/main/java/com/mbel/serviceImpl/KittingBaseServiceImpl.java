@@ -68,9 +68,9 @@ public class KittingBaseServiceImpl {
 	public List<ProductPredictionDto> getProductPrediction(int year,int month) {
 		List<Product> allProduct = getAllSortedProducts();
 		List<ProductSet> allProductSet =productSetDao.findAll();
-		List<Order>order =orderDao.findAll().stream().filter(Order::isActive).collect(Collectors.toList()); 
+		List<Order>order =orderDao.findAll(); 
 		List<OrderProduct>orderProduct =orderProductDao.findAll(); 
-		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll().stream().filter(IncomingShipment::isActive).collect(Collectors.toList()); 
+		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll(); 
 		List<Customer> allCustomer = customerDao.findAll();
 		return predictProduct(allCustomer,allProduct,allProductSet, order,orderProduct,incomingShipment,year,month);
 
@@ -205,7 +205,7 @@ public class KittingBaseServiceImpl {
 			if(unfulfilledorder.isEmpty()||!productIdList.contains(product.getProductId())) {
 				updateUnArrivedIncomingOrder(incomingQuantity,product,productQuantityMap,incomingShipment,dueDate,allProduct);
 			}
-			List<Order> fulfilledorder =getFulfilledActiveOrder(order,dueDate);
+			List<Order> fulfilledorder =getFulfilledOrder(order,dueDate);
 			if(!fulfilledorder.isEmpty()) {
 				updatefullfillOrder(productDetails,fulfilledorder,productQuantityMap,orderProduct,allProduct,allProductSet);
 			}
@@ -573,6 +573,7 @@ public class KittingBaseServiceImpl {
 		boolean outgoingFixed = true;
 		List<OrderData>orderDataList =new ArrayList<>();
 		List<Boolean>outgoingFulfilList =new ArrayList<>();
+		System.out.println("date("+dueDate+"--"+orderedTimes);
 		for(int i=0;i < orderedTimes.size();i++) {
 			OrderData orderData = new OrderData();
 			orderData.setOrderId(orderedTimes.get(i).getOrderId());
@@ -635,6 +636,7 @@ public class KittingBaseServiceImpl {
 				}
 			}
 		}
+		System.out.println("-------------"+dueDate+"iddddd"+filteredProduct.size()+filteredProductSet.size());
 		return filteredProduct.size()+filteredProductSet.size();
 
 	}
@@ -869,14 +871,16 @@ public class KittingBaseServiceImpl {
 		List<FetchIncomingOrderdProducts> incomingShipmentFixedList = new ArrayList<>();
 		List<FetchIncomingOrderdProducts> incomingShipmentDtoList =getAllIncomingShipment(incomingShipment,allProduct);
 		for(int i=0;i<incomingShipmentDtoList.size();i++) {
-			if(incomingShipmentDtoList.get(i).isFixed()&&!incomingShipmentDtoList.get(i).isArrived()) {
+			if(incomingShipmentDtoList.get(i).isFixed()&&!incomingShipmentDtoList.get(i).isArrived()
+					&&incomingShipmentDtoList.get(i).isActive()) {
 				if(incomingShipmentDtoList.get(i).getFixedDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()&&
 						incomingShipmentDtoList.get(i).getFixedDeliveryDate().getMonth()==dueDate.getMonth()) {
 					incomingShipmentFixedList.add(incomingShipmentDtoList.get(i));
 
 				}
 
-			}else if(!incomingShipmentDtoList.get(i).isFixed()&&!incomingShipmentDtoList.get(i).isArrived()) {
+			}else if(!incomingShipmentDtoList.get(i).isFixed()&&!incomingShipmentDtoList.get(i).isArrived()
+					&& incomingShipmentDtoList.get(i).isActive()) {
 				if(incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()&&
 						incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getMonth()==dueDate.getMonth()) {
 					incomingShipmentFixedList.add(incomingShipmentDtoList.get(i));
@@ -993,9 +997,9 @@ public class KittingBaseServiceImpl {
 
 	}
 
-	private List<Order> getFulfilledActiveOrder(List<Order> order, LocalDateTime dueDate) {
+	private List<Order> getFulfilledOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
-				.filter(predicate->predicate.isActive() && predicate.isFulfilled() &&predicate.isDisplay()
+				.filter(predicate->predicate.isFulfilled() &&predicate.isDisplay()
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
 						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
@@ -1003,7 +1007,8 @@ public class KittingBaseServiceImpl {
 
 	private List<Order> getAllActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
-				.filter(predicate->predicate.isActive()&&predicate.isDisplay()
+				.filter(predicate->((predicate.isActive()&& !predicate.isFulfilled()&&predicate.isDisplay())
+						||(predicate.isDisplay()&&predicate.isFulfilled()))
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
 						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());

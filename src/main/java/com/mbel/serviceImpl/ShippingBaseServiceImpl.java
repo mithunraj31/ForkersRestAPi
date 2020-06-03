@@ -68,9 +68,9 @@ public class ShippingBaseServiceImpl {
 	public List<ProductPredictionDto> getProductPrediction(int year,int month) {
 		List<Product> allProduct = getAllSortedProducts();
 		List<ProductSet> allProductSet =productSetDao.findAll();
-		List<Order>order =orderDao.findAll().stream().filter(Order::isActive).collect(Collectors.toList()); 
+		List<Order>order =orderDao.findAll(); 
 		List<OrderProduct>orderProduct =orderProductDao.findAll(); 
-		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll().stream().filter(IncomingShipment::isActive).collect(Collectors.toList()); 
+		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll(); 
 		List<Customer> allCustomer = customerDao.findAll();
 		return predictProduct(allCustomer,allProduct,allProductSet, order,orderProduct,incomingShipment,year,month);
 
@@ -205,7 +205,7 @@ public class ShippingBaseServiceImpl {
 			if(unfulfilledorder.isEmpty()||!productIdList.contains(product.getProductId())) {
 				updateUnArrivedIncomingOrder(incomingQuantity,product,productQuantityMap,incomingShipment,dueDate,allProduct);
 			}
-			List<Order> fulfilledorder =getFulfilledActiveOrder(order,dueDate);
+			List<Order> fulfilledorder =getFulfilledOrder(order,dueDate);
 			if(!fulfilledorder.isEmpty()) {
 				updatefullfillOrder(productDetails,fulfilledorder,productQuantityMap,orderProduct,allProduct,allProductSet);
 			}
@@ -884,14 +884,16 @@ public class ShippingBaseServiceImpl {
 		List<FetchIncomingOrderdProducts> incomingShipmentFixedList = new ArrayList<>();
 		List<FetchIncomingOrderdProducts> incomingShipmentDtoList =getAllIncomingShipment(incomingShipment,allProduct);
 		for(int i=0;i<incomingShipmentDtoList.size();i++) {
-			if(incomingShipmentDtoList.get(i).isFixed()&&!incomingShipmentDtoList.get(i).isArrived()) {
+			if(incomingShipmentDtoList.get(i).isFixed()&&!incomingShipmentDtoList.get(i).isArrived()
+					&&incomingShipmentDtoList.get(i).isActive()) {
 				if(incomingShipmentDtoList.get(i).getFixedDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()&&
 						incomingShipmentDtoList.get(i).getFixedDeliveryDate().getMonth()==dueDate.getMonth()) {
 					incomingShipmentFixedList.add(incomingShipmentDtoList.get(i));
 
 				}
 
-			}else if(!incomingShipmentDtoList.get(i).isFixed()&&!incomingShipmentDtoList.get(i).isArrived()) {
+			}else if(!incomingShipmentDtoList.get(i).isFixed()&&!incomingShipmentDtoList.get(i).isArrived()
+					&&incomingShipmentDtoList.get(i).isActive()) {
 				if(incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()&&
 						incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getMonth()==dueDate.getMonth()) {
 					incomingShipmentFixedList.add(incomingShipmentDtoList.get(i));
@@ -1008,9 +1010,9 @@ public class ShippingBaseServiceImpl {
 
 	}
 
-	private List<Order> getFulfilledActiveOrder(List<Order> order, LocalDateTime dueDate) {
+	private List<Order> getFulfilledOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
-				.filter(predicate->predicate.isActive() && predicate.isFulfilled() &&predicate.isFixed()
+				.filter(predicate->predicate.isFulfilled() &&predicate.isFixed()
 						&&( predicate.getDueDate().getDayOfMonth()==dueDate.getDayOfMonth()
 						&& predicate.getDueDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
@@ -1018,7 +1020,7 @@ public class ShippingBaseServiceImpl {
 
 	private List<Order> getAllActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
-				.filter(predicate->predicate.isActive()&&predicate.isFixed()
+				.filter(predicate->((predicate.isActive()&&predicate.isFixed())||predicate.isFulfilled())
 						&&( predicate.getDueDate().getDayOfMonth()==dueDate.getDayOfMonth()
 						&& predicate.getDueDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());
