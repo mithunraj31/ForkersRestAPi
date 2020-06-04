@@ -1,6 +1,5 @@
 package com.mbel.controller;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mbel.dto.PopulateOrderDto;
@@ -40,8 +40,9 @@ public class  OrderController{
 	}
 
 	@GetMapping("/order/")
-	public List<PopulateOrderDto> allOrder() {
-		return orderServiceImpl.getAllOrders();
+	@ResponseBody
+	public List<PopulateOrderDto> allOrder(@RequestParam Map<String,String> allParams){
+		return orderServiceImpl.getAllOrders(allParams);
 	}
 	
 	@GetMapping("/order/fulfilled/")
@@ -82,13 +83,6 @@ public class  OrderController{
 	@PostMapping("/order/confirm/")
 	public Order confirmOrder(@Valid @RequestBody ConfirmOrder orderDisplay){
 		return orderServiceImpl.orderConfirm(orderDisplay.getOrderId(),orderDisplay.isConfirm());
-	}
-	
-	@GetMapping("/order/sort/")
-	public List<PopulateOrderDto>  sortOrder(@RequestParam(defaultValue = "1") boolean fcst,
-			@RequestParam(defaultValue = "1") boolean wait ,@RequestParam(defaultValue = "1") boolean withKitting,
-			@RequestParam(defaultValue = "1") boolean withoutKitting) {
-		return orderServiceImpl.sortOrder(fcst,wait,withKitting,withoutKitting);
 	}
 	
 	
