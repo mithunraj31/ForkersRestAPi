@@ -1,5 +1,6 @@
 package com.mbel.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mbel.dto.PopulateOrderDto;
@@ -81,6 +83,14 @@ public class  OrderController{
 	public Order confirmOrder(@Valid @RequestBody ConfirmOrder orderDisplay){
 		return orderServiceImpl.orderConfirm(orderDisplay.getOrderId(),orderDisplay.isConfirm());
 	}
+	
+	@GetMapping("/order/sort/")
+	public List<PopulateOrderDto>  sortOrder(@RequestParam(defaultValue = "1") boolean fcst,
+			@RequestParam(defaultValue = "1") boolean wait ,@RequestParam(defaultValue = "1") boolean withKitting,
+			@RequestParam(defaultValue = "1") boolean withoutKitting) {
+		return orderServiceImpl.sortOrder(fcst,wait,withKitting,withoutKitting);
+	}
+	
 	
 }
 

@@ -156,8 +156,7 @@ public class OrderServiceImpl  {
 		.filter(predicate->predicate.getCustomerId()==customerId)
 		.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
             if (list.size() != 1) {
-            	Customer emptyCustomer=emptyCustomer();
-            	return emptyCustomer;
+            	return emptyCustomer();
             }
             return list.get(0);
         }));
@@ -337,6 +336,62 @@ public class OrderServiceImpl  {
 			orderDao.save(order);
 		}
 		return order;
+	}
+
+	public List<PopulateOrderDto> sortOrder(boolean fcst, boolean wait, boolean withKitting, boolean withoutKitting) {
+
+		List<Order>sortedOrder =getSortedOrders(fcst, wait,  withKitting,  withoutKitting);
+		List<UserEntity> userList = userDao.findAll();
+		List<Customer> customerList = customerDao.findAll();
+		List<Product> allProduct = productDao.findAll();
+		List<ProductSet> allProductSet =productSetDao.findAll();
+		List<OrderProduct>orderProduct =orderProductDao.findAll(); 
+		List<PopulateOrderDto>populateList =new ArrayList<>();
+		for(Order order:sortedOrder) {
+			PopulateOrderDto populate = new PopulateOrderDto();
+			populate.setOrderId(order.getOrderId());
+			populate.setProposalNo(order.getProposalNo());
+			populate.setReceivedDate(order.getReceivedDate());
+			populate.setDueDate(order.getDueDate());
+			populate.setDeliveryDate(order.getDeliveryDate());
+			populate.setActive(order.isActive());
+			populate.setForecast(order.isForecast());
+			populate.setFulfilled(order.isFulfilled());
+			populate.setFixed(order.isFixed());
+			populate.setUser(getUser(userList,order.getUserId()));
+			populate.setSalesUser(getUser(userList,order.getSalesUserId()));
+			populate.setEditReason(order.getEditReason());
+			populate.setCreatedAt(order.getCreatedAt());
+			populate.setUpdatedAt(order.getUpdatedAt());
+			populate.setCustomer(getCustomer(customerList,order.getCustomerId()));
+			populate.setSalesDestination(getCustomer(customerList,order.getSalesDestinationId()));
+			populate.setContractor(getCustomer(customerList,order.getContractorId()));
+			populate.setDisplay(order.isDisplay());
+			populate.setDelayed(!order.getDueDate().isAfter(LocalDateTime.now()));
+			populate.setOrderedProducts(productPredictionServiceImpl.getAllProducts(order,orderProduct,allProduct,allProductSet));
+			populateList.add(populate);
+		}
+
+		return populateList;
+
+	
+	}
+
+	private List<Order> getSortedOrders(boolean fcst, boolean wait, boolean withKitting, boolean withoutKitting) {
+		List<Order>order =orderDao.findAll(); 
+		if(withKitting) {
+		return order.stream()
+				.filter(predicate->predicate.isDisplay()==withKitting&&predicate.isForecast()==fcst
+				&&predicate.isFixed()==wait)
+				.collect(Collectors.toList());
+		}else {
+			return order.stream()
+					.filter(predicate->predicate.isDisplay()==withoutKitting&&predicate.isForecast()==fcst
+					&&predicate.isFixed()==wait)
+					.collect(Collectors.toList());
+			
+		}
+		
 	}
 	
 	
