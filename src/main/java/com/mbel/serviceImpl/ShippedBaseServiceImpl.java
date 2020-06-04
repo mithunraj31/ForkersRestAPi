@@ -450,23 +450,12 @@ public class ShippedBaseServiceImpl {
 			outgoingShipmentValues.setQuantity(0);
 			outgoingShipmentValues.setFixed(fixed);
 			outgoingShipmentValues.setFulfilled(0);
-			incomingShipmentValues.setQuantity(incomingQuantity);
-			incomingShipmentValues.setFixed(fixed);
-			incomingShipmentValues.setIncomingOrders(incomingOrderList);
-			predictionData.setIncoming(incomingShipmentValues);
 			predictionData.setOutgoing(outgoingShipmentValues);
-			if(incomingQuantity!=0&&productQuantityMap!=null) {
-				List<Boolean>fulfillmentList=productQuantityMap.get(product.getProductId()).getIncomingFulfilment();
-				if(fulfillmentList!=null) {
-					if(fulfillmentList.contains(true)&&fulfillmentList.contains(false)) {
-						incomingShipmentValues.setFulfilled(2);
-					}else if(fulfillmentList.contains(true)&&!fulfillmentList.contains(false)) {
-						incomingShipmentValues.setFulfilled(1);	
-					}else if(fulfillmentList.contains(false)&&!fulfillmentList.contains(true)) {
-						incomingShipmentValues.setFulfilled(0);	
-					}
-				}
-			}
+			incomingShipmentValues.setQuantity(0);
+			incomingShipmentValues.setFixed(true);
+			incomingShipmentValues.setIncomingOrders(incomingOrderList);
+			incomingQuantityUpdate(incomingFinalQuantity,incomingShipmentValues,incomingOrderList);
+			predictionData.setIncoming(incomingShipmentValues);
 		}
 
 		predictionDataList.add(predictionData);

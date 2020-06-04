@@ -440,7 +440,8 @@ public class ShippingBaseServiceImpl {
 			updateMultipleOrderStockValues(productDetails,predictionData,product,allCustomer,dueDate,incomingOrderList,incomingFinalQuantity);
 		}else if(numOrdered==0&&productQuantityMap!=null&&productQuantityMap.containsKey(product.getProductId())) {
 			updateNoOrderStockValue(predictionData,productQuantityMap,dueDate,product,incomingOrderList,incomingFinalQuantity);
-		}else if(productQuantityMap!=null&&productQuantityMap.containsKey(product.getProductId())){
+		}else if((productQuantityMap!=null&&productQuantityMap.containsKey(product.getProductId()))
+				||(productDetails!=null&&productDetails.containsKey(product.getProductId()))){
 			updateSingleOrderStockValue(predictionData,productQuantityMap,dueDate,product,allCustomer,
 					incomingOrderList,incomingFinalQuantity,productDetails);
 		}else {
@@ -453,22 +454,13 @@ public class ShippingBaseServiceImpl {
 			outgoingShipmentValues.setFixed(fixed);
 			outgoingShipmentValues.setFulfilled(0);
 			outgoingShipmentValues.setDelayed(fixed);
-			incomingShipmentValues.setQuantity(incomingQuantity);
+			incomingShipmentValues.setQuantity(incomingFinalQuantity);
 			incomingShipmentValues.setIncomingOrders(incomingOrderList);
-			predictionData.setIncoming(incomingShipmentValues);
 			predictionData.setOutgoing(outgoingShipmentValues);
-			if(incomingQuantity!=0&&productQuantityMap!=null) {
-				List<Boolean>fulfillmentList=productQuantityMap.get(product.getProductId()).getIncomingFulfilment();
-				if(fulfillmentList!=null) {
-					if(fulfillmentList.contains(true)&&fulfillmentList.contains(false)) {
-						incomingShipmentValues.setFulfilled(2);
-					}else if(fulfillmentList.contains(true)&&!fulfillmentList.contains(false)) {
-						incomingShipmentValues.setFulfilled(1);	
-					}else if(fulfillmentList.contains(false)&&!fulfillmentList.contains(true)) {
-						incomingShipmentValues.setFulfilled(0);	
-					}
-				}
-			}
+			incomingShipmentValues.setQuantity(0);
+			incomingShipmentValues.setFixed(true);
+			incomingQuantityUpdate(incomingFinalQuantity,incomingShipmentValues,incomingOrderList);
+			predictionData.setIncoming(incomingShipmentValues);
 		}
 
 		predictionDataList.add(predictionData);
@@ -494,6 +486,7 @@ public class ShippingBaseServiceImpl {
 			outgoingShipmentValues.setDelayed(productQuantityMap.get(product.getProductId()).isDelayed());
 			outgoingShipmentValues.setFulfilled(productQuantityMap.get(product.getProductId()).isOutgoingFulfilment()?1:0);
 			orderDataList.add(orderData);
+			predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getAvailableStockQuantity());
 		}else {
 			OrderData orderData = new OrderData();
 			orderData.setOrderId(productDetails.get(product.getProductId()).get(0).getOrderId());
@@ -508,10 +501,11 @@ public class ShippingBaseServiceImpl {
 			outgoingShipmentValues.setDelayed(productDetails.get(product.getProductId()).get(0).isDelayed());
 			outgoingShipmentValues.setFulfilled(productDetails.get(product.getProductId()).get(0).isOutgoingFulfilment()?1:0);
 			orderDataList.add(orderData);
+			predictionData.setCurrentQuantity(productDetails.get(product.getProductId()).get(0).getAvailableStockQuantity());
 
 		}
 		predictionData.setDate(dueDate);
-		predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getAvailableStockQuantity());
+		
 
 		outgoingShipmentValues.setOrders(orderDataList);
 		predictionData.setOutgoing(outgoingShipmentValues);
@@ -1020,7 +1014,8 @@ public class ShippingBaseServiceImpl {
 
 	private List<Order> getAllActiveOrder(List<Order> order, LocalDateTime dueDate) {
 		return order.stream()
-				.filter(predicate->((predicate.isActive()&&predicate.isFixed())||predicate.isFulfilled())
+				.filter(predicate->((predicate.isActive() && !predicate.isFulfilled() &&predicate.isFixed())
+						||(predicate.isFulfilled() &&predicate.isFixed()))
 						&&( predicate.getDueDate().getDayOfMonth()==dueDate.getDayOfMonth()
 						&& predicate.getDueDate().getMonth()==dueDate.getMonth()))
 				.collect(Collectors.toList());

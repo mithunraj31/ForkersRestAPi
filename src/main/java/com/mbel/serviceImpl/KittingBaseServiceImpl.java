@@ -438,7 +438,8 @@ public class KittingBaseServiceImpl {
 			updateMultipleOrderStockValues(productDetails,predictionData,product,allCustomer,dueDate,incomingOrderList,incomingFinalQuantity);
 		}else if(numOrdered==0&&productQuantityMap!=null&&productQuantityMap.containsKey(product.getProductId())) {
 			updateNoOrderStockValue(predictionData,productQuantityMap,dueDate,product,incomingOrderList,incomingFinalQuantity);
-		}else if(productQuantityMap!=null&&productQuantityMap.containsKey(product.getProductId())){
+		}else if((productQuantityMap!=null&&productQuantityMap.containsKey(product.getProductId()))
+				||(productDetails!=null&&productDetails.containsKey(product.getProductId()))){
 			updateSingleOrderStockValue(predictionData,productQuantityMap,dueDate,product,allCustomer,
 					incomingOrderList,incomingFinalQuantity,productDetails);
 		}else {
@@ -450,23 +451,12 @@ public class KittingBaseServiceImpl {
 			outgoingShipmentValues.setQuantity(0);
 			outgoingShipmentValues.setFixed(fixed);
 			outgoingShipmentValues.setFulfilled(0);
-			incomingShipmentValues.setQuantity(incomingQuantity);
-			incomingShipmentValues.setFixed(fixed);
-			incomingShipmentValues.setIncomingOrders(incomingOrderList);
-			predictionData.setIncoming(incomingShipmentValues);
 			predictionData.setOutgoing(outgoingShipmentValues);
-			if(incomingQuantity!=0&&productQuantityMap!=null) {
-				List<Boolean>fulfillmentList=productQuantityMap.get(product.getProductId()).getIncomingFulfilment();
-				if(fulfillmentList!=null) {
-					if(fulfillmentList.contains(true)&&fulfillmentList.contains(false)) {
-						incomingShipmentValues.setFulfilled(2);
-					}else if(fulfillmentList.contains(true)&&!fulfillmentList.contains(false)) {
-						incomingShipmentValues.setFulfilled(1);	
-					}else if(fulfillmentList.contains(false)&&!fulfillmentList.contains(true)) {
-						incomingShipmentValues.setFulfilled(0);	
-					}
-				}
-			}
+			incomingShipmentValues.setQuantity(0);
+			incomingShipmentValues.setFixed(true);
+			incomingShipmentValues.setIncomingOrders(incomingOrderList);
+			incomingQuantityUpdate(incomingFinalQuantity,incomingShipmentValues,incomingOrderList);
+			predictionData.setIncoming(incomingShipmentValues);
 		}
 
 		predictionDataList.add(predictionData);
@@ -490,6 +480,7 @@ public class KittingBaseServiceImpl {
 			outgoingShipmentValues.setFixed(productQuantityMap.get(product.getProductId()).isOutgoingFixed());
 			outgoingShipmentValues.setFulfilled(productQuantityMap.get(product.getProductId()).isOutgoingFulfilment()?1:0);
 			orderDataList.add(orderData);
+			predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getAvailableStockQuantity());
 		}else {
 			OrderData orderData = new OrderData();
 			orderData.setOrderId(productDetails.get(product.getProductId()).get(0).getOrderId());
@@ -502,10 +493,11 @@ public class KittingBaseServiceImpl {
 			outgoingShipmentValues.setFixed(productDetails.get(product.getProductId()).get(0).isOutgoingFixed());
 			outgoingShipmentValues.setFulfilled(productDetails.get(product.getProductId()).get(0).isOutgoingFulfilment()?1:0);
 			orderDataList.add(orderData);
+			predictionData.setCurrentQuantity(productDetails.get(product.getProductId()).get(0).getAvailableStockQuantity());
 
 		}
 		predictionData.setDate(dueDate);
-		predictionData.setCurrentQuantity(productQuantityMap.get(product.getProductId()).getAvailableStockQuantity());
+	
 
 		outgoingShipmentValues.setOrders(orderDataList);
 		predictionData.setOutgoing(outgoingShipmentValues);
@@ -573,7 +565,6 @@ public class KittingBaseServiceImpl {
 		boolean outgoingFixed = true;
 		List<OrderData>orderDataList =new ArrayList<>();
 		List<Boolean>outgoingFulfilList =new ArrayList<>();
-		System.out.println("date("+dueDate+"--"+orderedTimes);
 		for(int i=0;i < orderedTimes.size();i++) {
 			OrderData orderData = new OrderData();
 			orderData.setOrderId(orderedTimes.get(i).getOrderId());
@@ -636,7 +627,6 @@ public class KittingBaseServiceImpl {
 				}
 			}
 		}
-		System.out.println("-------------"+dueDate+"iddddd"+filteredProduct.size()+filteredProductSet.size());
 		return filteredProduct.size()+filteredProductSet.size();
 
 	}
