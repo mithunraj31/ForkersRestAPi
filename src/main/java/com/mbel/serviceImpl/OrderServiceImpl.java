@@ -156,7 +156,8 @@ public class OrderServiceImpl  {
 		.filter(predicate->predicate.getCustomerId()==customerId)
 		.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
             if (list.size() != 1) {
-            	return null;
+            	Customer emptyCustomer=emptyCustomer();
+            	return emptyCustomer;
             }
             return list.get(0);
         }));
@@ -165,6 +166,13 @@ public class OrderServiceImpl  {
 
 		
 	
+
+	private Customer emptyCustomer() {
+		Customer customer =new Customer();
+		customer.setCustomerName(" ");
+		return customer;
+		
+	}
 
 	public Order getupdateOrderById(int orderId, @Valid SaveOrderSetDto newOrderSet) {
 		int orderedId =0;
