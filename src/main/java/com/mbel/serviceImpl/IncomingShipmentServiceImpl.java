@@ -16,11 +16,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.mbel.config.JwtAuthenticationFilter;
+import com.mbel.constants.Constants;
 import com.mbel.dao.IncomingShipmentDao;
 import com.mbel.dao.ProductDao;
 import com.mbel.dao.UserDao;
 import com.mbel.dto.FetchIncomingOrderdProducts;
 import com.mbel.dto.FetchProductSetDto;
+import com.mbel.dto.PopulateOrderDto;
 import com.mbel.model.IncomingShipment;
 import com.mbel.model.Order;
 import com.mbel.model.Product;
@@ -113,14 +115,12 @@ public class IncomingShipmentServiceImpl  {
 		return branch;
 	}
 
-	public List<FetchIncomingOrderdProducts> getAllIncomingShipment() {
+	public List<FetchIncomingOrderdProducts> getAllIncomingShipment(Map<String, String> allParams) {
 		List<FetchIncomingOrderdProducts> incomingShipmentDtoList = new ArrayList<>(); 
-		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll().stream()
-				.filter(predicate->predicate.isActive())
-				.collect(Collectors.toList());
+		List<IncomingShipment> sortedIncomingShipment =getSortedIncomingShipment(allParams);
 		List<UserEntity> userEntityList = userDao.findAll();
 		List<Product> allProducts = productDao.findAll();
-		for(IncomingShipment incoming :incomingShipment ) {
+		for(IncomingShipment incoming :sortedIncomingShipment ) {
 			FetchIncomingOrderdProducts incomingDto = new FetchIncomingOrderdProducts();
 			incomingDto.setIncomingShipmentId(incoming.getIncomingShipmentId());
 			incomingDto.setCreatedAt(incoming.getCreatedAt());
@@ -147,6 +147,7 @@ public class IncomingShipmentServiceImpl  {
 
 		return incomingShipmentDtoList;
 	}
+
 
 	private UserEntity getUserDetails(List<UserEntity> userEntityList, int userId) {
 		return userEntityList.stream()
@@ -336,15 +337,6 @@ public class IncomingShipmentServiceImpl  {
 
 		}
 
-		public List<FetchIncomingOrderdProducts> getAllUnarrivedDueDateIncomingShipment(LocalDateTime dueDate) {
-			List<FetchIncomingOrderdProducts> incomingShipmentDtoList =getAllIncomingShipment();
-			return incomingShipmentDtoList.stream()
-					.filter(predicate->!predicate.isArrived()
-							&&(predicate.getFixedDeliveryDate().isBefore(dueDate)
-									||predicate.getFixedDeliveryDate().isEqual(dueDate)))
-					.collect(Collectors.toList());
-
-		}
 
 		public List<FetchIncomingOrderdProducts> getAllArrivedIncomingShipment() {
 
@@ -391,6 +383,97 @@ public class IncomingShipmentServiceImpl  {
 			}
 			return incomingShipment;
 		}
+		
+		private List<IncomingShipment> getSortedIncomingShipment(Map<String, String> allParams) {
+			List<IncomingShipment> incomingShipmentList =	incomingShipmentDao.findAll().stream()
+					.filter(predicate->predicate.isActive())
+					.collect(Collectors.toList());
+			List<IncomingShipment> sortedIncomingShipmentList  = new ArrayList<>();
+			if(isSortParamTrue(allParams)) {
+				sortedIncomingShipmentList.addAll(incomingShipmentList);
+			}
+			else {
+				sortAccordingToParam(allParams,incomingShipmentList,sortedIncomingShipmentList);
+			}
+			return sortedIncomingShipmentList;
+		}
+
+		private void sortAccordingToParam(Map<String, String> allParams, 
+				List<IncomingShipment> incomingShipmentList,
+				List<IncomingShipment> sortedIncomingShipmentList) {
+			if(Boolean.parseBoolean(allParams.get(Constants.NOT_CONFIRMED))) {
+				sortedIncomingShipmentList.addAll(incomingShipmentList.stream()
+						.filter(predicate->!predicate.isFixed()&&!predicate.isArrived())
+						.collect(Collectors.toList()));
+			}
+				
+				if(Boolean.parseBoolean(allParams.get(Constants.NOT_IN_STOCK))){
+					if(sortedIncomingShipmentList.isEmpty()) {
+					sortedIncomingShipmentList.addAll(incomingShipmentList.stream()
+							.filter(predicate->predicate.isFixed()&&!predicate.isArrived())
+							.collect(Collectors.toList()));
+					}else {
+						sortedIncomingShipmentList.clear();
+						sortedIncomingShipmentList.addAll(incomingShipmentList.stream()
+								.filter(predicate->(predicate.isFixed()||!predicate.isFixed())
+										&&!predicate.isArrived())
+								.collect(Collectors.toList()));
+						
+					}
+					
+				}
+				
+				if(Boolean.parseBoolean(allParams.get(Constants.ARRIVED))){
+					if(sortedIncomingShipmentList.isEmpty()) {
+					sortedIncomingShipmentList.addAll(incomingShipmentList.stream()
+							.filter(predicate->predicate.isArrived())
+							.collect(Collectors.toList()));
+					}else {
+						sortedIncomingShipmentList.clear();
+						arrivedSortedOrders(incomingShipmentList,sortedIncomingShipmentList,allParams);
+						
+					}
+				}
+				
+				
+				
+			
+			
+		}
+		
+		
+		private void arrivedSortedOrders(List<IncomingShipment> incomingShipmentList,
+				List<IncomingShipment> sortedIncomingShipmentList, Map<String, String> allParams) {
+			if(Boolean.parseBoolean(allParams.get(Constants.NOT_CONFIRMED))
+					&&Boolean.parseBoolean(allParams.get(Constants.NOT_IN_STOCK))) {
+				sortedIncomingShipmentList.addAll(incomingShipmentList.stream()
+						.filter(predicate->(predicate.isFixed()||!predicate.isFixed())
+								&&predicate.isArrived())
+						.collect(Collectors.toList()));
+			}else if(Boolean.parseBoolean(allParams.get(Constants.NOT_CONFIRMED))) {
+				sortedIncomingShipmentList.addAll(incomingShipmentList.stream()
+						.filter(predicate->!predicate.isFixed()&&predicate.isArrived())
+						.collect(Collectors.toList()));
+				
+			}else if(Boolean.parseBoolean(allParams.get(Constants.NOT_IN_STOCK))) {
+				sortedIncomingShipmentList.addAll(incomingShipmentList.stream()
+						.filter(predicate->predicate.isFixed()&&predicate.isArrived())
+						.collect(Collectors.toList()));
+			}
+			
+		}
+
+		private boolean isSortParamTrue(Map<String, String> allParams) {
+			return((Boolean.parseBoolean(allParams.get(Constants.NOT_CONFIRMED))
+		    		&&Boolean.parseBoolean(allParams.get(Constants.NOT_IN_STOCK))
+		    		&&Boolean.parseBoolean(allParams.get(Constants.ARRIVED)))
+					||(!Boolean.parseBoolean(allParams.get(Constants.NOT_CONFIRMED))
+				    		&&!Boolean.parseBoolean(allParams.get(Constants.NOT_IN_STOCK))
+				    		&&!Boolean.parseBoolean(allParams.get(Constants.ARRIVED))));
+			 
+		}
+
+
 
 	}
 
