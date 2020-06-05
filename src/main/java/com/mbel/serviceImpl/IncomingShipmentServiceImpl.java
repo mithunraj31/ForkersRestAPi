@@ -22,9 +22,7 @@ import com.mbel.dao.ProductDao;
 import com.mbel.dao.UserDao;
 import com.mbel.dto.FetchIncomingOrderdProducts;
 import com.mbel.dto.FetchProductSetDto;
-import com.mbel.dto.PopulateOrderDto;
 import com.mbel.model.IncomingShipment;
-import com.mbel.model.Order;
 import com.mbel.model.Product;
 import com.mbel.model.UserEntity;
 
@@ -452,12 +450,12 @@ public class IncomingShipmentServiceImpl  {
 						.collect(Collectors.toList()));
 			}else if(Boolean.parseBoolean(allParams.get(Constants.NOT_CONFIRMED))) {
 				sortedIncomingShipmentList.addAll(incomingShipmentList.stream()
-						.filter(predicate->!predicate.isFixed()&&predicate.isArrived())
+						.filter(predicate->!predicate.isFixed()||predicate.isArrived())
 						.collect(Collectors.toList()));
 				
 			}else if(Boolean.parseBoolean(allParams.get(Constants.NOT_IN_STOCK))) {
 				sortedIncomingShipmentList.addAll(incomingShipmentList.stream()
-						.filter(predicate->predicate.isFixed()&&predicate.isArrived())
+						.filter(predicate->predicate.isFixed()||predicate.isArrived())
 						.collect(Collectors.toList()));
 			}
 			

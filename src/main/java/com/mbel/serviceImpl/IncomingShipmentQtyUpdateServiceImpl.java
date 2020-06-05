@@ -86,13 +86,33 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 			product.setPrice(product.getPrice()+incomingProduct.getPrice());
 			productDao.save(product);
 			incoming.setArrived(true);
-			incomingShipmentDao.save(incoming);	
+			unDisplayArrivedWithNoPartialOrder(incoming,incomingList);
 			}else if(Objects.nonNull(product)) {
 				revertStock(incoming,incomingProduct,product,incomingList);
 			}
 			}
 			
 			}
+
+		private void unDisplayArrivedWithNoPartialOrder(IncomingShipment incoming,
+				List<IncomingShipment> incomingList) {
+			List<IncomingShipment>incomingUnArrivedList=incomingList.stream()
+			.filter(predicate->(predicate.getShipmentNo().equals(incoming.getShipmentNo()))
+					&&predicate.getBranch().equals(incoming.getBranch())&&!predicate.isArrived())
+			.collect(Collectors.toList());
+			if(incomingUnArrivedList.isEmpty()) {
+				List<IncomingShipment>incomingUnDisplayList	=incomingList.stream()
+				.filter(predicate->(predicate.getShipmentNo().equals(incoming.getShipmentNo()))
+						&&predicate.getBranch().equals(incoming.getBranch())&&predicate.isArrived())
+				.collect(Collectors.toList());
+				incomingUnDisplayList.forEach(action->action.setActive(false));
+				incomingShipmentDao.saveAll(incomingUnDisplayList);		
+			}else {
+				incomingShipmentDao.save(incoming);	
+			}
+			
+			
+		}
 
 		private void revertStock(IncomingShipment incoming, FetchIncomingOrderdProducts incomingProduct,
 				Product product, List<IncomingShipment> incomingList) {
