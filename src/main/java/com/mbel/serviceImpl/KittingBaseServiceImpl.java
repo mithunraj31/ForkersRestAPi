@@ -892,6 +892,7 @@ public class KittingBaseServiceImpl {
 			incomingDto.setIncomingShipmentId(incoming.getIncomingShipmentId());
 			incomingDto.setShipmentNo(incoming.getShipmentNo());
 			incomingDto.setArrived(incoming.isArrived());
+			incomingDto.setActive(incoming.isActive());
 			incomingDto.setProduct(getAllIncomingProduct(incoming,allProduct));
 			incomingDto.setBranch(incoming.getBranch());
 			incomingDto.setConfirmedQty(incoming.getConfirmedQty());
