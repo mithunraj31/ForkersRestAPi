@@ -9,7 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "Product")
@@ -29,13 +28,13 @@ public class Product {
     @Column(name = "description")
     private String description;
     
-    @NotNull(message="* Please Enter price")
     @Column(name = "price")
     private double price;
     
     @Column(name = "moq")
     private int moq;
     
+    @NotEmpty(message="* Please Enter leadTime")
     @Column(name = "lead_time")
     private int leadTime;
     
@@ -43,6 +42,7 @@ public class Product {
     @Column(name = "obic_no")
     private String obicNo;
     
+    @NotEmpty(message="* Please Enter quantity")
     @Column(name = "qty")
     private int quantity;
     
