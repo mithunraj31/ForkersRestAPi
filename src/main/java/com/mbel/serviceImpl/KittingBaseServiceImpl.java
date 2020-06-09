@@ -361,7 +361,7 @@ public class KittingBaseServiceImpl {
 				}
 			}
 		}
-		if(incomingQuantity!=0) {
+		if(!incomingOrderIdList.isEmpty()) {
 			Mappingfields mapping=productQuantityMap.get(product.getProductId());
 			if(mapping!=null) {
 				int availableQunatity=mapping.getAvailableStockQuantity()==0?mapping.getCurrentQuantity():mapping.getAvailableStockQuantity();
@@ -530,7 +530,7 @@ public class KittingBaseServiceImpl {
 
 	}
 	private void incomingQuantityUpdate(int incomingFinalQuantity, ProductIncomingShipmentModel incomingShipmentValues, List<IncomingOrderData> incomingOrderList) {
-		if(incomingFinalQuantity!=0) {
+		if(!incomingOrderList.isEmpty()) {
 			incomingShipmentValues.setQuantity(incomingFinalQuantity);
 			incomingShipmentValues.setIncomingOrders(incomingOrderList);
 			List<Boolean>fixedtList=new ArrayList<>();

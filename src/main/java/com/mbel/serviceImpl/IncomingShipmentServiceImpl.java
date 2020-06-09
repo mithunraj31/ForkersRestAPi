@@ -377,6 +377,8 @@ public class IncomingShipmentServiceImpl  {
 			IncomingShipment incomingShipment = incomingShipmentDao.findById(incomingShipmentId).orElse(null);
 			if(Objects.nonNull(incomingShipment)) {
 				incomingShipment.setFixed(confirm);
+				incomingShipment.setPendingQty(incomingShipment.getConfirmedQty());
+				incomingShipment.setConfirmedQty(0);
 				incomingShipmentDao.save(incomingShipment);
 			}
 			return incomingShipment;
