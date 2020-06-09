@@ -8,9 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "Product")
@@ -36,7 +35,7 @@ public class Product {
     @Column(name = "moq")
     private int moq;
     
-    @NotNull(message="* Please Enter leadTime")
+    @Min(1)
     @Column(name = "lead_time")
     private int leadTime;
     
@@ -44,7 +43,7 @@ public class Product {
     @Column(name = "obic_no")
     private String obicNo;
     
-    @NotNull(message="* Please Enter quantity")
+    @Min(1)
     @Column(name = "qty")
     private int quantity;
     
