@@ -2,7 +2,6 @@ package com.mbel.serviceImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -346,8 +345,10 @@ public class OrderServiceImpl  {
 					.filter(predicate->!predicate.isFulfilled()&&predicate.isActive())
 					.collect(Collectors.toList());
 			List<Order>sortedOrderList = new ArrayList<>();
-			if(isSortParamTrue(allParams)) {
+			if(isSortAllParamTrue(allParams)) {
 				sortedOrderList.addAll(order);
+			}else if(isSortAllParamFalse(allParams)){
+				return sortedOrderList;
 			}else {
                     sortAccordingToParam(allParams,sortedOrderList,order);
 			}
@@ -478,18 +479,18 @@ public class OrderServiceImpl  {
 		
 	}
 	
-	private boolean isSortParamTrue(Map<String, String> allParams) {
+	private boolean isSortAllParamTrue(Map<String, String> allParams) {
 		return (Boolean.parseBoolean(allParams.get(Constants.FCST))&&Boolean.parseBoolean(allParams.get(Constants.WAIT))
 				&&Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING)))
-				||(!Boolean.parseBoolean(allParams.get(Constants.FCST))&&!Boolean.parseBoolean(allParams.get(Constants.WAIT))
-						&&!Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&!Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING))
 						||((!Boolean.parseBoolean(allParams.get(Constants.FCST))&&!Boolean.parseBoolean(allParams.get(Constants.WAIT))
 								&&Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING)))
 								||(Boolean.parseBoolean(allParams.get(Constants.FCST))&&Boolean.parseBoolean(allParams.get(Constants.WAIT))
-										&&!Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&!Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING)))));
+										&&!Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&!Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING))));
 		 
 	}
-	
-	
+	private boolean isSortAllParamFalse(Map<String, String> allParams) {
+	return(!Boolean.parseBoolean(allParams.get(Constants.FCST))&&!Boolean.parseBoolean(allParams.get(Constants.WAIT))
+			&&!Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&!Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING)));
+	}
 }
 

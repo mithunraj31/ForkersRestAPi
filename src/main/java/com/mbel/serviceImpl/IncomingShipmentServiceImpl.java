@@ -389,8 +389,11 @@ public class IncomingShipmentServiceImpl  {
 					.filter(predicate->predicate.isActive())
 					.collect(Collectors.toList());
 			List<IncomingShipment> sortedIncomingShipmentList  = new ArrayList<>();
-			if(isSortParamTrue(allParams)) {
+			if(isSortAllParamTrue(allParams)) {
 				sortedIncomingShipmentList.addAll(incomingShipmentList);
+			}else if(isSortAllParamFalse(allParams)) {
+				return sortedIncomingShipmentList;
+				
 			}
 			else {
 				sortAccordingToParam(allParams,incomingShipmentList,sortedIncomingShipmentList);
@@ -463,14 +466,16 @@ public class IncomingShipmentServiceImpl  {
 			
 		}
 
-		private boolean isSortParamTrue(Map<String, String> allParams) {
+		private boolean isSortAllParamTrue(Map<String, String> allParams) {
 			return((Boolean.parseBoolean(allParams.get(Constants.NOT_CONFIRMED))
 		    		&&Boolean.parseBoolean(allParams.get(Constants.NOT_IN_STOCK))
-		    		&&Boolean.parseBoolean(allParams.get(Constants.ARRIVED)))
-					||(!Boolean.parseBoolean(allParams.get(Constants.NOT_CONFIRMED))
-				    		&&!Boolean.parseBoolean(allParams.get(Constants.NOT_IN_STOCK))
-				    		&&!Boolean.parseBoolean(allParams.get(Constants.ARRIVED))));
+		    		&&Boolean.parseBoolean(allParams.get(Constants.ARRIVED))));
 			 
+		}
+		private boolean isSortAllParamFalse(Map<String, String> allParams) {
+			return((!Boolean.parseBoolean(allParams.get(Constants.NOT_CONFIRMED))
+		    		&&!Boolean.parseBoolean(allParams.get(Constants.NOT_IN_STOCK))
+		    		&&!Boolean.parseBoolean(allParams.get(Constants.ARRIVED))));
 		}
 
 
