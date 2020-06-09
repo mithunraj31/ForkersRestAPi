@@ -494,7 +494,11 @@ public class OrderServiceImpl  {
 					||((!Boolean.parseBoolean(allParams.get(Constants.FCST))&&!Boolean.parseBoolean(allParams.get(Constants.WAIT))
 							&&!Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING))))
 							||((!Boolean.parseBoolean(allParams.get(Constants.FCST))&&!Boolean.parseBoolean(allParams.get(Constants.WAIT))
-									&&Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&!Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING)))));
+									&&Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&!Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING))))
+							||((Boolean.parseBoolean(allParams.get(Constants.FCST))&&!Boolean.parseBoolean(allParams.get(Constants.WAIT))
+									&&!Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&!Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING))))
+							||((!Boolean.parseBoolean(allParams.get(Constants.FCST))&&Boolean.parseBoolean(allParams.get(Constants.WAIT))
+									&&!Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&!Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING)))));
 	}
 }
 
