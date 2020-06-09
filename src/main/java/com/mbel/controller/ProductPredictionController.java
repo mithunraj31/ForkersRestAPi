@@ -30,7 +30,7 @@ public class ProductPredictionController {
 	
 	@GetMapping("/product/forecast/")
 	public List<ProductPredictionDto> productPrediction() {
-		 return productPredictionServiceImpl.getProductPrediction(2020, 02);
+		 return productPredictionServiceImpl.getProductPrediction(2020, 04);
 	}
 
 }

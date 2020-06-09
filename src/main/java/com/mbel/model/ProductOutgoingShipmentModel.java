@@ -12,6 +12,8 @@ public class ProductOutgoingShipmentModel{
 	
 	private Boolean delayed;
 	
+	private String outgoingColor;
+	
 	private List<OrderData> orders;
 
 
@@ -53,6 +55,14 @@ public class ProductOutgoingShipmentModel{
 
 	public void setDelayed(Boolean delayed) {
 		this.delayed = delayed;
+	}
+
+	public String getOutgoingColor() {
+		return outgoingColor;
+	}
+
+	public void setOutgoingColor(String outgoingColor) {
+		this.outgoingColor = outgoingColor;
 	}
 
 

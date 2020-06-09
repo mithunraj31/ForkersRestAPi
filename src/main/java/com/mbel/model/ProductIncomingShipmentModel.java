@@ -9,6 +9,8 @@ public class ProductIncomingShipmentModel{
 	private Boolean fixed;
 	
 	private int fulfilled;
+	
+	private String incomingColor;
 
 	private List<IncomingOrderData> incomingOrders;
 	
@@ -44,5 +46,14 @@ public class ProductIncomingShipmentModel{
 	public void setFulfilled(int fulfilled) {
 		this.fulfilled = fulfilled;
 	}
+
+	public String getIncomingColor() {
+		return incomingColor;
+	}
+
+	public void setIncomingColor(String incomingColor) {
+		this.incomingColor = incomingColor;
+	}
+
 }
 

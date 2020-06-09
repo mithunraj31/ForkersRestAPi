@@ -451,9 +451,11 @@ public class ProductPredictionServiceImpl {
 			outgoingShipmentValues.setQuantity(0);
 			outgoingShipmentValues.setFixed(fixed);
 			outgoingShipmentValues.setFulfilled(0);
+			outgoingShipmentValues.setOutgoingColor("none");
 			predictionData.setOutgoing(outgoingShipmentValues);
 			incomingShipmentValues.setFixed(true);
 			incomingShipmentValues.setIncomingOrders(incomingOrderList);
+			incomingShipmentValues.setIncomingColor("none");
 			incomingQuantityUpdate(incomingFinalQuantity,incomingShipmentValues,incomingOrderList);
 			predictionData.setIncoming(incomingShipmentValues);
 		}
@@ -495,12 +497,20 @@ public class ProductPredictionServiceImpl {
 			predictionData.setCurrentQuantity(productDetails.get(product.getProductId()).get(0).getAvailableStockQuantity());
 
 		}
+		if(orderDataList.get(0).isFulfilled()) {
+			outgoingShipmentValues.setOutgoingColor("none");
+		}else if(!orderDataList.get(0).isFixed()) {
+			outgoingShipmentValues.setOutgoingColor("fcst");
+		}else if(orderDataList.get(0).isFixed()) {
+			outgoingShipmentValues.setOutgoingColor("confirm");
+	}
 		predictionData.setDate(dueDate);
 		outgoingShipmentValues.setOrders(orderDataList);
 		predictionData.setOutgoing(outgoingShipmentValues);
 		predictionData.setQuantity(product.getQuantity());
 		incomingShipmentValues.setQuantity(0);
 		incomingShipmentValues.setFixed(true);
+		incomingShipmentValues.setIncomingColor("none");
 		incomingQuantityUpdate(incomingFinalQuantity,incomingShipmentValues,incomingOrderList);
 		predictionData.setIncoming(incomingShipmentValues);
 
@@ -517,9 +527,11 @@ public class ProductPredictionServiceImpl {
 		outgoingShipmentValues.setQuantity(0);
 		outgoingShipmentValues.setFixed(true);
 		outgoingShipmentValues.setFulfilled(0);
+		outgoingShipmentValues.setOutgoingColor("none");
 		predictionData.setOutgoing(outgoingShipmentValues);
 		incomingShipmentValues.setQuantity(0);
 		incomingShipmentValues.setFixed(true);
+		incomingShipmentValues.setIncomingColor("none");
 		incomingQuantityUpdate(incomingFinalQuantity,incomingShipmentValues,incomingOrderList);
 		predictionData.setIncoming(incomingShipmentValues);
 
@@ -549,7 +561,41 @@ public class ProductPredictionServiceImpl {
 				}else if(fulfillmentList.contains(false)&&!fulfillmentList.contains(true)) {
 					incomingShipmentValues.setFulfilled(0);	
 				}
+				incomingColorUpdate(fulfillmentList,fixedtList,incomingShipmentValues);
 			}
+		
+		
+	}
+	private void incomingColorUpdate(List<Boolean> fulfillmentList, List<Boolean> fixedtList,
+			ProductIncomingShipmentModel incomingShipmentValues) {
+		if(fulfillmentList.size()>1) {
+		if(fulfillmentList.contains(true)&&!fulfillmentList.contains(false)) {
+			incomingShipmentValues.setIncomingColor("none");
+			
+		}else if((fixedtList.contains(true)&&fixedtList.contains(false)&&fulfillmentList.contains(true))
+				||(fixedtList.contains(true)&&fixedtList.contains(false))) {
+			incomingShipmentValues.setIncomingColor("mix");
+			
+		}else if((fixedtList.contains(false)&&!fixedtList.contains(true)&&fulfillmentList.contains(true))
+				||(fixedtList.contains(false)&&!fixedtList.contains(true)&&fulfillmentList.contains(false))) {
+			incomingShipmentValues.setIncomingColor("notConfirm");
+			
+		}else if((!fixedtList.contains(false)&&fixedtList.contains(true)&&fulfillmentList.contains(true))
+				||(!fixedtList.contains(false)&&fixedtList.contains(true)&&fulfillmentList.contains(false))){
+			incomingShipmentValues.setIncomingColor("wait");
+			
+		}
+		}else {
+			if(fulfillmentList.contains(true)) {
+				incomingShipmentValues.setIncomingColor("none");
+			}else if(fixedtList.contains(false)&&!fixedtList.contains(true)) {
+				incomingShipmentValues.setIncomingColor("notConfirm");
+				
+			}else if(!fixedtList.contains(false)&&fixedtList.contains(true)) {
+				incomingShipmentValues.setIncomingColor("wait");
+				
+			}
+		}
 		
 	}
 	private void updateMultipleOrderStockValues(Map<Integer, List<Mappingfields>> productDetails,
@@ -562,11 +608,13 @@ public class ProductPredictionServiceImpl {
 		boolean outgoingFixed = true;
 		List<OrderData>orderDataList =new ArrayList<>();
 		List<Boolean>outgoingFulfilList =new ArrayList<>();
+		List<Boolean>outgoingFixedList =new ArrayList<>();
 		for(int i=0;i < orderedTimes.size();i++) {
 			OrderData orderData = new OrderData();
 			orderData.setOrderId(orderedTimes.get(i).getOrderId());
 			orderData.setCustomer(getCustomer(allCustomer, orderedTimes.get(i).getCustomer()));
 			orderData.setFixed(orderedTimes.get(i).isOrderFixed());
+			outgoingFixedList.add(orderedTimes.get(i).isOrderFixed());
 			orderData.setFulfilled(orderedTimes.get(i).isOutgoingFulfilment());
 			outgoingFulfilList.add(orderedTimes.get(i).isOutgoingFulfilment());
 			orderData.setQuantity(orderedTimes.get(i).getRequiredQuantity());
@@ -594,14 +642,36 @@ public class ProductPredictionServiceImpl {
 		}else if(outgoingFulfilList.contains(false)&&!outgoingFulfilList.contains(true)) {
 			outgoingShipmentValues.setFulfilled(0);	
 		}
+		colorUpdate(outgoingShipmentValues,outgoingFulfilList,outgoingFixedList);
 		predictionData.setOutgoing(outgoingShipmentValues);
 		predictionData.setQuantity(product.getQuantity());
 
 		incomingShipmentValues.setQuantity(0);
 		incomingShipmentValues.setFixed(true);
+		incomingShipmentValues.setIncomingColor("none");
 		incomingQuantityUpdate(incomingFinalQuantity,incomingShipmentValues,incomingOrderList);
 		predictionData.setIncoming(incomingShipmentValues);
 
+	}
+	private void colorUpdate(ProductOutgoingShipmentModel outgoingShipmentValues, List<Boolean> outgoingFulfilList,
+			List<Boolean> outgoingFixedList) {
+		if(outgoingFulfilList.contains(true)&&!outgoingFulfilList.contains(false)) {
+			outgoingShipmentValues.setOutgoingColor("none");
+			
+		}else if((outgoingFixedList.contains(true)&&outgoingFixedList.contains(false)&&outgoingFulfilList.contains(true))
+				||(outgoingFixedList.contains(true)&&outgoingFixedList.contains(false))) {
+			outgoingShipmentValues.setOutgoingColor("mix");
+			
+		}else if((outgoingFixedList.contains(false)&&!outgoingFixedList.contains(true)&&outgoingFulfilList.contains(true))
+				||(outgoingFixedList.contains(false)&&!outgoingFixedList.contains(true)&&outgoingFulfilList.contains(false))) {
+			outgoingShipmentValues.setOutgoingColor("fcst");
+			
+		}else if((!outgoingFixedList.contains(false)&&outgoingFixedList.contains(true)&&outgoingFulfilList.contains(true))
+				||(!outgoingFixedList.contains(false)&&outgoingFixedList.contains(true)&&outgoingFulfilList.contains(false))){
+			outgoingShipmentValues.setOutgoingColor("confirm");
+			
+		}
+		
 	}
 	private int productNumOrdered(List<Order> order, Product product, List<OrderProduct> orderProduct, List<Product> allProduct, List<ProductSet> allProductSet, LocalDateTime dueDate) {
 		List<FetchOrderdProducts> filteredProductSet=new ArrayList<>();
