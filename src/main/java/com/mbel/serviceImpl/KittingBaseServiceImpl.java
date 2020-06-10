@@ -22,6 +22,7 @@ import com.mbel.dto.FetchOrderdProducts;
 import com.mbel.dto.FetchProductSetDto;
 import com.mbel.dto.ProductDataDto;
 import com.mbel.dto.ProductPredictionDto;
+import com.mbel.model.ColourData;
 import com.mbel.model.Customer;
 import com.mbel.model.IncomingOrderData;
 import com.mbel.model.IncomingShipment;
@@ -451,12 +452,12 @@ public class KittingBaseServiceImpl {
 			outgoingShipmentValues.setQuantity(0);
 			outgoingShipmentValues.setFixed(fixed);
 			outgoingShipmentValues.setFulfilled(0);
-			outgoingShipmentValues.setOutgoingColor("none");
+			outgoingShipmentValues.setContains(null);
 			predictionData.setOutgoing(outgoingShipmentValues);
 			incomingShipmentValues.setQuantity(0);
 			incomingShipmentValues.setFixed(true);
 			incomingShipmentValues.setIncomingOrders(incomingOrderList);
-			incomingShipmentValues.setIncomingColor("none");
+			outgoingShipmentValues.setContains(null);
 			incomingQuantityUpdate(incomingFinalQuantity,incomingShipmentValues,incomingOrderList);
 			predictionData.setIncoming(incomingShipmentValues);
 		}
@@ -498,22 +499,27 @@ public class KittingBaseServiceImpl {
 			predictionData.setCurrentQuantity(productDetails.get(product.getProductId()).get(0).getAvailableStockQuantity());
 
 		}
+		ColourData contains =new ColourData();
 		if(orderDataList.get(0).isFulfilled()) {
-			outgoingShipmentValues.setOutgoingColor("none");
+			contains.setFulfilled(true);
+			contains.setFcst(false);
+			contains.setConfirmed(false);
 		}else if(!orderDataList.get(0).isFixed()) {
-			outgoingShipmentValues.setOutgoingColor("fcst");
+			contains.setFulfilled(false);
+			contains.setFcst(true);
+			contains.setConfirmed(false);
 		}else if(orderDataList.get(0).isFixed()) {
-			outgoingShipmentValues.setOutgoingColor("confirm");
+			contains.setFulfilled(false);
+			contains.setFcst(false);
+			contains.setConfirmed(true);
 	}
+		outgoingShipmentValues.setContains(contains);
 		predictionData.setDate(dueDate);
-	
-
-		outgoingShipmentValues.setOrders(orderDataList);
 		predictionData.setOutgoing(outgoingShipmentValues);
 		predictionData.setQuantity(product.getQuantity());
 		incomingShipmentValues.setQuantity(0);
 		incomingShipmentValues.setFixed(true);
-		incomingShipmentValues.setIncomingColor("none");
+		incomingShipmentValues.setContains(null);
 		incomingQuantityUpdate(incomingFinalQuantity,incomingShipmentValues,incomingOrderList);
 		predictionData.setIncoming(incomingShipmentValues);
 
@@ -530,11 +536,11 @@ public class KittingBaseServiceImpl {
 		outgoingShipmentValues.setQuantity(0);
 		outgoingShipmentValues.setFixed(true);
 		outgoingShipmentValues.setFulfilled(0);
-		outgoingShipmentValues.setOutgoingColor("none");
+		outgoingShipmentValues.setContains(null);
 		predictionData.setOutgoing(outgoingShipmentValues);
 		incomingShipmentValues.setQuantity(0);
 		incomingShipmentValues.setFixed(true);
-		incomingShipmentValues.setIncomingColor("none");
+		incomingShipmentValues.setContains(null);
 		incomingQuantityUpdate(incomingFinalQuantity,incomingShipmentValues,incomingOrderList);
 		predictionData.setIncoming(incomingShipmentValues);
 
@@ -571,34 +577,50 @@ public class KittingBaseServiceImpl {
 	}
 	private void incomingColorUpdate(List<Boolean> fulfillmentList, List<Boolean> fixedtList,
 			ProductIncomingShipmentModel incomingShipmentValues) {
+		ColourData contains = new ColourData();
 		if(fulfillmentList.size()>1) {
 		if(fulfillmentList.contains(true)&&!fulfillmentList.contains(false)) {
-			incomingShipmentValues.setIncomingColor("none");
+			contains.setFulfilled(true);
+			contains.setFcst(false);
+			contains.setConfirmed(false);
 			
 		}else if((fixedtList.contains(true)&&fixedtList.contains(false)&&fulfillmentList.contains(true))
 				||(fixedtList.contains(true)&&fixedtList.contains(false))) {
-			incomingShipmentValues.setIncomingColor("mix");
+			contains.setFulfilled(true);
+			contains.setFcst(true);
+			contains.setConfirmed(true);
 			
 		}else if((fixedtList.contains(false)&&!fixedtList.contains(true)&&fulfillmentList.contains(true))
 				||(fixedtList.contains(false)&&!fixedtList.contains(true)&&fulfillmentList.contains(false))) {
-			incomingShipmentValues.setIncomingColor("notConfirm");
+			contains.setFulfilled(false);
+			contains.setFcst(true);
+			contains.setConfirmed(false);
 			
 		}else if((!fixedtList.contains(false)&&fixedtList.contains(true)&&fulfillmentList.contains(true))
 				||(!fixedtList.contains(false)&&fixedtList.contains(true)&&fulfillmentList.contains(false))){
-			incomingShipmentValues.setIncomingColor("wait");
+			contains.setFulfilled(false);
+			contains.setFcst(false);
+			contains.setConfirmed(true);
 			
 		}
 		}else {
 			if(fulfillmentList.contains(true)) {
-				incomingShipmentValues.setIncomingColor("none");
+				contains.setFulfilled(true);
+				contains.setFcst(false);
+				contains.setConfirmed(false);
 			}else if(fixedtList.contains(false)&&!fixedtList.contains(true)) {
-				incomingShipmentValues.setIncomingColor("notConfirm");
+				contains.setFulfilled(false);
+				contains.setFcst(true);
+				contains.setConfirmed(false);
 				
 			}else if(!fixedtList.contains(false)&&fixedtList.contains(true)) {
-				incomingShipmentValues.setIncomingColor("wait");
+				contains.setFulfilled(false);
+				contains.setFcst(false);
+				contains.setConfirmed(true);
 				
 			}
-			}
+		}
+		incomingShipmentValues.setContains(contains);
 		
 	}
 	private void updateMultipleOrderStockValues(Map<Integer, List<Mappingfields>> productDetails,
@@ -651,29 +673,38 @@ public class KittingBaseServiceImpl {
 
 		incomingShipmentValues.setQuantity(0);
 		incomingShipmentValues.setFixed(true);
-		incomingShipmentValues.setIncomingColor("none");
+		outgoingShipmentValues.setContains(null);
 		incomingQuantityUpdate(incomingFinalQuantity,incomingShipmentValues,incomingOrderList);
 		predictionData.setIncoming(incomingShipmentValues);
 
 	}
 	private void colorUpdate(ProductOutgoingShipmentModel outgoingShipmentValues, List<Boolean> outgoingFulfilList,
 			List<Boolean> outgoingFixedList) {
+		ColourData contains =new ColourData();
 		if(outgoingFulfilList.contains(true)&&!outgoingFulfilList.contains(false)) {
-			outgoingShipmentValues.setOutgoingColor("none");
-			
+			contains.setFulfilled(true);
+			contains.setFcst(false);
+			contains.setConfirmed(false);
 		}else if((outgoingFixedList.contains(true)&&outgoingFixedList.contains(false)&&outgoingFulfilList.contains(true))
 				||(outgoingFixedList.contains(true)&&outgoingFixedList.contains(false))) {
-			outgoingShipmentValues.setOutgoingColor("mix");
+			contains.setFulfilled(true);
+			contains.setFcst(true);
+			contains.setConfirmed(true);
 			
 		}else if((outgoingFixedList.contains(false)&&!outgoingFixedList.contains(true)&&outgoingFulfilList.contains(true))
 				||(outgoingFixedList.contains(false)&&!outgoingFixedList.contains(true)&&outgoingFulfilList.contains(false))) {
-			outgoingShipmentValues.setOutgoingColor("fcst");
+			contains.setFulfilled(false);
+			contains.setFcst(true);
+			contains.setConfirmed(false);
 			
 		}else if((!outgoingFixedList.contains(false)&&outgoingFixedList.contains(true)&&outgoingFulfilList.contains(true))
 				||(!outgoingFixedList.contains(false)&&outgoingFixedList.contains(true)&&outgoingFulfilList.contains(false))){
-			outgoingShipmentValues.setOutgoingColor("confirm");
+			contains.setFulfilled(false);
+			contains.setFcst(false);
+			contains.setConfirmed(true);
 			
 		}
+		outgoingShipmentValues.setContains(contains);
 		
 	}
 	private int productNumOrdered(List<Order> order, Product product, List<OrderProduct> orderProduct, List<Product> allProduct, List<ProductSet> allProductSet, LocalDateTime dueDate) {

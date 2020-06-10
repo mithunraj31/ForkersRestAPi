@@ -10,7 +10,7 @@ public class ProductIncomingShipmentModel{
 	
 	private int fulfilled;
 	
-	private String incomingColor;
+	private ColourData contains;
 
 	private List<IncomingOrderData> incomingOrders;
 	
@@ -47,13 +47,15 @@ public class ProductIncomingShipmentModel{
 		this.fulfilled = fulfilled;
 	}
 
-	public String getIncomingColor() {
-		return incomingColor;
+	public ColourData getContains() {
+		return contains;
 	}
 
-	public void setIncomingColor(String incomingColor) {
-		this.incomingColor = incomingColor;
+	public void setContains(ColourData contains) {
+		this.contains = contains;
 	}
 
+
+	
 }
 

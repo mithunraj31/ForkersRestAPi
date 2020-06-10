@@ -12,7 +12,7 @@ public class ProductOutgoingShipmentModel{
 	
 	private Boolean delayed;
 	
-	private String outgoingColor;
+	private ColourData contains;
 	
 	private List<OrderData> orders;
 
@@ -57,17 +57,15 @@ public class ProductOutgoingShipmentModel{
 		this.delayed = delayed;
 	}
 
-	public String getOutgoingColor() {
-		return outgoingColor;
+	public ColourData getContains() {
+		return contains;
 	}
 
-	public void setOutgoingColor(String outgoingColor) {
-		this.outgoingColor = outgoingColor;
+	public void setContains(ColourData contains) {
+		this.contains = contains;
 	}
 
 
-	
-	
 
 }
 
