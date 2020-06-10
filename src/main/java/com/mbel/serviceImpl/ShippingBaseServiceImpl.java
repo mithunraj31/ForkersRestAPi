@@ -564,7 +564,7 @@ public class ShippingBaseServiceImpl {
 			List<Boolean>fixedtList=new ArrayList<>();
 			List<Boolean>fulfillmentList=new ArrayList<>();
 			for(int i=0;i<incomingOrderList.size();i++) {
-				fixedtList.add(incomingOrderList.get(i).isFixed());
+				fixedtList.add(incomingOrderList.get(i).isFulfilled()?null:incomingOrderList.get(i).isFixed());
 				fulfillmentList.add(incomingOrderList.get(i).isFulfilled());
 			}
 			
@@ -668,9 +668,9 @@ public class ShippingBaseServiceImpl {
 			orderData.setOrderId(orderedTimes.get(i).getOrderId());
 			orderData.setCustomer(getCustomer(allCustomer, orderedTimes.get(i).getCustomer()));
 			orderData.setFixed(orderedTimes.get(i).isOrderFixed());
-			outgoingFixedList.add(orderedTimes.get(i).isOrderFixed());
 			orderData.setFulfilled(orderedTimes.get(i).isOutgoingFulfilment());
 			orderData.setDelayed(orderedTimes.get(i).isDelayed());
+			outgoingFixedList.add(orderData.isFulfilled()?null:orderedTimes.get(i).isOrderFixed());
 			outgoingFulfilList.add(orderedTimes.get(i).isOutgoingFulfilment());
 			orderData.setQuantity(orderedTimes.get(i).getRequiredQuantity());
 			orderData.setProposalNo(orderedTimes.get(i).getProposalNo());
