@@ -600,6 +600,12 @@ public class ShippingBaseServiceImpl {
 				contains.setFcst(true);
 				contains.setConfirmed(true);
 				
+			}else if((fixedtList.contains(true)&&fixedtList.contains(false))
+					&&((fulfillmentList.contains(false)&&!fulfillmentList.contains(true)))) {
+				contains.setFulfilled(false);
+				contains.setFcst(true);
+				contains.setConfirmed(true);
+				
 			}else if((fixedtList.contains(false)&&!fixedtList.contains(true))
 					&&(fulfillmentList.contains(true))) {
 				contains.setFulfilled(true);
@@ -716,6 +722,12 @@ public class ShippingBaseServiceImpl {
 		}else if((outgoingFixedList.contains(true)&&outgoingFixedList.contains(false)
 				&&outgoingFulfilList.contains(true))) {
 			contains.setFulfilled(true);
+			contains.setFcst(true);
+			contains.setConfirmed(true);
+			
+		}else if((outgoingFixedList.contains(true)&&outgoingFixedList.contains(false))
+				&&((outgoingFulfilList.contains(false)&&!outgoingFulfilList.contains(true)))) {
+			contains.setFulfilled(false);
 			contains.setFcst(true);
 			contains.setConfirmed(true);
 			
