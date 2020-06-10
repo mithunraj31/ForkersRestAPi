@@ -584,20 +584,32 @@ public class ProductPredictionServiceImpl {
 			contains.setFcst(false);
 			contains.setConfirmed(false);
 			
-		}else if((fixedtList.contains(true)&&fixedtList.contains(false)&&fulfillmentList.contains(true))
-				||(fixedtList.contains(true)&&fixedtList.contains(false))) {
+		}else if((fixedtList.contains(true)&&fixedtList.contains(false)
+				&&fulfillmentList.contains(true))) {
 			contains.setFulfilled(true);
 			contains.setFcst(true);
 			contains.setConfirmed(true);
 			
-		}else if((fixedtList.contains(false)&&!fixedtList.contains(true)&&fulfillmentList.contains(true))
-				||(fixedtList.contains(false)&&!fixedtList.contains(true)&&fulfillmentList.contains(false))) {
+		}else if((fixedtList.contains(false)&&!fixedtList.contains(true))
+				&&(fulfillmentList.contains(true))) {
+			contains.setFulfilled(true);
+			contains.setFcst(true);
+			contains.setConfirmed(false);
+			
+		}else if((fixedtList.contains(false)&&!fixedtList.contains(true))
+				&&(fulfillmentList.contains(false)&&!fulfillmentList.contains(true))) {
 			contains.setFulfilled(false);
 			contains.setFcst(true);
 			contains.setConfirmed(false);
 			
-		}else if((!fixedtList.contains(false)&&fixedtList.contains(true)&&fulfillmentList.contains(true))
-				||(!fixedtList.contains(false)&&fixedtList.contains(true)&&fulfillmentList.contains(false))){
+		}else if((fixedtList.contains(true)&&!fixedtList.contains(false))
+				&&(fulfillmentList.contains(true))) {
+			contains.setFulfilled(true);
+			contains.setFcst(false);
+			contains.setConfirmed(true);
+			
+		}else if((fixedtList.contains(true)&&!fixedtList.contains(false))
+				&&(fulfillmentList.contains(false)&&!fulfillmentList.contains(true))) {
 			contains.setFulfilled(false);
 			contains.setFcst(false);
 			contains.setConfirmed(true);
@@ -685,27 +697,36 @@ public class ProductPredictionServiceImpl {
 			contains.setFulfilled(true);
 			contains.setFcst(false);
 			contains.setConfirmed(false);
-		}else if((outgoingFixedList.contains(true)&&outgoingFixedList.contains(false)&&outgoingFulfilList.contains(true))
-				||(outgoingFixedList.contains(true)&&outgoingFixedList.contains(false))) {
+		}else if((outgoingFixedList.contains(true)&&outgoingFixedList.contains(false)
+				&&outgoingFulfilList.contains(true))) {
 			contains.setFulfilled(true);
 			contains.setFcst(true);
 			contains.setConfirmed(true);
 			
-		}else if((outgoingFixedList.contains(false)&&!outgoingFixedList.contains(true)&&outgoingFulfilList.contains(true))
-				||(outgoingFixedList.contains(false)&&!outgoingFixedList.contains(true)&&outgoingFulfilList.contains(false))) {
-			contains.setFulfilled(false);
+		}else if((outgoingFixedList.contains(false)&&!outgoingFixedList.contains(true))
+				&&outgoingFulfilList.contains(true)) {
+			contains.setFulfilled(true);
 			contains.setFcst(true);
 			contains.setConfirmed(false);
 			
-		}else if((!outgoingFixedList.contains(false)&&outgoingFixedList.contains(true)&&outgoingFulfilList.contains(true))
-				||(!outgoingFixedList.contains(false)&&outgoingFixedList.contains(true)&&outgoingFulfilList.contains(false))){
+		}else if((outgoingFixedList.contains(false)&&!outgoingFixedList.contains(true))
+				&&(outgoingFulfilList.contains(false)&&!outgoingFulfilList.contains(true))) {
 			contains.setFulfilled(false);
+			contains.setFcst(true);
+			contains.setConfirmed(false);
+		}else if((outgoingFixedList.contains(true)&&!outgoingFixedList.contains(false))
+				&&outgoingFulfilList.contains(true)) {
+			contains.setFulfilled(true);
 			contains.setFcst(false);
 			contains.setConfirmed(true);
 			
+		}else if((outgoingFixedList.contains(true)&&!outgoingFixedList.contains(false))
+				&&(outgoingFulfilList.contains(false)&&!outgoingFulfilList.contains(true))) {
+			contains.setFulfilled(false);
+			contains.setFcst(false);
+			contains.setConfirmed(true);
 		}
 		outgoingShipmentValues.setContains(contains);
-		
 	}
 	private int productNumOrdered(List<Order> order, Product product, List<OrderProduct> orderProduct, List<Product> allProduct, List<ProductSet> allProductSet, LocalDateTime dueDate) {
 		List<FetchOrderdProducts> filteredProductSet=new ArrayList<>();
