@@ -35,7 +35,6 @@ public class Product {
     @Column(name = "moq")
     private int moq;
     
-    @Min(1)
     @Column(name = "lead_time")
     private int leadTime;
     
@@ -43,7 +42,6 @@ public class Product {
     @Column(name = "obic_no")
     private String obicNo;
     
-    @Min(1)
     @Column(name = "qty")
     private int quantity;
     
