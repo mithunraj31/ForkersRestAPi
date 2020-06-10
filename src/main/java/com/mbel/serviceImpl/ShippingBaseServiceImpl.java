@@ -707,7 +707,6 @@ public class ShippingBaseServiceImpl {
 
 		incomingShipmentValues.setQuantity(0);
 		incomingShipmentValues.setFixed(true);
-		outgoingShipmentValues.setContains(null);
 		incomingQuantityUpdate(incomingFinalQuantity,incomingShipmentValues,incomingOrderList);
 		predictionData.setIncoming(incomingShipmentValues);
 
