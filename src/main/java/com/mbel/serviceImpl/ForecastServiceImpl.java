@@ -417,7 +417,7 @@ class Mappingfields{
 	private int incomingQuantity;
 
 	private int orderdQuantity;
-
+	
 	private int packageQuantity;
 	
 	private int orderId;
@@ -426,9 +426,13 @@ class Mappingfields{
 
 	private boolean set;
 	
-	private boolean incomingFixed;
+	private List<Boolean> incomingFixed;
 	
 	private boolean outgoingFixed;
+	
+    private List<Boolean> incomingFulfilment;
+	
+	private boolean outgoingFulfilment;
 	
 	private boolean orderFixed;
 	
@@ -436,11 +440,19 @@ class Mappingfields{
 	
 	private String proposalNo;
 	
-	
-
 	private Product product;
 
 	private Product packageProduct;
+	
+	private List<Integer> incomingOrderId;
+	
+	private List<String> shipmnetNo;
+	
+	private List<Integer> individualIncomingQty;
+	
+	private List<String> branch;
+	
+	private boolean delayed;
 
 	public int getCurrentQuantity() {
 		return currentQuantity;
@@ -522,13 +534,6 @@ class Mappingfields{
 		this.incomingQuantity = incomingQuantity;
 	}
 
-	public boolean isIncomingFixed() {
-		return incomingFixed;
-	}
-
-	public void setIncomingFixed(boolean incomingFixed) {
-		this.incomingFixed = incomingFixed;
-	}
 
 	public boolean isOutgoingFixed() {
 		return outgoingFixed;
@@ -568,6 +573,70 @@ class Mappingfields{
 
 	public void setProposalNo(String proposalNo) {
 		this.proposalNo = proposalNo;
+	}
+
+	public boolean isOutgoingFulfilment() {
+		return outgoingFulfilment;
+	}
+
+	public void setOutgoingFulfilment(boolean outgoingFulfilment) {
+		this.outgoingFulfilment = outgoingFulfilment;
+	}
+
+	public List<Integer> getIncomingOrderId() {
+		return incomingOrderId;
+	}
+
+	public List<String> getShipmnetNo() {
+		return shipmnetNo;
+	}
+
+	public void setIncomingOrderId(List<Integer> incomingOrderId) {
+		this.incomingOrderId = incomingOrderId;
+	}
+
+	public void setShipmnetNo(List<String> shipmnetNo) {
+		this.shipmnetNo = shipmnetNo;
+	}
+
+	public List<Integer> getIndividualIncomingQty() {
+		return individualIncomingQty;
+	}
+
+	public void setIndividualIncomingQty(List<Integer> individualIncomingQty) {
+		this.individualIncomingQty = individualIncomingQty;
+	}
+
+	public List<Boolean> getIncomingFulfilment() {
+		return incomingFulfilment;
+	}
+
+	public void setIncomingFulfilment(List<Boolean> incomingFulfilment) {
+		this.incomingFulfilment = incomingFulfilment;
+	}
+
+	public List<Boolean> getIncomingFixed() {
+		return incomingFixed;
+	}
+
+	public void setIncomingFixed(List<Boolean> incomingFixed) {
+		this.incomingFixed = incomingFixed;
+	}
+
+	public List<String> getBranch() {
+		return branch;
+	}
+
+	public void setBranch(List<String> branch) {
+		this.branch = branch;
+	}
+
+	public boolean isDelayed() {
+		return delayed;
+	}
+
+	public void setDelayed(boolean delayed) {
+		this.delayed = delayed;
 	}
 
 

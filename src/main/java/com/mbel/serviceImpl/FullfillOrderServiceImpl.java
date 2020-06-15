@@ -205,6 +205,7 @@ public class FullfillOrderServiceImpl {
 		Order order=orderDao.findById(orderId).orElse(null);
 		if(Objects.nonNull(order)) {
 			order.setFulfilled(fulfillment);
+			order.setActive(true);
 			orderDao.save(order);
 		}
 	}

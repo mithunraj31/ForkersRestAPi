@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,9 +42,16 @@ public class  IncomingShipmentController{
 	}
 
 	@GetMapping("/shipment/incoming/")
-	public List<FetchIncomingOrderdProducts> allIncomingShipment()  {
-		return incomingShipmentServiceImpl.getAllIncomingShipment();
+	@ResponseBody
+	public List<FetchIncomingOrderdProducts> allIncomingShipment(@RequestParam Map<String,String> allParams)  {
+		return incomingShipmentServiceImpl.getAllIncomingShipment(allParams);
 	}
+	
+	@GetMapping("/shipment/incoming/arrived/")
+	public List<FetchIncomingOrderdProducts> arivedIncomingShipment()  {
+		return incomingShipmentServiceImpl.getAllArrivedIncomingShipment();
+	}
+	
 	@GetMapping("/shipment/incoming/{incomingShipmentId}")
 	public FetchIncomingOrderdProducts incomingShipmentById(@PathVariable (value="incomingShipmentId") @Valid int incomingShipmentId) {
 		return incomingShipmentServiceImpl.getIncomingShipmentById(incomingShipmentId);
@@ -63,6 +72,34 @@ public class  IncomingShipmentController{
 
 	}
 	
+	@PostMapping("/shipment/incoming/confirm/")
+	public IncomingShipment undoConfirmOrder(@Valid @RequestBody UndoConfirmedIncomingOrder incomingOrderDisplay){
+		return incomingShipmentServiceImpl.undoConfirmedIncomingOrder(incomingOrderDisplay.getIncomingShipmentId(),incomingOrderDisplay.isConfirm());
+	}
+	
+}
+
+class UndoConfirmedIncomingOrder {
+	
+	private int incomingShipmentId;
+	
+	private boolean confirm;
+
+	public int getIncomingShipmentId() {
+		return incomingShipmentId;
+	}
+
+	public void setIncomingShipmentId(int incomingShipmentId) {
+		this.incomingShipmentId = incomingShipmentId;
+	}
+
+	public boolean isConfirm() {
+		return confirm;
+	}
+
+	public void setConfirm(boolean confirm) {
+		this.confirm = confirm;
+	}
 }
 
 

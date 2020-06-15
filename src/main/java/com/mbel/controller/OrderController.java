@@ -1,6 +1,7 @@
 package com.mbel.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mbel.dto.PopulateOrderDto;
@@ -37,8 +40,14 @@ public class  OrderController{
 	}
 
 	@GetMapping("/order/")
-	public List<PopulateOrderDto> allOrder() {
-		return orderServiceImpl.getAllOrders();
+	@ResponseBody
+	public List<PopulateOrderDto> allOrder(@RequestParam Map<String,String> allParams){
+		return orderServiceImpl.getAllOrders(allParams);
+	}
+	
+	@GetMapping("/order/fulfilled/")
+	public List<PopulateOrderDto> allFulfilledOrder() {
+		return orderServiceImpl.getAllFulfilledOrders();
 	}
 
 	@GetMapping("/order/{orderId}")
@@ -61,7 +70,72 @@ public class  OrderController{
 
 	}
 	
+	@PostMapping("/order/display/")
+	public Order displayOrder(@Valid @RequestBody OrderDisplay orderDisplay){
+		return orderServiceImpl.orderDisplay(orderDisplay.getOrderId(),orderDisplay.isDisplay());
+	}
+	
+	@GetMapping("/order/delayed/count/")
+	public Map<String, Integer> delayedOrderCount() {
+		return orderServiceImpl.getDelayedOrderCount();
+	}
+	
+	@PostMapping("/order/confirm/")
+	public Order confirmOrder(@Valid @RequestBody ConfirmOrder orderDisplay){
+		return orderServiceImpl.orderConfirm(orderDisplay.getOrderId(),orderDisplay.isConfirm());
+	}
+	
+	
 }
 
+class ConfirmOrder {
+	
+	private int orderId;
+	
+	private boolean confirm;
+
+	public int getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(int orderId) {
+		this.orderId = orderId;
+	}
+
+	public boolean isConfirm() {
+		return confirm;
+	}
+
+	public void setConfirm(boolean confirm) {
+		this.confirm = confirm;
+	}
+
+	
+	}
+
+
+class OrderDisplay {
+	
+	private int orderId;
+	
+	private boolean display;
+
+	public int getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(int orderId) {
+		this.orderId = orderId;
+	}
+
+	public boolean isDisplay() {
+		return display;
+	}
+
+	public void setDisplay(boolean display) {
+		this.display = display;
+	}
+
+}
 
 

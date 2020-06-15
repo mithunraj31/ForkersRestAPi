@@ -15,5 +15,14 @@ public class Constants {
 	public static final String PRICE ="price";
 	public static final String MESSAGE ="message";
 	public static final String USER_NAME ="userName";
+	public static final String FCST="fcst";
+	public static final String WAIT="?wait";
+	public static final String WITH_KITTING="?withKitting";
+	public static final String WITHOUT_KITTING="?withoutKitting";
+	public static final String NOT_CONFIRMED="notConfirmed";
+	public static final String NOT_IN_STOCK="?notInStock";
+	public static final String ARRIVED="?arrived";
+	
+	
 	
 }

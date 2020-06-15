@@ -12,25 +12,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mbel.dto.ProductPredictionDto;
-import com.mbel.serviceImpl.ProductPredictionServiceImpl;
+import com.mbel.serviceImpl.ShippingBaseServiceImpl;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/mbel")
-public class ProductPredictionController {
+public class ShippingBaseController {
 
 	@Autowired
-	ProductPredictionServiceImpl productPredictionServiceImpl;
+	ShippingBaseServiceImpl shippingBaseServiceImpl;
 
-	@GetMapping("/product/forecast/{year}/{month}")
+	@GetMapping("/shippingbase/forecast/{year}/{month}")
 	public List<ProductPredictionDto> productPrediction(@PathVariable (value="year") @Valid int year,
 			@PathVariable (value="month") @Valid int month) {
-		 return productPredictionServiceImpl.getProductPrediction(year, month);
+		 return shippingBaseServiceImpl.getProductPrediction(year, month);
 	}
 	
-	@GetMapping("/product/forecast/")
+	@GetMapping("/shippingbase/forecast/")
 	public List<ProductPredictionDto> productPrediction() {
-		 return productPredictionServiceImpl.getProductPrediction(2020, 04);
+		 return shippingBaseServiceImpl.getProductPrediction(2020, 02);
 	}
 
 }

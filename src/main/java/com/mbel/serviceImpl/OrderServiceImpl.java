@@ -2,7 +2,9 @@ package com.mbel.serviceImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mbel.config.JwtAuthenticationFilter;
+import com.mbel.constants.Constants;
 import com.mbel.dao.CustomerDao;
 import com.mbel.dao.OrderDao;
 import com.mbel.dao.OrderProductDao;
@@ -68,15 +71,15 @@ public class OrderServiceImpl  {
 				.collect(Collectors.toList());
 	}
 
-	public List<PopulateOrderDto> getAllOrders() {
-		List<Order>activeOrder =getActiveOrders();
+	public List<PopulateOrderDto> getAllOrders(Map<String, String> allParams) {
+		List<Order>sortedOrder =getSortedOrders(allParams);
 		List<UserEntity> userList = userDao.findAll();
 		List<Customer> customerList = customerDao.findAll();
 		List<Product> allProduct = productDao.findAll();
 		List<ProductSet> allProductSet =productSetDao.findAll();
 		List<OrderProduct>orderProduct =orderProductDao.findAll(); 
 		List<PopulateOrderDto>populateList =new ArrayList<>();
-		for(Order order:activeOrder) {
+		for(Order order:sortedOrder) {
 			PopulateOrderDto populate = new PopulateOrderDto();
 			populate.setOrderId(order.getOrderId());
 			populate.setProposalNo(order.getProposalNo());
@@ -95,6 +98,8 @@ public class OrderServiceImpl  {
 			populate.setCustomer(getCustomer(customerList,order.getCustomerId()));
 			populate.setSalesDestination(getCustomer(customerList,order.getSalesDestinationId()));
 			populate.setContractor(getCustomer(customerList,order.getContractorId()));
+			populate.setDisplay(order.isDisplay());
+			populate.setDelayed(!order.getDueDate().isAfter(LocalDateTime.now()));
 			populate.setOrderedProducts(productPredictionServiceImpl.getAllProducts(order,orderProduct,allProduct,allProductSet));
 			populateList.add(populate);
 		}
@@ -121,11 +126,13 @@ public class OrderServiceImpl  {
 		populate.setForecast(order.isForecast());
 		populate.setFulfilled(order.isFulfilled());
 		populate.setFixed(order.isFixed());
+		populate.setDisplay(order.isDisplay());
 		populate.setUser(getUser(userList,order.getUserId()));
 		populate.setSalesUser(getUser(userList,order.getSalesUserId()));
 		populate.setEditReason(order.getEditReason());
 		populate.setCreatedAt(order.getCreatedAt());
 		populate.setUpdatedAt(order.getUpdatedAt());
+		populate.setDelayed(!order.getDueDate().isAfter(LocalDateTime.now()));
 		populate.setCustomer(getCustomer(customerList,order.getCustomerId()));
 		populate.setSalesDestination(getCustomer(customerList,order.getSalesDestinationId()));
 		populate.setContractor(getCustomer(customerList,order.getContractorId()));
@@ -150,7 +157,7 @@ public class OrderServiceImpl  {
 		.filter(predicate->predicate.getCustomerId()==customerId)
 		.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
             if (list.size() != 1) {
-            	return null;
+            	return emptyCustomer();
             }
             return list.get(0);
         }));
@@ -159,6 +166,13 @@ public class OrderServiceImpl  {
 
 		
 	
+
+	private Customer emptyCustomer() {
+		Customer customer =new Customer();
+		customer.setCustomerName(" ");
+		return customer;
+		
+	}
 
 	public Order getupdateOrderById(int orderId, @Valid SaveOrderSetDto newOrderSet) {
 		int orderedId =0;
@@ -220,6 +234,7 @@ public class OrderServiceImpl  {
 		order.setActive(true);
 		order.setForecast(true);
 		order.setFulfilled(false);
+		order.setDisplay(true);
 		order.setFixed(newOrderSet.isFixed());
 		order.setUserId(jwt.getUserdetails().getUserId());
 		order.setSalesUserId(newOrderSet.getSalesUserId());
@@ -251,7 +266,239 @@ public class OrderServiceImpl  {
 		return estimationValue;
 		
 	}
+
+	public List<PopulateOrderDto> getAllFulfilledOrders() {
+		List<Order>activeOrder =getfulfilledOrders();
+		List<UserEntity> userList = userDao.findAll();
+		List<Customer> customerList = customerDao.findAll();
+		List<Product> allProduct = productDao.findAll();
+		List<ProductSet> allProductSet =productSetDao.findAll();
+		List<OrderProduct>orderProduct =orderProductDao.findAll(); 
+		List<PopulateOrderDto>populateList =new ArrayList<>();
+		for(Order order:activeOrder) {
+			PopulateOrderDto populate = new PopulateOrderDto();
+			populate.setOrderId(order.getOrderId());
+			populate.setProposalNo(order.getProposalNo());
+			populate.setReceivedDate(order.getReceivedDate());
+			populate.setDueDate(order.getDueDate());
+			populate.setDeliveryDate(order.getDeliveryDate());
+			populate.setActive(order.isActive());
+			populate.setForecast(order.isForecast());
+			populate.setFulfilled(order.isFulfilled());
+			populate.setFixed(order.isFixed());
+			populate.setDisplay(order.isDisplay());
+			populate.setUser(getUser(userList,order.getUserId()));
+			populate.setSalesUser(getUser(userList,order.getSalesUserId()));
+			populate.setEditReason(order.getEditReason());
+			populate.setCreatedAt(order.getCreatedAt());
+			populate.setUpdatedAt(order.getUpdatedAt());
+			populate.setCustomer(getCustomer(customerList,order.getCustomerId()));
+			populate.setSalesDestination(getCustomer(customerList,order.getSalesDestinationId()));
+			populate.setContractor(getCustomer(customerList,order.getContractorId()));
+			populate.setOrderedProducts(productPredictionServiceImpl.getAllProducts(order,orderProduct,allProduct,allProductSet));
+			populateList.add(populate);
+		}
+
+		return populateList;
+
+	}
+
+	private List<Order> getfulfilledOrders() {
+		List<Order>order =orderDao.findAll(); 
+		return order.stream()
+				.filter(predicate->predicate.isFulfilled())
+				.collect(Collectors.toList());
 	
+	}
+
+	public Order orderDisplay(int orderId,boolean display) {
+		Order order = orderDao.findById(orderId).orElse(null);
+		if(Objects.nonNull(order)) {
+			order.setDisplay(display);
+			orderDao.save(order);
+		}
+		return order;
+	}
+
+	public Map<String, Integer> getDelayedOrderCount() {
+		List<Order> order = orderDao.findAll().stream()
+		.filter(predicate->predicate.isActive() && !predicate.isFulfilled() 
+				&&predicate.isFixed()&&! predicate.getDeliveryDate().isAfter(LocalDateTime.now())) 
+		.collect(Collectors.toList());
+		Map<String, Integer> response = new HashMap<>();
+		response.put("count", order.size());
+		return response;
+	}
+
+	public Order orderConfirm(int orderId, boolean confirm) {
+		Order order = orderDao.findById(orderId).orElse(null);
+		if(Objects.nonNull(order)) {
+			order.setFixed(confirm);
+			order.setForecast(true);
+			orderDao.save(order);
+		}
+		return order;
+	}
+
+	private List<Order> getSortedOrders(Map<String, String> allParams) {
+			List<Order>order =orderDao.findAll().stream()
+					.filter(predicate->!predicate.isFulfilled()&&predicate.isActive())
+					.collect(Collectors.toList());
+			List<Order>sortedOrderList = new ArrayList<>();
+			if(isSortAllParamTrue(allParams)) {
+				sortedOrderList.addAll(order);
+			}else if(isSortAllParamFalse(allParams)){
+				return sortedOrderList;
+			}else {
+                    sortAccordingToParam(allParams,sortedOrderList,order);
+			}
+			return sortedOrderList;
+			
+		
+		
+	}
+
+
+	private void sortAccordingToParam(Map<String, String> allParams, List<Order> sortedOrderList, List<Order> order) {
+
+		if(Boolean.parseBoolean(allParams.get(Constants.FCST))) {
+			sortedOrderList.addAll(order.stream()
+					.filter(predicate->predicate.isForecast()&&!predicate.isFixed())
+					.collect(Collectors.toList()));
+		}
+		if(Boolean.parseBoolean(allParams.get(Constants.WAIT))) {
+			if(sortedOrderList.isEmpty()) {
+			sortedOrderList.addAll(order.stream()
+					.filter(predicate->predicate.isFixed())
+					.collect(Collectors.toList()));
+			}else {
+				sortedOrderList.clear();
+				sortedOrderList.addAll(order.stream()
+						.filter(predicate->predicate.isFixed()
+								||predicate.isForecast())
+						.collect(Collectors.toList()));
+				
+			}
+		}
+		if(Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))) {
+			if(sortedOrderList.isEmpty()) {
+			sortedOrderList.addAll(order.stream()
+					.filter(predicate->predicate.isDisplay())
+					.collect(Collectors.toList()));
+			}else {
+				sortedOrderList.clear();
+			   displayedMultipleSortingOrder(allParams,sortedOrderList,order);
+				
+			}
+		}
+		if(Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING))) {
+			if(sortedOrderList.isEmpty()) {
+			sortedOrderList.addAll(order.stream()
+					.filter(predicate->!predicate.isDisplay())
+					.collect(Collectors.toList()));
+			}else {
+				sortedOrderList.clear();
+				   unDisplayedMultipleSortingOrder(allParams,sortedOrderList,order);
+					
+				}
+		}
+		
+		
+	}
+
+	private void unDisplayedMultipleSortingOrder(Map<String, String> allParams,
+			List<Order> sortedOrderList,List<Order> order) {
+		if(Boolean.parseBoolean(allParams.get(Constants.FCST))
+				&&Boolean.parseBoolean(allParams.get(Constants.WAIT))
+				&&Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))) {
+			sortedOrderList.addAll(order.stream()
+					.filter(predicate->predicate.isForecast()
+							&&predicate.isFixed())
+					.collect(Collectors.toList()));
+			
+		}else if(Boolean.parseBoolean(allParams.get(Constants.FCST))
+				&&!Boolean.parseBoolean(allParams.get(Constants.WAIT))
+				&&Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))) {
+			sortedOrderList.addAll(order.stream()
+					.filter(predicate->predicate.isForecast()
+							&&!predicate.isFixed())
+					.collect(Collectors.toList()));
+		}else if(!Boolean.parseBoolean(allParams.get(Constants.FCST))
+				&&Boolean.parseBoolean(allParams.get(Constants.WAIT))
+				&&Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))) {
+			sortedOrderList.addAll(order.stream()
+					.filter(predicate->predicate.isFixed())
+					.collect(Collectors.toList()));
+		}else if(Boolean.parseBoolean(allParams.get(Constants.FCST))
+				&&Boolean.parseBoolean(allParams.get(Constants.WAIT))
+				&&!Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))) {
+			sortedOrderList.addAll(order.stream()
+					.filter(predicate->!predicate.isDisplay()
+							&&(predicate.isForecast()||predicate.isFixed()))
+					.collect(Collectors.toList()));
+		}else if(Boolean.parseBoolean(allParams.get(Constants.FCST))) {
+			sortedOrderList.addAll(order.stream()
+					.filter(predicate->!predicate.isDisplay()
+							&&predicate.isForecast()&&!predicate.isFixed())
+					.collect(Collectors.toList()));
+			
+		}else if(Boolean.parseBoolean(allParams.get(Constants.WAIT))) {
+			sortedOrderList.addAll(order.stream()
+					.filter(predicate->!predicate.isDisplay()
+							&&predicate.isFixed())
+					.collect(Collectors.toList()));
+			
+		}
+		
+		
+	}
+
+	private void displayedMultipleSortingOrder(Map<String, String> allParams,
+			List<Order> sortedOrderList, List<Order> order) {
+		if(Boolean.parseBoolean(allParams.get(Constants.FCST))
+				&&Boolean.parseBoolean(allParams.get(Constants.WAIT))) {
+			sortedOrderList.addAll(order.stream()
+					.filter(predicate->predicate.isDisplay()
+							&&(predicate.isForecast()||predicate.isFixed()))
+					.collect(Collectors.toList()));
+			
+		}else if(Boolean.parseBoolean(allParams.get(Constants.FCST))) {
+			sortedOrderList.addAll(order.stream()
+					.filter(predicate->predicate.isDisplay()
+							&&predicate.isForecast()&&!predicate.isFixed())
+					.collect(Collectors.toList()));
+			
+		}else if(Boolean.parseBoolean(allParams.get(Constants.WAIT))) {
+			sortedOrderList.addAll(order.stream()
+					.filter(predicate->predicate.isDisplay()
+							&&predicate.isFixed())
+					.collect(Collectors.toList()));
+			
+		}
+		
+		
+	}
 	
+	private boolean isSortAllParamTrue(Map<String, String> allParams) {
+		return (Boolean.parseBoolean(allParams.get(Constants.FCST))&&Boolean.parseBoolean(allParams.get(Constants.WAIT))
+				&&Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING)));
+		 
+	}
+	private boolean isSortAllParamFalse(Map<String, String> allParams) {
+	return((!Boolean.parseBoolean(allParams.get(Constants.FCST))&&!Boolean.parseBoolean(allParams.get(Constants.WAIT))
+			&&!Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&!Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING)))
+			||((!Boolean.parseBoolean(allParams.get(Constants.FCST))&&!Boolean.parseBoolean(allParams.get(Constants.WAIT)))
+					&&Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING)))
+					||((!Boolean.parseBoolean(allParams.get(Constants.FCST))&&!Boolean.parseBoolean(allParams.get(Constants.WAIT))
+							&&!Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING))))
+							||((!Boolean.parseBoolean(allParams.get(Constants.FCST))&&!Boolean.parseBoolean(allParams.get(Constants.WAIT))
+									&&Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&!Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING))))
+							||((Boolean.parseBoolean(allParams.get(Constants.FCST))&&!Boolean.parseBoolean(allParams.get(Constants.WAIT))
+									&&!Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&!Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING))))
+							||((!Boolean.parseBoolean(allParams.get(Constants.FCST))&&Boolean.parseBoolean(allParams.get(Constants.WAIT))
+									&&!Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&!Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING))))
+							||((Boolean.parseBoolean(allParams.get(Constants.FCST))&&Boolean.parseBoolean(allParams.get(Constants.WAIT))
+									&&!Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))&&!Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING)))));
+	}
 }
 

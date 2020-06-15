@@ -8,9 +8,13 @@ public class OrderData {
 
 	private boolean fixed;
 	
+	private boolean delayed;
+	
 	private int quantity;
 	
 	private String proposalNo;
+	
+	private boolean fulfilled;
 	
 	public String getProposalNo() {
 		return proposalNo;
@@ -51,6 +55,24 @@ public class OrderData {
 	public void setFixed(boolean fixed) {
 		this.fixed = fixed;
 	}
+
+	public boolean isFulfilled() {
+		return fulfilled;
+	}
+
+	public void setFulfilled(boolean fulfilled) {
+		this.fulfilled = fulfilled;
+	}
+
+	public boolean isDelayed() {
+		return delayed;
+	}
+
+	public void setDelayed(boolean delayed) {
+		this.delayed = delayed;
+	}
+
+
 
 
 

@@ -8,6 +8,12 @@ public class ProductOutgoingShipmentModel{
 	
 	private Boolean fixed;
 	
+	private int fulfilled;
+	
+	private Boolean delayed;
+	
+	private ColourData contains;
+	
 	private List<OrderData> orders;
 
 
@@ -35,8 +41,31 @@ public class ProductOutgoingShipmentModel{
 		this.orders = orders;
 	}
 
-	
-	
+	public int getFulfilled() {
+		return fulfilled;
+	}
+
+	public void setFulfilled(int fulfilled) {
+		this.fulfilled = fulfilled;
+	}
+
+	public Boolean getDelayed() {
+		return delayed;
+	}
+
+	public void setDelayed(Boolean delayed) {
+		this.delayed = delayed;
+	}
+
+	public ColourData getContains() {
+		return contains;
+	}
+
+	public void setContains(ColourData contains) {
+		this.contains = contains;
+	}
+
+
 
 }
 
