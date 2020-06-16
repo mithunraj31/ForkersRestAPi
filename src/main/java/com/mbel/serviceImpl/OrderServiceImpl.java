@@ -360,112 +360,73 @@ public class OrderServiceImpl  {
 
 
 	private void sortAccordingToParam(Map<String, String> allParams, List<Order> sortedOrderList, List<Order> order) {
-
-		if(Boolean.parseBoolean(allParams.get(Constants.FCST))) {
-			sortedOrderList.addAll(order.stream()
-					.filter(predicate->predicate.isForecast()&&!predicate.isFixed())
-					.collect(Collectors.toList()));
-		}
-		if(Boolean.parseBoolean(allParams.get(Constants.WAIT))) {
-			if(sortedOrderList.isEmpty()) {
-			sortedOrderList.addAll(order.stream()
-					.filter(predicate->predicate.isFixed())
-					.collect(Collectors.toList()));
-			}else {
-				sortedOrderList.clear();
-				sortedOrderList.addAll(order.stream()
-						.filter(predicate->predicate.isFixed()
-								||predicate.isForecast())
-						.collect(Collectors.toList()));
-				
-			}
-		}
-		if(Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))) {
-			if(sortedOrderList.isEmpty()) {
-			sortedOrderList.addAll(order.stream()
-					.filter(predicate->predicate.isDisplay())
-					.collect(Collectors.toList()));
-			}else {
-				sortedOrderList.clear();
+		if(Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))
+				&&Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING))) {
 			   displayedMultipleSortingOrder(allParams,sortedOrderList,order);
 				
-			}
 		}
-		if(Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING))) {
-			if(sortedOrderList.isEmpty()) {
-			sortedOrderList.addAll(order.stream()
-					.filter(predicate->!predicate.isDisplay())
-					.collect(Collectors.toList()));
-			}else {
-				sortedOrderList.clear();
-				   unDisplayedMultipleSortingOrder(allParams,sortedOrderList,order);
+		if(Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))
+				&&!Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING))) {
+			displayedWithKittingOrder(allParams,sortedOrderList,order);
+				
+		}
+		if(Boolean.parseBoolean(allParams.get(Constants.WITHOUT_KITTING))
+				&&!Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))) {
+			displayedWithoutKittingOrder(allParams,sortedOrderList,order);
 					
-				}
 		}
 		
 		
 	}
 
-	private void unDisplayedMultipleSortingOrder(Map<String, String> allParams,
+	private void displayedMultipleSortingOrder(Map<String, String> allParams, List<Order> sortedOrderList,
+			List<Order> order) {
+	 if(Boolean.parseBoolean(allParams.get(Constants.FCST))) {
+			sortedOrderList.addAll(order.stream()
+					.filter(predicate->!predicate.isFixed())
+					.collect(Collectors.toList()));
+		}else if(Boolean.parseBoolean(allParams.get(Constants.WAIT))) {
+			sortedOrderList.addAll(order.stream()
+					.filter(Order::isFixed)
+					.collect(Collectors.toList()));
+		}
+		
+	}
+
+	private void displayedWithoutKittingOrder(Map<String, String> allParams,
 			List<Order> sortedOrderList,List<Order> order) {
 		if(Boolean.parseBoolean(allParams.get(Constants.FCST))
-				&&Boolean.parseBoolean(allParams.get(Constants.WAIT))
-				&&Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))) {
+				&&Boolean.parseBoolean(allParams.get(Constants.WAIT))) {
 			sortedOrderList.addAll(order.stream()
-					.filter(predicate->predicate.isForecast()
-							&&predicate.isFixed())
+					.filter(predicate->!predicate.isDisplay())
 					.collect(Collectors.toList()));
 			
-		}else if(Boolean.parseBoolean(allParams.get(Constants.FCST))
-				&&!Boolean.parseBoolean(allParams.get(Constants.WAIT))
-				&&Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))) {
-			sortedOrderList.addAll(order.stream()
-					.filter(predicate->predicate.isForecast()
-							&&!predicate.isFixed())
-					.collect(Collectors.toList()));
-		}else if(!Boolean.parseBoolean(allParams.get(Constants.FCST))
-				&&Boolean.parseBoolean(allParams.get(Constants.WAIT))
-				&&Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))) {
-			sortedOrderList.addAll(order.stream()
-					.filter(predicate->predicate.isFixed())
-					.collect(Collectors.toList()));
-		}else if(Boolean.parseBoolean(allParams.get(Constants.FCST))
-				&&Boolean.parseBoolean(allParams.get(Constants.WAIT))
-				&&!Boolean.parseBoolean(allParams.get(Constants.WITH_KITTING))) {
-			sortedOrderList.addAll(order.stream()
-					.filter(predicate->!predicate.isDisplay()
-							&&(predicate.isForecast()||predicate.isFixed()))
-					.collect(Collectors.toList()));
 		}else if(Boolean.parseBoolean(allParams.get(Constants.FCST))) {
 			sortedOrderList.addAll(order.stream()
 					.filter(predicate->!predicate.isDisplay()
-							&&predicate.isForecast()&&!predicate.isFixed())
+							&&!predicate.isFixed())
 					.collect(Collectors.toList()));
-			
 		}else if(Boolean.parseBoolean(allParams.get(Constants.WAIT))) {
 			sortedOrderList.addAll(order.stream()
 					.filter(predicate->!predicate.isDisplay()
 							&&predicate.isFixed())
 					.collect(Collectors.toList()));
-			
 		}
-		
 		
 	}
 
-	private void displayedMultipleSortingOrder(Map<String, String> allParams,
+	private void displayedWithKittingOrder(Map<String, String> allParams,
 			List<Order> sortedOrderList, List<Order> order) {
 		if(Boolean.parseBoolean(allParams.get(Constants.FCST))
 				&&Boolean.parseBoolean(allParams.get(Constants.WAIT))) {
 			sortedOrderList.addAll(order.stream()
-					.filter(predicate->predicate.isDisplay()
-							&&(predicate.isForecast()||predicate.isFixed()))
+					.filter(Order::isDisplay)
 					.collect(Collectors.toList()));
 			
 		}else if(Boolean.parseBoolean(allParams.get(Constants.FCST))) {
 			sortedOrderList.addAll(order.stream()
 					.filter(predicate->predicate.isDisplay()
-							&&predicate.isForecast()&&!predicate.isFixed())
+						&&!predicate.isFixed())
 					.collect(Collectors.toList()));
 			
 		}else if(Boolean.parseBoolean(allParams.get(Constants.WAIT))) {
