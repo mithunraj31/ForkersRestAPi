@@ -234,7 +234,7 @@ public class OrderServiceImpl  {
 		order.setActive(true);
 		order.setForecast(true);
 		order.setFulfilled(false);
-		order.setDisplay(true);
+		order.setDisplay(false);
 		order.setFixed(newOrderSet.isFixed());
 		order.setUserId(jwt.getUserdetails().getUserId());
 		order.setSalesUserId(newOrderSet.getSalesUserId());
