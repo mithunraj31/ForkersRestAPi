@@ -3,6 +3,7 @@ package com.mbel.serviceImpl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,18 +99,12 @@ public class KittingBaseServiceImpl {
 			List<ProductSet> productsetList= allProductSet.stream()
 					.filter(predicate->predicate.getSetId()==product.getProductId())
 					.collect(Collectors.toList());
+			List<Product> productList=sortProductInProductSet(productsetList,allProduct);
 			List<ProductDataDto>productDataDtoList=new ArrayList<>();
-			for(int l=0;l< productsetList.size();l++ ) {
+			for(int l=0;l< productList.size();l++ ) {
 				ProductDataDto productDataDto =new ProductDataDto();
 				predictionDataList = new ArrayList<>();
-				int productComponentId =productsetList.get(l).getProductComponentId();
-				Product component =allProduct.stream().filter(predicate->predicate.getProductId()==productComponentId)
-						.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
-							if (list.size() != 1) {
-								return null;
-							}
-							return list.get(0);
-						}));
+				Product component =productList.get(l);
 				productDataDto.setDescription(component.getDescription());
 				productDataDto.setProductId(component.getProductId());
 				productDataDto.setObicNo(component.getObicNo());
@@ -154,6 +149,24 @@ public class KittingBaseServiceImpl {
 		return productPredictionDtoList;
 	} 
 
+	private List<Product> sortProductInProductSet(List<ProductSet> productsetList, List<Product> allProduct) {
+		List<Product> productList=new ArrayList<>();
+		for(int l=0;l< productsetList.size();l++ ) {
+			int productComponentId =productsetList.get(l).getProductComponentId();
+			Product component =allProduct.stream().filter(predicate->predicate.getProductId()==productComponentId)
+					.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
+						if (list.size() != 1) {
+							return null;
+						}
+						return list.get(0);
+					}));
+			productList.add(component);
+			
+		}
+		productList.sort(Comparator.comparingInt(predicate->predicate.getSort()));
+		return productList;
+		
+	}
 	private String getCustomer(List<Customer> customerList, int customerId) {
 		return customerList.stream()
 				.filter(predicate->predicate.getCustomerId()==customerId)
