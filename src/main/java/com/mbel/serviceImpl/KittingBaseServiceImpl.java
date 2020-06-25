@@ -528,6 +528,7 @@ public class KittingBaseServiceImpl {
 	}
 		outgoingShipmentValues.setContains(contains);
 		predictionData.setDate(dueDate);
+		outgoingShipmentValues.setOrders(orderDataList);
 		predictionData.setOutgoing(outgoingShipmentValues);
 		predictionData.setQuantity(product.getQuantity());
 		incomingShipmentValues.setQuantity(0);
