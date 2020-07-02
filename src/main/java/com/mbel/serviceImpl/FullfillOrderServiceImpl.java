@@ -19,20 +19,19 @@ import org.springframework.stereotype.Service;
 
 import com.mbel.config.JwtAuthenticationFilter;
 import com.mbel.dao.OrderDao;
+import com.mbel.dao.OrderProductDao;
 import com.mbel.dao.ProductDao;
 import com.mbel.dao.ProductSetDao;
 import com.mbel.dto.FetchOrderdProducts;
 import com.mbel.dto.PopulateOrderDto;
 import com.mbel.model.Order;
+import com.mbel.model.OrderProduct;
 import com.mbel.model.Product;
 import com.mbel.model.ProductSet;
 import com.mbel.model.ProductSetModel;
 
 @Service("FullfillOrderServiceImpl")
 public class FullfillOrderServiceImpl {
-
-	@Autowired
-	OrderServiceImpl orderServiceImpl;
 
 	@Autowired
 	ProductPredictionServiceImpl productPredictionServiceImpl;
@@ -45,23 +44,28 @@ public class FullfillOrderServiceImpl {
 
 	@Autowired
 	OrderDao orderDao;
+	
+	@Autowired
+	OrderProductDao orderProductDao;
 
 	@Autowired
 	JwtAuthenticationFilter jwt;
 
 	public ResponseEntity<Map<String, List<ProductSetModel>>> getFullfillOrder(@NotNull int orderId, boolean isFulfillment) {
-		PopulateOrderDto order=orderServiceImpl.getOrderById(orderId);
+		List<OrderProduct>orderProduct =orderProductDao.findAll(); 
 		List<Product>allProduct = productDao.findAll();
 		List<ProductSet>allProductSet=productSetDao.findAll();
+		Order order=orderDao.findById(orderId).orElse(null);
+		int userId=jwt.getUserdetails().getUserId();
+		List<FetchOrderdProducts> orderdProducts=productPredictionServiceImpl.getAllProducts(order,orderProduct,allProduct,allProductSet);
 		List<ProductSetModel> productSetModelList = new ArrayList<>();
 		Map<String, List<ProductSetModel>> response = new HashMap<>();
 		Map<Integer,Product>quantityUpdate=new HashMap<>();
-		List<FetchOrderdProducts> orderdProducts = order.getOrderedProducts();
-		if(order.isFixed()) {
+		if(Objects.nonNull(order)&&order.isFixed()) {
 		for(FetchOrderdProducts product:orderdProducts) {
 			fulfillOrder(product,productSetModelList,quantityUpdate,allProduct,allProductSet,isFulfillment);				
 		}
-		return fulfillOrderStatus(productSetModelList,quantityUpdate,order,response,isFulfillment,allProduct);
+		return fulfillOrderStatus(productSetModelList,quantityUpdate,order,response,isFulfillment,allProduct,userId);
 		}else {
 			response.put("unfulfilled", productSetModelList);
 			return new ResponseEntity<Map<String,List<ProductSetModel>>>(response, HttpStatus.NOT_ACCEPTABLE);
@@ -74,15 +78,15 @@ public class FullfillOrderServiceImpl {
 
 
 	private ResponseEntity<Map<String, List<ProductSetModel>>> fulfillOrderStatus(List<ProductSetModel> productSetModelList, 
-			Map<Integer, Product> quantityUpdate, PopulateOrderDto order, Map<String, List<ProductSetModel>> response, boolean isFulfillment, List<Product> allProduct) {
+			Map<Integer, Product> quantityUpdate, Order order, Map<String, List<ProductSetModel>> response, boolean isFulfillment, List<Product> allProduct, int userId) {
 		List<Product> productList =new ArrayList<>();
 		if(isFulfillment) {
 			if(productSetModelList.isEmpty() && (!order.isFulfilled())) {
 				Set<Entry<Integer, Product>>updateCurrentQuantity =quantityUpdate.entrySet();
 				for(Entry<Integer, Product> update:updateCurrentQuantity) {
-					productList= getupdateById(update.getKey(), update.getValue(),allProduct);
+					productList= getupdateById(update.getKey(), update.getValue(),allProduct,userId);
 				}
-				updateOdrer(productList,order.getOrderId(),true);
+				updateOdrer(productList,order,true,userId);
 				response.put("fulfilled", productSetModelList);
 				return new ResponseEntity<Map<String,List<ProductSetModel>>>(response, HttpStatus.ACCEPTED);
 			}else {
@@ -93,9 +97,9 @@ public class FullfillOrderServiceImpl {
 		}else {			
 			Set<Entry<Integer, Product>>updateCurrentQuantity =quantityUpdate.entrySet();
 			for(Entry<Integer, Product> update:updateCurrentQuantity) {
-				productList= getupdateById(update.getKey(), update.getValue(),allProduct);
+				productList= getupdateById(update.getKey(), update.getValue(),allProduct,userId);
 			}
-			updateOdrer(productList,order.getOrderId(),false);
+			updateOdrer(productList,order,false,userId);
 			response.put("reverted", productSetModelList);
 			return new ResponseEntity<Map<String,List<ProductSetModel>>>(response, HttpStatus.RESET_CONTENT);
 
@@ -104,7 +108,7 @@ public class FullfillOrderServiceImpl {
 	}
 
 
-	private List<Product> getupdateById(int productId, Product productionDetails, List<Product> allProduct) {
+	private List<Product> getupdateById(int productId, Product productionDetails, List<Product> allProduct, int userId) {
 		List<Product>productList = new ArrayList<>();
 		Product product = allProduct.stream()
 				.filter(predicate->predicate.getProductId()==productId)
@@ -124,7 +128,7 @@ public class FullfillOrderServiceImpl {
 			product.setObicNo(productionDetails.getObicNo());
 			product.setQuantity(productionDetails.getQuantity());
 			product.setUpdatedAtDateTime(LocalDateTime.now());
-			product.setUserId(jwt.getUserdetails().getUserId());
+			product.setUserId(userId);
 			product.setCurrency(productionDetails.getCurrency());
 			productList.add(product);
 		}
@@ -200,12 +204,13 @@ public class FullfillOrderServiceImpl {
 
 
 
-	private void updateOdrer(List<Product> productList,int orderId, boolean fulfillment) {
+	private void updateOdrer(List<Product> productList,Order order, boolean fulfillment, int userId) {
 		productDao.saveAll(productList);
-		Order order=orderDao.findById(orderId).orElse(null);
 		if(Objects.nonNull(order)) {
 			order.setFulfilled(fulfillment);
 			order.setActive(true);
+			order.setUpdatedAt(LocalDateTime.now());
+			order.setUserId(userId);
 			orderDao.save(order);
 		}
 	}
@@ -252,7 +257,6 @@ public class FullfillOrderServiceImpl {
 		productSetModel.setRequiredQuantity(orderdQunatity);
 		productSetModelList.add(productSetModel);
 	}
-
-
-
+	
+	
 }

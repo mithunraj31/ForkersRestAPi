@@ -129,6 +129,7 @@ public class CustomerServiceImpl  {
 		if(customerValue.isPresent()) {
 			Customer customer = customerValue.get();
 			customer.setActive(false);
+			customer.setUpdatedAtDateTime(LocalDateTime.now());
 			customerDao.save(customer); 
 		}
 		Map<String, String> response = new HashMap<>();
