@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.mbel.config.JwtAuthenticationFilter;
+import com.mbel.constants.Constants;
 import com.mbel.dao.OrderDao;
 import com.mbel.dao.OrderProductDao;
 import com.mbel.dao.ProductDao;
@@ -67,7 +68,7 @@ public class FullfillOrderServiceImpl {
 		}
 		return fulfillOrderStatus(productSetModelList,quantityUpdate,order,response,isFulfillment,allProduct,userId);
 		}else {
-			response.put("unfulfilled", productSetModelList);
+			response.put(Constants.UNFULFILLED, productSetModelList);
 			return new ResponseEntity<Map<String,List<ProductSetModel>>>(response, HttpStatus.NOT_ACCEPTABLE);
 		}
 
@@ -87,10 +88,10 @@ public class FullfillOrderServiceImpl {
 					productList= getupdateById(update.getKey(), update.getValue(),allProduct,userId);
 				}
 				updateOdrer(productList,order,true,userId);
-				response.put("fulfilled", productSetModelList);
+				response.put(Constants.FULFILLED, productSetModelList);
 				return new ResponseEntity<Map<String,List<ProductSetModel>>>(response, HttpStatus.ACCEPTED);
 			}else {
-				response.put("unfulfilled", productSetModelList);
+				response.put(Constants.UNFULFILLED, productSetModelList);
 				return new ResponseEntity<Map<String,List<ProductSetModel>>>(response, HttpStatus.NOT_ACCEPTABLE);
 
 			}
@@ -100,7 +101,7 @@ public class FullfillOrderServiceImpl {
 				productList= getupdateById(update.getKey(), update.getValue(),allProduct,userId);
 			}
 			updateOdrer(productList,order,false,userId);
-			response.put("reverted", productSetModelList);
+			response.put(Constants.REVERTED, productSetModelList);
 			return new ResponseEntity<Map<String,List<ProductSetModel>>>(response, HttpStatus.RESET_CONTENT);
 
 		}
@@ -211,6 +212,7 @@ public class FullfillOrderServiceImpl {
 			order.setActive(true);
 			order.setUpdatedAt(LocalDateTime.now());
 			order.setUserId(userId);
+			order.setEditReason(fulfillment?Constants.FULFILLED:Constants.REVERTED);
 			orderDao.save(order);
 		}
 	}

@@ -22,6 +22,17 @@ public class Constants {
 	public static final String NOT_CONFIRMED="notConfirmed";
 	public static final String NOT_IN_STOCK="?notInStock";
 	public static final String ARRIVED="?arrived";
+	public static final String FULFILLED="fulfilled";
+	public static final String REVERTED="reverted";
+	public static final String DELETED = "deleted";
+	public static final String CONFIRMED = "confirmed";
+	public static final String UNFULFILLED="unfulfilled";
+	public static final String COUNT = "count";
+	public static final String DISPLAYED = "Visible is made ON";
+	public static final String UNDISPLAYED = "Visible is made OFF";
+	public static final String INCOMING_SHIPMENT_ID = "incomingShipmentId";
+	public static final String QUANTITY_UPDATED = "Incoming Quantity Updated";
+	public static final String QUANTITY_NOT_FIXED = "Incoming Quantity is not fixed";
 	
 	
 	

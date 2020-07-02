@@ -1,5 +1,6 @@
 package com.mbel.serviceImpl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.mbel.config.JwtAuthenticationFilter;
+import com.mbel.constants.Constants;
 import com.mbel.dao.IncomingShipmentDao;
 import com.mbel.dao.ProductDao;
 import com.mbel.dao.ProductSetDao;
@@ -37,11 +40,16 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 
 		@Autowired 
 		ProductSetDao productSetDao;
+		
+		@Autowired
+		JwtAuthenticationFilter jwt;
+
 
 		public ResponseEntity<Map<String, String>> updateQuantity(int incomingShipmentId, boolean isArrived) {
 			List<IncomingShipment> incomingShipment =new ArrayList<>();
 			List<Product> allProduct = productDao.findAll();
 			List<IncomingShipment> incomingList =incomingShipmentDao.findAll();
+			int userId=jwt.getUserdetails().getUserId();
 			IncomingShipment incoming =incomingList.stream()
 					.filter(predicate->predicate.getIncomingShipmentId()==incomingShipmentId)
 					.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
@@ -55,14 +63,14 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 			if(Objects.nonNull(incoming)&&incoming.isFixed()) {
 			List<FetchIncomingOrderdProducts> allIncomingProducts=
 					productPredictionServiceImpl.getAllIncomingShipment(incomingShipment, allProduct);
-				updateArrivedQuantity(allIncomingProducts,allProduct,isArrived,incoming,incomingList);
-				response.put("message", "Incoming Quantity Updated");
-				response.put("incomingShipmentId", String.valueOf(incomingShipmentId));
+				updateArrivedQuantity(allIncomingProducts,allProduct,isArrived,incoming,incomingList,userId);
+				response.put(Constants.MESSAGE, Constants.QUANTITY_UPDATED);
+				response.put(Constants.INCOMING_SHIPMENT_ID, String.valueOf(incomingShipmentId));
 
 				return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
 			}else {
-				response.put("message", "Incoming Quantity is not fixed");
-				response.put("incomingShipmentId", String.valueOf(incomingShipmentId));
+				response.put(Constants.MESSAGE, Constants.QUANTITY_NOT_FIXED);
+				response.put(Constants.INCOMING_SHIPMENT_ID, String.valueOf(incomingShipmentId));
 
 				return new ResponseEntity<Map<String,String>>(response, HttpStatus.NOT_ACCEPTABLE);
 			}
@@ -70,7 +78,7 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 		}
 
 		private void updateArrivedQuantity(List<FetchIncomingOrderdProducts> allIncomingProducts,
-				List<Product> allProduct, boolean isArrived, IncomingShipment incoming, List<IncomingShipment> incomingList) {
+				List<Product> allProduct, boolean isArrived, IncomingShipment incoming, List<IncomingShipment> incomingList, int userId) {
 			for(FetchIncomingOrderdProducts incomingProduct: allIncomingProducts) {
 			Product product =allProduct.stream()
 					.filter(predicate->predicate.getProductId()==incomingProduct.getProduct().getProductId())
@@ -84,18 +92,22 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 			if(Objects.nonNull(product)&&isArrived) {
 			product.setQuantity(product.getQuantity()+incomingProduct.getConfirmedQty());
 			product.setPrice(product.getPrice()+incomingProduct.getPrice());
+			product.setUpdatedAtDateTime(LocalDateTime.now());
+			product.setUserId(userId);
 			productDao.save(product);
 			incoming.setArrived(true);
-			unDisplayArrivedWithNoPartialOrder(incoming,incomingList);
+			incoming.setUpdatedAt(LocalDateTime.now());
+			incoming.setUserId(userId);
+			unDisplayArrivedWithNoPartialOrder(incoming,incomingList,userId);
 			}else if(Objects.nonNull(product)) {
-				revertStock(incoming,incomingProduct,product,incomingList);
+				revertStock(incoming,incomingProduct,product,incomingList,userId);
 			}
 			}
 			
 			}
 
 		private void unDisplayArrivedWithNoPartialOrder(IncomingShipment incoming,
-				List<IncomingShipment> incomingList) {
+				List<IncomingShipment> incomingList, int userId) {
 			List<IncomingShipment>incomingUnArrivedList=incomingList.stream()
 			.filter(predicate->(predicate.getShipmentNo().equals(incoming.getShipmentNo()))
 					&&predicate.getBranch().equals(incoming.getBranch())&&!predicate.isArrived())
@@ -105,7 +117,11 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 				.filter(predicate->(predicate.getShipmentNo().equals(incoming.getShipmentNo()))
 						&&predicate.getBranch().equals(incoming.getBranch())&&predicate.isArrived())
 				.collect(Collectors.toList());
-				incomingUnDisplayList.forEach(action->action.setActive(false));
+				for(int i=0;i<incomingUnDisplayList.size();i++) {
+					incomingUnDisplayList.get(i).setActive(false);
+					incomingUnDisplayList.get(i).setUpdatedAt(LocalDateTime.now());
+					incomingUnDisplayList.get(i).setUserId(userId);
+				}
 				incomingShipmentDao.saveAll(incomingUnDisplayList);		
 			}else {
 				incomingShipmentDao.save(incoming);	
@@ -115,21 +131,29 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 		}
 
 		private void revertStock(IncomingShipment incoming, FetchIncomingOrderdProducts incomingProduct,
-				Product product, List<IncomingShipment> incomingList) {
+				Product product, List<IncomingShipment> incomingList, int userId) {
 			List<IncomingShipment> saveIncomingList = new ArrayList<>();
 			if(!incoming.isPartial()) {
 			product.setQuantity(product.getQuantity()-incomingProduct.getConfirmedQty());
 			product.setPrice(product.getPrice()-incomingProduct.getPrice());
+			product.setUpdatedAtDateTime(LocalDateTime.now());
+			product.setUserId(userId);
 			productDao.save(product);
 			incoming.setArrived(false);
 			incoming.setActive(true);
+			incoming.setUpdatedAt(LocalDateTime.now());
+			incoming.setUserId(userId);
 			saveIncomingList.add(incoming);
 			}else {
 				product.setQuantity(product.getQuantity()-incomingProduct.getConfirmedQty());
 				product.setPrice(product.getPrice()-incomingProduct.getPrice());
+				product.setUpdatedAtDateTime(LocalDateTime.now());
+				product.setUserId(userId);
 				productDao.save(product);
 				incoming.setArrived(false);
 				incoming.setActive(true);
+				incoming.setUpdatedAt(LocalDateTime.now());
+				incoming.setUserId(userId);
 				saveIncomingList.add(incoming);
 				IncomingShipment incomingComfirm =incomingList.stream()
 						.filter(predicate->predicate.getShipmentNo().equals(incoming.getShipmentNo())&&!predicate.isPartial())
@@ -140,6 +164,8 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 				            return list.get(0);
 				        }));
 				incomingComfirm.setActive(true);
+				incomingComfirm.setUpdatedAt(LocalDateTime.now());
+				incomingComfirm.setUserId(userId);
 				saveIncomingList.add(incomingComfirm);
 				
 			}

@@ -44,6 +44,8 @@ public class IncomingShipmentServiceImpl  {
 
 	@Autowired 
 	ProductDao productDao;
+	
+	
 
 	public @Valid List<IncomingShipment> save(@Valid List<IncomingShipment> incomingShipmentList) {
 		String branch = null;
@@ -229,6 +231,7 @@ public class IncomingShipmentServiceImpl  {
 
 
 	public ResponseEntity<Map<String, String>> deleteIncomingShipmentById(@Valid int incomingShipmentId) {
+		int userId=jwt.getUserdetails().getUserId();
 		List<IncomingShipment>saveIncomingList =new ArrayList<>(); 
 		Map<String, String> response = new HashMap<>();
 		List<IncomingShipment> incomingShipmentList = incomingShipmentDao.findAll();
@@ -242,17 +245,18 @@ public class IncomingShipmentServiceImpl  {
             return list.get(0);
         }));
 		if(incomingShipment!=null&&incomingShipment.isArrived()) {
-			updatingArrivedIncomingShipment(incomingShipmentList,incomingShipment,saveIncomingList);
+			updatingArrivedIncomingShipment(incomingShipmentList,incomingShipment,saveIncomingList,userId);
 			
 		}else {
-			updationgUnArrivedIncomingShipment(incomingShipmentList,incomingShipment,saveIncomingList);
+			updationgUnArrivedIncomingShipment(incomingShipmentList,incomingShipment,saveIncomingList,userId);
 		}
 		incomingShipmentDao.saveAll(saveIncomingList);
-		response.put("message", "IncomingShipment has been deleted");
-		response.put("IncomingShipmentId", String.valueOf(incomingShipmentId));
+		response.put(Constants.MESSAGE, "IncomingShipment has been deleted");
+		response.put(Constants.INCOMING_SHIPMENT_ID, String.valueOf(incomingShipmentId));
 		return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
 	}
-	private void updatingArrivedIncomingShipment(List<IncomingShipment> incomingShipmentList, IncomingShipment incomingShipment, List<IncomingShipment> saveIncomingList) {
+	private void updatingArrivedIncomingShipment(List<IncomingShipment> incomingShipmentList, 
+			IncomingShipment incomingShipment, List<IncomingShipment> saveIncomingList, int userId) {
 	
 		List<IncomingShipment> incomingShipmentPartial=incomingShipmentList.stream()
 				.filter(predicate->predicate.getShipmentNo().equals(incomingShipment.getShipmentNo())
@@ -263,16 +267,21 @@ public class IncomingShipmentServiceImpl  {
 		if(incomingShipment!=null && !incomingShipment.isPartial()) {
 			for(IncomingShipment incoming:incomingShipmentPartial) {
 				incoming.setActive(false);
+				incoming.setUpdatedAt(LocalDateTime.now());
+				incoming.setUserId(userId);
 				saveIncomingList.add(incoming);
 			}
 		}else if(incomingShipment!=null && incomingShipment.isPartial()){
 					incomingShipment.setActive(false);
+					incomingShipment.setUpdatedAt(LocalDateTime.now());
+					incomingShipment.setUserId(userId);
 					saveIncomingList.add(incomingShipment);
 		}
 		
 	}
 
-	private void updationgUnArrivedIncomingShipment(List<IncomingShipment> incomingShipmentList, IncomingShipment incomingShipment, List<IncomingShipment> saveIncomingList) {
+	private void updationgUnArrivedIncomingShipment(List<IncomingShipment> incomingShipmentList,
+			IncomingShipment incomingShipment, List<IncomingShipment> saveIncomingList, int userId) {
 
 		List<IncomingShipment> incomingShipmentPartial=incomingShipmentList.stream()
 				.filter(predicate->predicate.getShipmentNo().equals(incomingShipment.getShipmentNo())
@@ -283,6 +292,8 @@ public class IncomingShipmentServiceImpl  {
 		if(incomingShipment!=null && !incomingShipment.isPartial()) {
 			for(IncomingShipment incoming:incomingShipmentPartial) {
 				incoming.setActive(false);
+				incoming.setUpdatedAt(LocalDateTime.now());
+				incoming.setUserId(userId);
 				saveIncomingList.add(incoming);
 				
 			}
@@ -298,6 +309,8 @@ public class IncomingShipmentServiceImpl  {
 			addIncomingShipment.setPendingQty(addIncomingShipment.getPendingQty()+incomingShipment.getConfirmedQty());
 			saveIncomingList.add(addIncomingShipment);
 			incomingShipment.setActive(false);
+			incomingShipment.setUpdatedAt(LocalDateTime.now());
+			incomingShipment.setUserId(userId);
 			saveIncomingList.add(incomingShipment);
 		}
 		
@@ -379,6 +392,8 @@ public class IncomingShipmentServiceImpl  {
 				incomingShipment.setFixed(confirm);
 				incomingShipment.setPendingQty(incomingShipment.getConfirmedQty());
 				incomingShipment.setConfirmedQty(0);
+				incomingShipment.setUpdatedAt(LocalDateTime.now());
+				incomingShipment.setUserId(jwt.getUserdetails().getUserId());
 				incomingShipmentDao.save(incomingShipment);
 			}
 			return incomingShipment;

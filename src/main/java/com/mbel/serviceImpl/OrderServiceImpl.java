@@ -1,7 +1,6 @@
 package com.mbel.serviceImpl;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -216,6 +215,9 @@ public class OrderServiceImpl  {
 		Order order=orderDao.findById(orderId).orElse(null);
 		if(Objects.nonNull(order)) {
 		order.setActive(false);
+		order.setUpdatedAt(LocalDateTime.now());
+		order.setUserId(jwt.getUserdetails().getUserId());
+		order.setEditReason(Constants.DELETED);
 		return orderDao.save(order);
 		}
 		return order;
@@ -316,6 +318,7 @@ public class OrderServiceImpl  {
 		Order order = orderDao.findById(orderId).orElse(null);
 		if(Objects.nonNull(order)) {
 			order.setDisplay(display);
+			order.setEditReason(display?Constants.DISPLAYED:Constants.UNDISPLAYED);
 			orderDao.save(order);
 		}
 		return order;
@@ -327,7 +330,7 @@ public class OrderServiceImpl  {
 				&&predicate.isFixed()&&! predicate.getDeliveryDate().isAfter(LocalDateTime.now())) 
 		.collect(Collectors.toList());
 		Map<String, Integer> response = new HashMap<>();
-		response.put("count", order.size());
+		response.put(Constants.COUNT, order.size());
 		return response;
 	}
 
@@ -336,6 +339,7 @@ public class OrderServiceImpl  {
 		if(Objects.nonNull(order)) {
 			order.setFixed(confirm);
 			order.setForecast(true);
+			order.setEditReason(Constants.CONFIRMED);
 			orderDao.save(order);
 		}
 		return order;
