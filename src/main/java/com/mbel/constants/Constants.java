@@ -79,17 +79,9 @@ public class Constants {
 
 	public static final String UNDISPLAYED = "7";
 
-	public static final String ARRIVED_CONFIRM_DELETED = "8";
-
-	public static final String ARRIVED_PARTIAL_DELETED = "9";
-
 	public static final String INCOMING_ARRIVED="10";
 
 	public static final String INCOMING_REVERTED="11";
-
-	public static final String UNARRIVED_CONFIRM_DELETED = "12";
-
-	public static final String UNARRIVED_PARTIAL_DELETED = "13";
 
 	public static final String SHIPMENT_EDITED = "14";
 

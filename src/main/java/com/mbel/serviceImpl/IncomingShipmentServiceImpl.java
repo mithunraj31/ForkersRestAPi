@@ -270,14 +270,14 @@ public class IncomingShipmentServiceImpl  {
 				incoming.setActive(false);
 				incoming.setUpdatedAt(LocalDateTime.now());
 				incoming.setUserId(userId);
-				incoming.setEditReason(Constants.ARRIVED_CONFIRM_DELETED);
+				incoming.setEditReason(Constants.DELETED);
 				saveIncomingList.add(incoming);
 			}
 		}else if(incomingShipment!=null && incomingShipment.isPartial()){
 					incomingShipment.setActive(false);
 					incomingShipment.setUpdatedAt(LocalDateTime.now());
 					incomingShipment.setUserId(userId);
-					incomingShipment.setEditReason(Constants.ARRIVED_PARTIAL_DELETED);
+					incomingShipment.setEditReason(Constants.DELETED);
 					saveIncomingList.add(incomingShipment);
 		}
 		
@@ -297,7 +297,7 @@ public class IncomingShipmentServiceImpl  {
 				incoming.setActive(false);
 				incoming.setUpdatedAt(LocalDateTime.now());
 				incoming.setUserId(userId);
-				incoming.setEditReason(Constants.UNARRIVED_CONFIRM_DELETED);
+				incoming.setEditReason(Constants.DELETED);
 				saveIncomingList.add(incoming);
 				
 			}
@@ -315,7 +315,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingShipment.setActive(false);
 			incomingShipment.setUpdatedAt(LocalDateTime.now());
 			incomingShipment.setUserId(userId);
-			incomingShipment.setEditReason(Constants.UNARRIVED_PARTIAL_DELETED);
+			incomingShipment.setEditReason(Constants.DELETED);
 			saveIncomingList.add(incomingShipment);
 		}
 		
