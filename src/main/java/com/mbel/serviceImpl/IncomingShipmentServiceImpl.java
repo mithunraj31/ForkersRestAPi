@@ -125,7 +125,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingDto.setIncomingShipmentId(incoming.getIncomingShipmentId());
 			incomingDto.setCreatedAt(incoming.getCreatedAt());
 			incomingDto.setShipmentNo(incoming.getShipmentNo());
-			incomingDto.setUpdatedAt(LocalDateTime.now());
+			incomingDto.setUpdatedAt(incoming.getUpdatedAt());
 			incomingDto.setUser(getUserDetails(userEntityList,incoming.getUserId()));
 			incomingDto.setArrived(incoming.isArrived());
 			incomingDto.setActive(incoming.isActive());
@@ -368,7 +368,7 @@ public class IncomingShipmentServiceImpl  {
 				incomingDto.setIncomingShipmentId(incoming.getIncomingShipmentId());
 				incomingDto.setCreatedAt(incoming.getCreatedAt());
 				incomingDto.setShipmentNo(incoming.getShipmentNo());
-				incomingDto.setUpdatedAt(LocalDateTime.now());
+				incomingDto.setUpdatedAt(incoming.getUpdatedAt());
 				incomingDto.setUser(getUserDetails(userEntityList,incoming.getUserId()));
 				incomingDto.setArrived(incoming.isArrived());
 				incomingDto.setActive(incoming.isActive());
