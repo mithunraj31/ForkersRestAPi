@@ -400,7 +400,7 @@ public class IncomingShipmentServiceImpl  {
 				incomingShipment.setConfirmedQty(0);
 				incomingShipment.setUpdatedAt(LocalDateTime.now());
 				incomingShipment.setUserId(jwt.getUserdetails().getUserId());
-				incomingShipment.setEditReason(confirm?Constants.ORDER_CONFIRMED:Constants.ORDER_NOT_CONFIRMED);
+				incomingShipment.setEditReason(Constants.INCOMING_NOT_CONFIRMED);
 				incomingShipmentDao.save(incomingShipment);
 			}
 			return incomingShipment;
