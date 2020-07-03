@@ -1,7 +1,6 @@
 package com.mbel.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mbel.dto.FetchProductSetDto;
+import com.mbel.dto.ProductDto;
 import com.mbel.dto.SaveProductSetDto;
 import com.mbel.model.Product;
 import com.mbel.serviceImpl.ProductServiceImpl;
@@ -45,7 +45,7 @@ public class  ProductController{
 	}
 
 	@GetMapping("/product/{productId}")
-	public Optional<Product> productById(@PathVariable (value="productId")@NonNull int productId) {
+	public ProductDto productById(@PathVariable (value="productId")@NonNull int productId) {
 		return productServiceImpl.getProductsById(productId);
 
 	}

@@ -127,7 +127,7 @@ public class FullfillOrderServiceImpl {
 			product.setLeadTime(productionDetails.getLeadTime());
 			product.setObicNo(productionDetails.getObicNo());
 			product.setQuantity(productionDetails.getQuantity());
-			product.setUpdatedAtDateTime(LocalDateTime.now());
+			product.setUpdatedAt(LocalDateTime.now());
 			product.setUserId(userId);
 			product.setCurrency(productionDetails.getCurrency());
 			productList.add(product);
@@ -223,7 +223,7 @@ public class FullfillOrderServiceImpl {
 		int currentQuantity=0;
 		currentQuantity = stockQuantity + orderdQunatity;
 		individualProduct.getProduct().setQuantity(currentQuantity);
-		individualProduct.getProduct().setUpdatedAtDateTime(LocalDateTime.now());
+		individualProduct.getProduct().setUpdatedAt(LocalDateTime.now());
 		individualProduct.getProduct().setUserId(userId);
 		quantityUpdate.put(individualproductId,individualProduct.getProduct());
 
@@ -238,7 +238,7 @@ public class FullfillOrderServiceImpl {
 		if(orderdQunatity<=stockQuantity) {
 			currentQuantity = stockQuantity - orderdQunatity;
 			individualProduct.getProduct().setQuantity(currentQuantity);
-			individualProduct.getProduct().setUpdatedAtDateTime(LocalDateTime.now());
+			individualProduct.getProduct().setUpdatedAt(LocalDateTime.now());
 			individualProduct.getProduct().setUserId(userId);
 			quantityUpdate.put(individualproductId,individualProduct.getProduct());
 

@@ -8,7 +8,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 
 @Entity
@@ -51,11 +50,11 @@ public class Product {
     @Column(name = "active")
     private boolean active;
     
-    @Column(name = "created_at_date_time")
-    private LocalDateTime createdAtDateTime;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
     
-    @Column(name = "updated_at_date_time")
-    private LocalDateTime updatedAtDateTime;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
     
     @Column(name = "user_id")
     private int userId;
@@ -133,17 +132,17 @@ public class Product {
 	public void setActive(boolean active) {
 		this.active = active;
 	}
-	public LocalDateTime getCreatedAtDateTime() {
-		return createdAtDateTime;
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
 	}
-	public void setCreatedAtDateTime(LocalDateTime localDateTime) {
-		this.createdAtDateTime = localDateTime;
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
 	}
-	public LocalDateTime getUpdatedAtDateTime() {
-		return updatedAtDateTime;
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
 	}
-	public void setUpdatedAtDateTime(LocalDateTime updatedAtDateTime) {
-		this.updatedAtDateTime = updatedAtDateTime;
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
 	}
 	public int getUserId() {
 		return userId;

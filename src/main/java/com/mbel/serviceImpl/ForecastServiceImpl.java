@@ -196,8 +196,8 @@ public class ForecastServiceImpl {
 		componentSet.setSet(proCheck.isSet());
 		componentSet.setActive(proCheck.isActive());
 		componentSet.setUserId(proCheck.getUserId());
-		componentSet.setCreatedAtDateTime(proCheck.getCreatedAtDateTime());
-		componentSet.setUpdatedAtDateTime(proCheck.getUpdatedAtDateTime());
+		componentSet.setCreatedAt(proCheck.getCreatedAt());
+		componentSet.setUpdatedAt(proCheck.getUpdatedAt());
 		if(!proCheck.isSet()) {
 			componentSet.setQuantity(proCheck.getQuantity());
 			componentSet.setMoq(proCheck.getMoq());

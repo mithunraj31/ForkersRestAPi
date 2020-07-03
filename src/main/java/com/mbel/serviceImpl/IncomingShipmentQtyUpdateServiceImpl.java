@@ -92,7 +92,7 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 			if(Objects.nonNull(product)&&isArrived) {
 			product.setQuantity(product.getQuantity()+incomingProduct.getConfirmedQty());
 			product.setPrice(product.getPrice()+incomingProduct.getPrice());
-			product.setUpdatedAtDateTime(LocalDateTime.now());
+			product.setUpdatedAt(LocalDateTime.now());
 			product.setUserId(userId);
 			productDao.save(product);
 			incoming.setArrived(true);
@@ -133,7 +133,7 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 			if(!incoming.isPartial()) {
 			product.setQuantity(product.getQuantity()-incomingProduct.getConfirmedQty());
 			product.setPrice(product.getPrice()-incomingProduct.getPrice());
-			product.setUpdatedAtDateTime(LocalDateTime.now());
+			product.setUpdatedAt(LocalDateTime.now());
 			product.setUserId(userId);
 			productDao.save(product);
 			incoming.setArrived(false);
@@ -145,7 +145,7 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 			}else {
 				product.setQuantity(product.getQuantity()-incomingProduct.getConfirmedQty());
 				product.setPrice(product.getPrice()-incomingProduct.getPrice());
-				product.setUpdatedAtDateTime(LocalDateTime.now());
+				product.setUpdatedAt(LocalDateTime.now());
 				product.setUserId(userId);
 				productDao.save(product);
 				incoming.setArrived(false);

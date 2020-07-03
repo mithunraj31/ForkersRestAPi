@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.mbel.model.Product;
 import com.mbel.model.ProductSetModel;
+import com.mbel.model.UserEntity;
 
 public class FetchProductSetDto extends Product {
 	
@@ -16,18 +17,26 @@ public class FetchProductSetDto extends Product {
 			this.products.add(product);
 			
 		} catch (Exception e) {
-			// TODO: handle exception
 		}
 		
 	}
 	
-
+	private UserEntity user;
+	
 	public List<ProductSetModel> getProducts() {
 		return products;
 	}
 
 	public void setProducts(List<ProductSetModel> products) {
 		this.products = products;
+	}
+
+	public UserEntity getUser() {
+		return user;
+	}
+
+	public void setUser(UserEntity user) {
+		this.user = user;
 	}
 
 	

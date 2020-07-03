@@ -2,13 +2,10 @@ package com.mbel.serviceImpl;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -20,6 +17,7 @@ import com.mbel.config.JwtAuthenticationFilter;
 import com.mbel.dao.ProductDao;
 import com.mbel.dao.ProductSetDao;
 import com.mbel.dto.FetchProductSetDto;
+import com.mbel.dto.ProductDto;
 import com.mbel.dto.SaveProductSetDto;
 import com.mbel.model.Product;
 import com.mbel.model.ProductSet;
@@ -41,8 +39,8 @@ public class ProductServiceImpl  {
 
 	public Product save(Product product) {
 		List<Product>allproduct =productDao.findAll();
-		product.setCreatedAtDateTime(LocalDateTime.now());
-		product.setUpdatedAtDateTime(LocalDateTime.now());
+		product.setCreatedAt(LocalDateTime.now());
+		product.setUpdatedAt(LocalDateTime.now());
 		product.setUserId(jwt.getUserdetails().getUserId());
 		product.setActive(true);
 		product.setSet(false);
@@ -116,8 +114,13 @@ public class ProductServiceImpl  {
 				.collect(Collectors.toList());
 	}
 
-	public Optional<Product> getProductsById(int productId) {
-		return productDao.findById(productId);
+	public ProductDto getProductsById(int productId) {
+		ProductDto productDto =new ProductDto();
+		Product product =new Product();
+		product= productDao.findById(productId).orElse(null);
+		productDto.setProduct(product);
+		productDto.setUser(jwt.getUserdetails());
+		return productDto;
 	}
 
 	public Product saveProductSet(SaveProductSetDto productSet) {
@@ -135,8 +138,8 @@ public class ProductServiceImpl  {
 		product.setQuantity(productSet.getQuantity());
 		product.setSet(true);
 		product.setActive(true);
-		product.setCreatedAtDateTime(LocalDateTime.now());
-		product.setUpdatedAtDateTime(LocalDateTime.now());
+		product.setCreatedAt(LocalDateTime.now());
+		product.setUpdatedAt(LocalDateTime.now());
 		product.setUserId(jwt.getUserdetails().getUserId());
 		product.setCurrency(productSet.getCurrency());
 		product.setSort(productSet.getSort());
@@ -185,8 +188,8 @@ public class ProductServiceImpl  {
 			componentSet.setQuantity(proSet.get(i).getQuantity());
 			componentSet.setSet(proSet.get(i).isSet());
 			componentSet.setActive(proSet.get(i).isActive());
-			componentSet.setCreatedAtDateTime(proSet.get(i).getCreatedAtDateTime());
-			componentSet.setUpdatedAtDateTime(proSet.get(i).getUpdatedAtDateTime());
+			componentSet.setCreatedAt(proSet.get(i).getCreatedAt());
+			componentSet.setUpdatedAt(proSet.get(i).getUpdatedAt());
 			componentSet.setCurrency(proSet.get(i).getCurrency());
 			componentSet.setSort(proSet.get(i).getSort());
 			componentSet.setDisplay(proSet.get(i).isDisplay());
@@ -232,6 +235,7 @@ public class ProductServiceImpl  {
 				}));
 		List<ProductSetModel> productList = new ArrayList<>();
 		FetchProductSetDto componentSet= new FetchProductSetDto();
+		componentSet.setUser(jwt.getUserdetails());
 		if(proCheck!=null) {
 			componentSet.setProductId(proCheck.getProductId());
 			componentSet.setProductName(proCheck.getProductName());
@@ -244,8 +248,8 @@ public class ProductServiceImpl  {
 			componentSet.setSet(proCheck.isSet());
 			componentSet.setActive(proCheck.isActive());
 			componentSet.setUserId(proCheck.getUserId());
-			componentSet.setCreatedAtDateTime(proCheck.getCreatedAtDateTime());
-			componentSet.setUpdatedAtDateTime(proCheck.getUpdatedAtDateTime());
+			componentSet.setCreatedAt(proCheck.getCreatedAt());
+			componentSet.setUpdatedAt(proCheck.getUpdatedAt());
 			componentSet.setCurrency(proCheck.getCurrency());
 			if(proCheck.isSet()) {
 				List<ProductSet> productsetList= allProductSet.stream().filter(predicate->predicate.getSetId()==productId).collect(Collectors.toList());
@@ -291,13 +295,13 @@ public class ProductServiceImpl  {
 			productionDetails.setProductId(productId);
 			productionDetails.setActive(true);
 			productionDetails.setSet(false);
-			productionDetails.setUpdatedAtDateTime(LocalDateTime.now());
+			productionDetails.setUpdatedAt(LocalDateTime.now());
 			return reArrangeProductDataBySort(allproduct,productionDetails,productId);
 		}else {
 			productionDetails.setProductId(productId);
 			productionDetails.setActive(true);
 			productionDetails.setSet(false);
-			productionDetails.setUpdatedAtDateTime(LocalDateTime.now());
+			productionDetails.setUpdatedAt(LocalDateTime.now());
 			return productDao.save(productionDetails);
 		}
 
@@ -311,7 +315,7 @@ public class ProductServiceImpl  {
 					}
 					return list.get(0);
 				}));
-		productionDetails.setCreatedAtDateTime(previouslySavedProduct.getCreatedAtDateTime());
+		productionDetails.setCreatedAt(previouslySavedProduct.getCreatedAt());
 		return previouslySavedProduct.getSort()==productionDetails.getSort()?false:true;
 	}
 
@@ -389,7 +393,7 @@ public class ProductServiceImpl  {
 			product.setQuantity(productSetDetails.getQuantity());
 			product.setSet(true);
 			product.setActive(true);
-			product.setUpdatedAtDateTime(LocalDateTime.now());
+			product.setUpdatedAt(LocalDateTime.now());
 			product.setUserId(jwt.getUserdetails().getUserId());
 			product.setCurrency(productSetDetails.getCurrency());
 			product.setColor(productSetDetails.getColor());
@@ -486,8 +490,8 @@ public class ProductServiceImpl  {
 				componentSet.setQuantity((Integer)elements.get(i).get("package_qty"));
 				componentSet.setSet((boolean)elements.get(i).get("package_set"));
 				componentSet.setActive((boolean)elements.get(i).get("package_active"));
-				componentSet.setCreatedAtDateTime(((Timestamp) elements.get(i).get("package_created")).toLocalDateTime());
-				componentSet.setUpdatedAtDateTime(((Timestamp) elements.get(i).get("package_update")).toLocalDateTime());
+				componentSet.setCreatedAt(((Timestamp) elements.get(i).get("package_created")).toLocalDateTime());
+				componentSet.setUpdatedAt(((Timestamp) elements.get(i).get("package_update")).toLocalDateTime());
 				singleProductCreation(elements.get(i),componentSet);
 
 			}else {
@@ -518,8 +522,8 @@ public class ProductServiceImpl  {
 		component.setQuantity((Integer)elements.get("qty"));
 		component.setActive((boolean)elements.get("active"));
 		component.setSet((boolean)elements.get("is_set"));
-		component.setCreatedAtDateTime(((Timestamp) elements.get("created_at_date_time")).toLocalDateTime());
-		component.setUpdatedAtDateTime(((Timestamp) elements.get("updated_at_date_time")).toLocalDateTime());
+		component.setCreatedAt(((Timestamp) elements.get("created_at_date_time")).toLocalDateTime());
+		component.setUpdatedAt(((Timestamp) elements.get("updated_at_date_time")).toLocalDateTime());
 		component.setUserId((Integer)elements.get("user_id"));
 		ProductSetModel productSetModel = new ProductSetModel();
 		productSetModel.setProduct(component);
@@ -546,8 +550,8 @@ public class ProductServiceImpl  {
 				componentSet.setQuantity((Integer)elements.get(i).get("package_qty"));
 				componentSet.setSet((boolean)elements.get(i).get("package_set"));
 				componentSet.setActive((boolean)elements.get(i).get("package_active"));
-				componentSet.setCreatedAtDateTime(((Timestamp) elements.get(i).get("package_created")).toLocalDateTime());
-				componentSet.setUpdatedAtDateTime(((Timestamp) elements.get(i).get("package_update")).toLocalDateTime());
+				componentSet.setCreatedAt(((Timestamp) elements.get(i).get("package_created")).toLocalDateTime());
+				componentSet.setUpdatedAt(((Timestamp) elements.get(i).get("package_update")).toLocalDateTime());
 				singleProductCreation(elements.get(i),componentSet);
 
 			}else {

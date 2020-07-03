@@ -816,8 +816,8 @@ public class ProductPredictionServiceImpl {
 			componentSet.setSet(proCheck.isSet());
 			componentSet.setActive(proCheck.isActive());
 			componentSet.setUserId(proCheck.getUserId());
-			componentSet.setCreatedAtDateTime(proCheck.getCreatedAtDateTime());
-			componentSet.setUpdatedAtDateTime(proCheck.getUpdatedAtDateTime());
+			componentSet.setCreatedAt(proCheck.getCreatedAt());
+			componentSet.setUpdatedAt(proCheck.getUpdatedAt());
 			componentSet.setCurrency(proCheck.getCurrency());
 			componentSet.setDisplay(proCheck.isDisplay());
 			if(proCheck.isSet()) {
@@ -867,8 +867,8 @@ public class ProductPredictionServiceImpl {
 			componentSet.setSet(proCheck.isSet());
 			componentSet.setActive(proCheck.isActive());
 			componentSet.setUserId(proCheck.getUserId());
-			componentSet.setCreatedAtDateTime(proCheck.getCreatedAtDateTime());
-			componentSet.setUpdatedAtDateTime(proCheck.getUpdatedAtDateTime());
+			componentSet.setCreatedAt(proCheck.getCreatedAt());
+			componentSet.setUpdatedAt(proCheck.getUpdatedAt());
 			componentSet.setCurrency(proCheck.getCurrency());
 			componentSet.setSort(proCheck.getSort());
 			componentSet.setDisplay(proCheck.isDisplay());
