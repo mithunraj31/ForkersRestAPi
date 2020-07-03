@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -116,10 +117,27 @@ public class ProductServiceImpl  {
 
 	public ProductDto getProductsById(int productId) {
 		ProductDto productDto =new ProductDto();
-		Product product =new Product();
-		product= productDao.findById(productId).orElse(null);
-		productDto.setProduct(product);
+		Product product= productDao.findById(productId).orElse(null);
+		if(Objects.nonNull(product)) {
+		productDto.setProductName(product.getProductName());
+		productDto.setDescription(product.getDescription());
+		productDto.setPrice(product.getPrice());
+		productDto.setMoq(product.getMoq());
+		productDto.setLeadTime(product.getLeadTime());
+		productDto.setObicNo(product.getObicNo());
+		productDto.setQuantity(product.getQuantity());
+		productDto.setSet(product.isSet());
+		productDto.setActive(product.isActive());
+		productDto.setCreatedAt(LocalDateTime.now());
+		productDto.setUpdatedAt(LocalDateTime.now());
+		productDto.setUserId(jwt.getUserdetails().getUserId());
+		productDto.setCurrency(product.getCurrency());
+		productDto.setSort(product.getSort());
+		productDto.setColor(product.getColor());
+		productDto.setDisplay(product.isDisplay());
 		productDto.setUser(jwt.getUserdetails());
+		
+		}
 		return productDto;
 	}
 
