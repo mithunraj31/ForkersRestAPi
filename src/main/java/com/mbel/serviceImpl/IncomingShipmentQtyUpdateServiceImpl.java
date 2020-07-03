@@ -97,6 +97,7 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 			productDao.save(product);
 			incoming.setArrived(true);
 			incoming.setUpdatedAt(LocalDateTime.now());
+			incoming.setEditReason(Constants.INCOMING_ARRIVED);
 			incoming.setUserId(userId);
 			unDisplayArrivedWithNoPartialOrder(incoming,incomingList,userId);
 			}else if(Objects.nonNull(product)) {
@@ -142,6 +143,7 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 			incoming.setArrived(false);
 			incoming.setActive(true);
 			incoming.setUpdatedAt(LocalDateTime.now());
+			incoming.setEditReason(Constants.INCOMING_REVERTED);
 			incoming.setUserId(userId);
 			saveIncomingList.add(incoming);
 			}else {
@@ -154,19 +156,18 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 				incoming.setActive(true);
 				incoming.setUpdatedAt(LocalDateTime.now());
 				incoming.setUserId(userId);
+				incoming.setEditReason(Constants.INCOMING_REVERTED);
 				saveIncomingList.add(incoming);
-				IncomingShipment incomingComfirm =incomingList.stream()
-						.filter(predicate->predicate.getShipmentNo().equals(incoming.getShipmentNo())&&!predicate.isPartial())
-						.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
-				            if (list.size() != 1) {
-				            	return null;
-				            }
-				            return list.get(0);
-				        }));
-				incomingComfirm.setActive(true);
-				incomingComfirm.setUpdatedAt(LocalDateTime.now());
-				incomingComfirm.setUserId(userId);
-				saveIncomingList.add(incomingComfirm);
+				List<IncomingShipment> incominShipmentArrivedOrderList =incomingList.stream()
+						.filter(predicate->predicate.getShipmentNo().equals(incoming.getShipmentNo())
+								&&predicate.getBranch().equals(incoming.getBranch())&&predicate.isArrived())
+						.collect(Collectors.toList());
+				for(int i=0;i<incominShipmentArrivedOrderList.size();i++) {
+					incominShipmentArrivedOrderList.get(i).setActive(true);
+					incominShipmentArrivedOrderList.get(i).setUpdatedAt(LocalDateTime.now());
+					incominShipmentArrivedOrderList.get(i).setUserId(userId);
+				}
+				saveIncomingList.addAll(incominShipmentArrivedOrderList);
 				
 			}
 			incomingShipmentDao.saveAll(saveIncomingList);	

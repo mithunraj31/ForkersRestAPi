@@ -192,6 +192,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingDto.setPendingQty(incoming.getPendingQty());
 			incomingDto.setQuantity(incoming.getQuantity());
 			incomingDto.setCurrency(incoming.getCurrency());
+			incomingDto.setEditReason(incoming.getEditReason());
 			incomingDto.setPrice(incoming.getPrice());
 		}
 		return incomingDto;
@@ -269,12 +270,14 @@ public class IncomingShipmentServiceImpl  {
 				incoming.setActive(false);
 				incoming.setUpdatedAt(LocalDateTime.now());
 				incoming.setUserId(userId);
+				incoming.setEditReason(Constants.ARRIVED_CONFIRM_DELETED);
 				saveIncomingList.add(incoming);
 			}
 		}else if(incomingShipment!=null && incomingShipment.isPartial()){
 					incomingShipment.setActive(false);
 					incomingShipment.setUpdatedAt(LocalDateTime.now());
 					incomingShipment.setUserId(userId);
+					incomingShipment.setEditReason(Constants.ARRIVED_PARTIAL_DELETED);
 					saveIncomingList.add(incomingShipment);
 		}
 		
@@ -294,6 +297,7 @@ public class IncomingShipmentServiceImpl  {
 				incoming.setActive(false);
 				incoming.setUpdatedAt(LocalDateTime.now());
 				incoming.setUserId(userId);
+				incoming.setEditReason(Constants.UNARRIVED_CONFIRM_DELETED);
 				saveIncomingList.add(incoming);
 				
 			}
@@ -311,6 +315,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingShipment.setActive(false);
 			incomingShipment.setUpdatedAt(LocalDateTime.now());
 			incomingShipment.setUserId(userId);
+			incomingShipment.setEditReason(Constants.UNARRIVED_PARTIAL_DELETED);
 			saveIncomingList.add(incomingShipment);
 		}
 		
@@ -341,6 +346,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingShipment.setOrderDate(newIncomingShipment.getOrderDate());
 			incomingShipment.setVendor(newIncomingShipment.getVendor());
 			incomingShipment.setPendingQty(newIncomingShipment.getPendingQty());
+			incomingShipment.setEditReason(Constants.SHIPMENT_EDITED);
 			incomingShipment.setCurrency(newIncomingShipment.getCurrency());
 			return incomingShipmentDao.save(incomingShipment);
 		}
@@ -394,6 +400,7 @@ public class IncomingShipmentServiceImpl  {
 				incomingShipment.setConfirmedQty(0);
 				incomingShipment.setUpdatedAt(LocalDateTime.now());
 				incomingShipment.setUserId(jwt.getUserdetails().getUserId());
+				incomingShipment.setEditReason(confirm?Constants.ORDER_CONFIRMED:Constants.ORDER_NOT_CONFIRMED);
 				incomingShipmentDao.save(incomingShipment);
 			}
 			return incomingShipment;

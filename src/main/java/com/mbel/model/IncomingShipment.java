@@ -55,9 +55,20 @@ public class IncomingShipment {
 
 	@Column(name = "fixed")
 	private boolean fixed;
-	
+
 	@Column(name = "active")
 	private boolean active;
+
+	@Column(name = "edit_reason")
+	private String editReason;
+
+	public String getEditReason() {
+		return editReason;
+	}
+
+	public void setEditReason(String editReason) {
+		this.editReason = editReason;
+	}
 
 	public boolean isActive() {
 		return active;

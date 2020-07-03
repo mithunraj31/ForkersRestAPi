@@ -24,7 +24,6 @@ import com.mbel.dao.OrderProductDao;
 import com.mbel.dao.ProductDao;
 import com.mbel.dao.ProductSetDao;
 import com.mbel.dto.FetchOrderdProducts;
-import com.mbel.dto.PopulateOrderDto;
 import com.mbel.model.Order;
 import com.mbel.model.OrderProduct;
 import com.mbel.model.Product;
@@ -64,7 +63,7 @@ public class FullfillOrderServiceImpl {
 		Map<Integer,Product>quantityUpdate=new HashMap<>();
 		if(Objects.nonNull(order)&&order.isFixed()) {
 		for(FetchOrderdProducts product:orderdProducts) {
-			fulfillOrder(product,productSetModelList,quantityUpdate,allProduct,allProductSet,isFulfillment);				
+			fulfillOrder(product,productSetModelList,quantityUpdate,allProduct,allProductSet,isFulfillment,userId);				
 		}
 		return fulfillOrderStatus(productSetModelList,quantityUpdate,order,response,isFulfillment,allProduct,userId);
 		}else {
@@ -141,7 +140,7 @@ public class FullfillOrderServiceImpl {
 
 	private void fulfillOrder(FetchOrderdProducts product,
 			List<ProductSetModel> productSetModelList, 
-			Map<Integer, Product> quantityUpdate, List<Product> allProduct, List<ProductSet> allProductSet, boolean isFulfillment) {
+			Map<Integer, Product> quantityUpdate, List<Product> allProduct, List<ProductSet> allProductSet, boolean isFulfillment, int userId) {
 		int stockQuantity = 0;
 		int	orderdQunatity = 0;
 		int productId = product.getProduct().getProductId();
@@ -162,10 +161,10 @@ public class FullfillOrderServiceImpl {
 			int amount=product.getQuantity();
 			if(isFulfillment) {
 				updateStockQuantities(orderdQunatity,stockQuantity,
-						productSetModel,productId,productSetModelList,quantityUpdate,amount);
+						productSetModel,productId,productSetModelList,quantityUpdate,amount,userId);
 			}else {
 				revertStockQuantities(orderdQunatity,stockQuantity,
-						productSetModel,productId,quantityUpdate);
+						productSetModel,productId,quantityUpdate,userId);
 			}
 
 		}else {				
@@ -191,10 +190,10 @@ public class FullfillOrderServiceImpl {
 					int amount=individualProduct.getQuantity();
 					if(isFulfillment) {
 						updateStockQuantities(orderdQunatity,stockQuantity,
-								individualProduct,individualproductId,productSetModelList,quantityUpdate,amount);
+								individualProduct,individualproductId,productSetModelList,quantityUpdate,amount, userId);
 					}else {
 						revertStockQuantities(orderdQunatity,stockQuantity,
-								productSetModel,individualproductId,quantityUpdate);
+								productSetModel,individualproductId,quantityUpdate, userId);
 					}
 				}
 				quantityUpdate.put(productId,product.getProduct());
@@ -220,10 +219,12 @@ public class FullfillOrderServiceImpl {
 
 	private void revertStockQuantities(int orderdQunatity, int stockQuantity, 
 			ProductSetModel individualProduct, int individualproductId,
-			Map<Integer, Product> quantityUpdate) {
+			Map<Integer, Product> quantityUpdate,int userId) {
 		int currentQuantity=0;
 		currentQuantity = stockQuantity + orderdQunatity;
 		individualProduct.getProduct().setQuantity(currentQuantity);
+		individualProduct.getProduct().setUpdatedAtDateTime(LocalDateTime.now());
+		individualProduct.getProduct().setUserId(userId);
 		quantityUpdate.put(individualproductId,individualProduct.getProduct());
 
 	}
@@ -232,11 +233,13 @@ public class FullfillOrderServiceImpl {
 
 	private void updateStockQuantities(int orderdQunatity, int stockQuantity,
 			ProductSetModel individualProduct, int individualproductId, 
-			List<ProductSetModel> productSetModelList, Map<Integer, Product> quantityUpdate, int amount) {
+			List<ProductSetModel> productSetModelList, Map<Integer, Product> quantityUpdate, int amount, int userId) {
 		int	currentQuantity = 0;
 		if(orderdQunatity<=stockQuantity) {
 			currentQuantity = stockQuantity - orderdQunatity;
 			individualProduct.getProduct().setQuantity(currentQuantity);
+			individualProduct.getProduct().setUpdatedAtDateTime(LocalDateTime.now());
+			individualProduct.getProduct().setUserId(userId);
 			quantityUpdate.put(individualproductId,individualProduct.getProduct());
 
 		}else {

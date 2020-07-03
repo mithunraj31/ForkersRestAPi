@@ -41,6 +41,8 @@ public class IncomingShipmentModel {
 	private boolean partial;
 	
 	private String currency;
+	
+	private String editReason;
 
 
 	public int getIncomingShipmentId() {
@@ -206,6 +208,16 @@ public class IncomingShipmentModel {
 
 	public void setActive(boolean active) {
 		this.active = active;
+	}
+
+
+	public String getEditReason() {
+		return editReason;
+	}
+
+
+	public void setEditReason(String editReason) {
+		this.editReason = editReason;
 	}
 	
 
