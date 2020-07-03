@@ -128,8 +128,8 @@ public class ProductServiceImpl  {
 		productDto.setQuantity(product.getQuantity());
 		productDto.setSet(product.isSet());
 		productDto.setActive(product.isActive());
-		productDto.setCreatedAt(LocalDateTime.now());
-		productDto.setUpdatedAt(LocalDateTime.now());
+		productDto.setCreatedAt(product.getCreatedAt());
+		productDto.setUpdatedAt(product.getUpdatedAt());
 		productDto.setUserId(jwt.getUserdetails().getUserId());
 		productDto.setCurrency(product.getCurrency());
 		productDto.setSort(product.getSort());
