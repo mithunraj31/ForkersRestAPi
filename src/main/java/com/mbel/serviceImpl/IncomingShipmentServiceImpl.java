@@ -176,7 +176,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingDto.setIncomingShipmentId(incoming.getIncomingShipmentId());
 			incomingDto.setCreatedAt(incoming.getCreatedAt());
 			incomingDto.setShipmentNo(incoming.getShipmentNo());
-			incomingDto.setUpdatedAt(LocalDateTime.now());
+			incomingDto.setUpdatedAt(incoming.getUpdatedAt());
 			incomingDto.setUser(userDao.findById(incoming.getUserId()).orElse(null));
 			incomingDto.setArrived(incoming.isArrived());
 			incomingDto.setActive(incoming.isActive());
