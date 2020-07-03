@@ -318,7 +318,6 @@ public class OrderServiceImpl  {
 		Order order = orderDao.findById(orderId).orElse(null);
 		if(Objects.nonNull(order)) {
 			order.setDisplay(display);
-			order.setEditReason(display?Constants.DISPLAYED:Constants.UNDISPLAYED);
 			orderDao.save(order);
 		}
 		return order;

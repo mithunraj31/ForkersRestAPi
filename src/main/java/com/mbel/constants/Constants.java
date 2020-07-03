@@ -65,25 +65,20 @@ public class Constants {
 
 	//Constants for Edit reason 
 
-	public static final String ORDER_FULFILLED="1";
+	public static final String DELETED = "1";
 
-	public static final String ORDER_REVERTED="2";
+	public static final String ORDER_CONFIRMED = "2";
 
-	public static final String DELETED = "3";
+	public static final String ORDER_NOT_CONFIRMED = "3";
+	
+	public static final String ORDER_FULFILLED="4";
 
-	public static final String ORDER_CONFIRMED = "4";
-
-	public static final String ORDER_NOT_CONFIRMED = "5";
-
-	public static final String DISPLAYED = "6";
-
-	public static final String UNDISPLAYED = "7";
-
-	public static final String INCOMING_ARRIVED="10";
-
-	public static final String INCOMING_REVERTED="11";
-
-	public static final String SHIPMENT_EDITED = "14";
-
-
+	public static final String ORDER_REVERTED="5";
+	
+	public static final String INCOMING_ARRIVED="8";
+	
+	public static final String INCOMING_REVERTED="9";
+	
+	public static final String EDITED = "10";
+	
 }
