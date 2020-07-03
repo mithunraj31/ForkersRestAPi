@@ -75,6 +75,8 @@ public class Constants {
 
 	public static final String ORDER_REVERTED="5";
 	
+	public static final String INCOMING_NOT_CONFIRMED = "7";
+	
 	public static final String INCOMING_ARRIVED="8";
 	
 	public static final String INCOMING_REVERTED="9";
