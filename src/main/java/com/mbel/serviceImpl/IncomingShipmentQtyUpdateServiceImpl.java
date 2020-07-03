@@ -118,11 +118,7 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 				.filter(predicate->(predicate.getShipmentNo().equals(incoming.getShipmentNo()))
 						&&predicate.getBranch().equals(incoming.getBranch())&&predicate.isArrived())
 				.collect(Collectors.toList());
-				for(int i=0;i<incomingUnDisplayList.size();i++) {
-					incomingUnDisplayList.get(i).setActive(false);
-					incomingUnDisplayList.get(i).setUpdatedAt(LocalDateTime.now());
-					incomingUnDisplayList.get(i).setUserId(userId);
-				}
+				incomingUnDisplayList.forEach(action->action.setActive(false));
 				incomingShipmentDao.saveAll(incomingUnDisplayList);		
 			}else {
 				incomingShipmentDao.save(incoming);	
@@ -162,11 +158,7 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 						.filter(predicate->predicate.getShipmentNo().equals(incoming.getShipmentNo())
 								&&predicate.getBranch().equals(incoming.getBranch())&&predicate.isArrived())
 						.collect(Collectors.toList());
-				for(int i=0;i<incominShipmentArrivedOrderList.size();i++) {
-					incominShipmentArrivedOrderList.get(i).setActive(true);
-					incominShipmentArrivedOrderList.get(i).setUpdatedAt(LocalDateTime.now());
-					incominShipmentArrivedOrderList.get(i).setUserId(userId);
-				}
+				incominShipmentArrivedOrderList.forEach(action->action.setActive(true));
 				saveIncomingList.addAll(incominShipmentArrivedOrderList);
 				
 			}

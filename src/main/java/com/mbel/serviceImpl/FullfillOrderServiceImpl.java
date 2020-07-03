@@ -211,7 +211,7 @@ public class FullfillOrderServiceImpl {
 			order.setActive(true);
 			order.setUpdatedAt(LocalDateTime.now());
 			order.setUserId(userId);
-			order.setEditReason(fulfillment?Constants.FULFILLED:Constants.REVERTED);
+			order.setEditReason(fulfillment?Constants.ORDER_FULFILLED:Constants.ORDER_REVERTED);
 			orderDao.save(order);
 		}
 	}
