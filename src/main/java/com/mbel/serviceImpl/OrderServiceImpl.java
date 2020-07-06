@@ -338,6 +338,7 @@ public class OrderServiceImpl  {
 		if(Objects.nonNull(order)) {
 			order.setFixed(confirm);
 			order.setForecast(true);
+			order.setUpdatedAt(LocalDateTime.now());
 			order.setEditReason(confirm?Constants.ORDER_CONFIRMED:Constants.ORDER_NOT_CONFIRMED);
 			orderDao.save(order);
 		}
