@@ -72,6 +72,7 @@ public class IncomingShipmentServiceImpl  {
 		incomingShipment.setPendingQty(newIncomingShipment.getPendingQty());
 		incomingShipment.setFixed((Boolean)newIncomingShipment.isFixed()==null?false:newIncomingShipment.isFixed());
 		incomingShipment.setPartial((Boolean)newIncomingShipment.isPartial()==null?false:newIncomingShipment.isPartial());
+		incomingShipment.setEditReason(newIncomingShipment.getEditReason()==null?Constants.EDITED:newIncomingShipment.getEditReason());
 		if(branch!=null) {
 			incomingShipment.setBranch(branch);
 		}else {
@@ -313,6 +314,7 @@ public class IncomingShipmentServiceImpl  {
 			addIncomingShipment.setPendingQty(addIncomingShipment.getPendingQty()+incomingShipment.getConfirmedQty());
 			addIncomingShipment.setUpdatedAt(LocalDateTime.now());
 			addIncomingShipment.setUserId(userId);
+			addIncomingShipment.setEditReason(Constants.EDITED);
 			saveIncomingList.add(addIncomingShipment);
 			incomingShipment.setActive(false);
 			incomingShipment.setUpdatedAt(LocalDateTime.now());
