@@ -311,6 +311,8 @@ public class IncomingShipmentServiceImpl  {
 	            return list.get(0);
 	        }));
 			addIncomingShipment.setPendingQty(addIncomingShipment.getPendingQty()+incomingShipment.getConfirmedQty());
+			addIncomingShipment.setUpdatedAt(LocalDateTime.now());
+			addIncomingShipment.setUserId(userId);
 			saveIncomingList.add(addIncomingShipment);
 			incomingShipment.setActive(false);
 			incomingShipment.setUpdatedAt(LocalDateTime.now());
