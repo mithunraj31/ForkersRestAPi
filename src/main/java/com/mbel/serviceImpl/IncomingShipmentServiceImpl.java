@@ -346,7 +346,7 @@ public class IncomingShipmentServiceImpl  {
 			incomingShipment.setOrderDate(newIncomingShipment.getOrderDate());
 			incomingShipment.setVendor(newIncomingShipment.getVendor());
 			incomingShipment.setPendingQty(newIncomingShipment.getPendingQty());
-			incomingShipment.setEditReason(newIncomingShipment.getEditReason().isEmpty()?Constants.EDITED:newIncomingShipment.getEditReason());
+			incomingShipment.setEditReason(newIncomingShipment.getEditReason()==null?Constants.EDITED:newIncomingShipment.getEditReason());
 			incomingShipment.setCurrency(newIncomingShipment.getCurrency());
 			return incomingShipmentDao.save(incomingShipment);
 		}
