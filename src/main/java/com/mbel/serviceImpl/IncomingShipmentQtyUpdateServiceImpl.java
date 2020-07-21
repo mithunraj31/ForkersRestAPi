@@ -130,19 +130,6 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 		private void revertStock(IncomingShipment incoming, FetchIncomingOrderdProducts incomingProduct,
 				Product product, List<IncomingShipment> incomingList, int userId) {
 			List<IncomingShipment> saveIncomingList = new ArrayList<>();
-			if(!incoming.isPartial()) {
-			product.setQuantity(product.getQuantity()-incomingProduct.getConfirmedQty());
-			product.setPrice(product.getPrice()-incomingProduct.getPrice());
-			product.setUpdatedAt(LocalDateTime.now());
-			product.setUserId(userId);
-			productDao.save(product);
-			incoming.setArrived(false);
-			incoming.setActive(true);
-			incoming.setUpdatedAt(LocalDateTime.now());
-			incoming.setEditReason(Constants.INCOMING_REVERTED);
-			incoming.setUserId(userId);
-			saveIncomingList.add(incoming);
-			}else {
 				product.setQuantity(product.getQuantity()-incomingProduct.getConfirmedQty());
 				product.setPrice(product.getPrice()-incomingProduct.getPrice());
 				product.setUpdatedAt(LocalDateTime.now());
@@ -160,8 +147,6 @@ public class IncomingShipmentQtyUpdateServiceImpl {
 						.collect(Collectors.toList());
 				incominShipmentArrivedOrderList.forEach(action->action.setActive(true));
 				saveIncomingList.addAll(incominShipmentArrivedOrderList);
-				
-			}
 			incomingShipmentDao.saveAll(saveIncomingList);	
 			
 		}
