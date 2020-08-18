@@ -528,7 +528,7 @@ public class ProductServiceImpl  {
 	}
 
 	private void singleProductCreation(Map<Object, Object> elements, FetchProductSetDto componentSet) {
-		List<ProductSetModel> productSetModelList = new ArrayList();
+		List<ProductSetModel> productSetModelList = new ArrayList<>();
 		Product component = new Product();
 		component.setProductId((Integer)elements.get("product_id"));
 		component.setProductName((String)elements.get("product_name"));
@@ -584,6 +584,8 @@ public class ProductServiceImpl  {
 
 
 	}
+
+	
 
 }
 
