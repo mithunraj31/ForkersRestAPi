@@ -3,6 +3,8 @@ package com.mbel.serviceImpl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,15 +40,23 @@ public class ProductHistoryServiceImpl {
 
 	@Autowired 
 	IncomingShipmentDao incomingShipmentDao;
+	
+	@Autowired 
+	DateTimeUtil dateTimeUtil;
 
 
 	public List<Product> getProductHistory(@Valid int year, @Valid int month, @Valid int dayOfMonth) {
 		LocalDateTime tillDate = LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0));
-		LocalDateTime requiredHistoryDate=LocalDateTime.of(year, month, dayOfMonth, 0, 0);
+		LocalDateTime requiredHistoryDate=LocalDateTime.of(year, month, dayOfMonth-1, 0, 0);
+		tillDate =dateTimeUtil.toUtc(tillDate);
+		requiredHistoryDate=dateTimeUtil.toUtc(requiredHistoryDate);
+		if(requiredHistoryDate.isAfter(tillDate)) {
+			tillDate=requiredHistoryDate;
+		}
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-		List<Product>productList =productDao.findAll().stream().filter(predicate->!predicate.isSet()&&predicate.isActive()).collect(Collectors.toList());
-		List<Order>order =orderDao.getOrdersAfterDate(requiredHistoryDate.format(formatter),tillDate.format(formatter)); 
+		List<Product>productList =productDao.findAll().stream().filter(predicate->!predicate.isSet()&&predicate.isActive()&&predicate.getProductId()==3089).collect(Collectors.toList());
+		List<Order>order =orderDao.getFulfilledOrdersBetweenDueDates(requiredHistoryDate.format(formatter),tillDate.format(formatter)); 
 		List<Integer>orderIdList=order.stream().map(mapper->mapper.getOrderId()).collect(Collectors.toList());
 		List<OrderProduct>orderProductList=order.isEmpty()?null:orderProductDao.findAllByOrderId(orderIdList);
 		List<IncomingShipment> allIncomingShipment = incomingShipmentDao.getIncomingOrdersAfterDate(); 
@@ -120,8 +130,10 @@ public class ProductHistoryServiceImpl {
 					}else  {
 						quantityArrivedAfterRequestedDate+=incomingShipment.getPendingQty();
 					}
-					product.setQuantity(product.getQuantity()-quantityArrivedAfterRequestedDate);
+				
 				}
+				product.setQuantity(product.getQuantity()-quantityArrivedAfterRequestedDate);
+				
 			}
 		}
 	}
