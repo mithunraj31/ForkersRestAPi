@@ -860,7 +860,7 @@ public class ShippedBaseServiceImpl {
 		int tillDateQuantity=0;
 		if(!productQuantityMap.containsKey(product.getProductId())) {
 			tillDateQuantity =getTillDateQuantity(product,stockQuantity,dueDate,incomingShipmentMap,incomingShipment,allProduct,mappingFields);
-			mappingFields.setCurrentQuantity(tillDateQuantity);
+			mappingFields.setCurrentQuantity(stockQuantity);
 			mappingFields.setAvailableStockQuantity(tillDateQuantity+orderdQunatity);
 			productQuantityMap.put(product.getProductId(), mappingFields);
 		}else {
