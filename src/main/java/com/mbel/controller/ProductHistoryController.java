@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mbel.dto.ProductSummaryDto;
 import com.mbel.model.Product;
 import com.mbel.serviceImpl.ProductHistoryServiceImpl;
-import com.mbel.serviceImpl.ProductServiceImpl;
 
 
 @CrossOrigin(origins = "*", maxAge = 3600)

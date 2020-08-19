@@ -3,6 +3,7 @@ package com.mbel.serviceImpl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -42,11 +43,12 @@ public class ProductHistoryServiceImpl {
 	public List<Product> getProductHistory(@Valid int year, @Valid int month, @Valid int dayOfMonth) {
 		LocalDateTime tillDate = LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0));
 		LocalDateTime requiredHistoryDate=LocalDateTime.of(year, month, dayOfMonth, 0, 0);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 		List<Product>productList =productDao.findAll().stream().filter(predicate->!predicate.isSet()&&predicate.isActive()).collect(Collectors.toList());
-		List<Order>order =orderDao.getOrdersAfterDate(requiredHistoryDate,tillDate); 
+		List<Order>order =orderDao.getOrdersAfterDate(requiredHistoryDate.format(formatter),tillDate.format(formatter)); 
 		List<Integer>orderIdList=order.stream().map(mapper->mapper.getOrderId()).collect(Collectors.toList());
-		List<OrderProduct>orderProductList =orderProductDao.findAllByOrderId(orderIdList);
+		List<OrderProduct>orderProductList=order.isEmpty()?null:orderProductDao.findAllByOrderId(orderIdList);
 		List<IncomingShipment> allIncomingShipment = incomingShipmentDao.getIncomingOrdersAfterDate(); 
 		List<IncomingShipment> incomingShipment=incomingShipmentListBetweenDates(allIncomingShipment,requiredHistoryDate,tillDate);
 
@@ -84,13 +86,15 @@ public class ProductHistoryServiceImpl {
 			List<OrderProduct> orderProductList, List<IncomingShipment> incomingShipmentList) {
 		int quantityFulfilledAfterRequestedDate=0;
 		for(Product product:productList) {
-			List<OrderProduct>individualOrderProductsList=orderProductList.stream()
-					.filter(predicate->predicate.getProductId()==product.getProductId()).collect(Collectors.toList());
-			if(!individualOrderProductsList.isEmpty()) {
-				for(OrderProduct orderProduct:individualOrderProductsList) {
-					quantityFulfilledAfterRequestedDate+=orderProduct.getQuantity();
+			if(Objects.nonNull(orderProductList)) {
+				List<OrderProduct>individualOrderProductsList=orderProductList.stream()
+						.filter(predicate->predicate.getProductId()==product.getProductId()).collect(Collectors.toList());
+				if(!individualOrderProductsList.isEmpty()) {
+					for(OrderProduct orderProduct:individualOrderProductsList) {
+						quantityFulfilledAfterRequestedDate+=orderProduct.getQuantity();
+					}
+					product.setQuantity(product.getQuantity()+quantityFulfilledAfterRequestedDate);
 				}
-				product.setQuantity(product.getQuantity()+quantityFulfilledAfterRequestedDate);
 			}
 
 			updateArrivedShipmentsToCurrentQuantity(product,incomingShipmentList);
@@ -105,19 +109,20 @@ public class ProductHistoryServiceImpl {
 	private void updateArrivedShipmentsToCurrentQuantity(Product product, List<IncomingShipment> incomingShipmentList) {
 
 		int quantityArrivedAfterRequestedDate=0;
-		List<IncomingShipment>individualIncomingShipmentList=incomingShipmentList.stream()
-				.filter(predicate->predicate.getProductId()==product.getProductId()).collect(Collectors.toList());
-		if(!individualIncomingShipmentList.isEmpty()) {
-			for(IncomingShipment incomingShipment:individualIncomingShipmentList) {
-				if(incomingShipment.isFixed()) {
-					quantityArrivedAfterRequestedDate+=incomingShipment.getConfirmedQty();
+		if(!incomingShipmentList.isEmpty()) {
+			List<IncomingShipment>individualIncomingShipmentList=incomingShipmentList.stream()
+					.filter(predicate->predicate.getProductId()==product.getProductId()).collect(Collectors.toList());
+			if(!individualIncomingShipmentList.isEmpty()) {
+				for(IncomingShipment incomingShipment:individualIncomingShipmentList) {
+					if(incomingShipment.isFixed()) {
+						quantityArrivedAfterRequestedDate+=incomingShipment.getConfirmedQty();
 
-				}else  {
-					quantityArrivedAfterRequestedDate+=incomingShipment.getPendingQty();
+					}else  {
+						quantityArrivedAfterRequestedDate+=incomingShipment.getPendingQty();
+					}
+					product.setQuantity(product.getQuantity()-quantityArrivedAfterRequestedDate);
 				}
-				product.setQuantity(product.getQuantity()-quantityArrivedAfterRequestedDate);
 			}
-
 		}
 	}
 
@@ -126,12 +131,13 @@ public class ProductHistoryServiceImpl {
 		LocalDate initial = LocalDate.of(year, month, 1);
 		LocalDateTime requiredSummaryDate=LocalDateTime.of(year, month, 1, 0, 0);
 		LocalDateTime tillDate = LocalDateTime.of(year, month, initial.lengthOfMonth(), 0, 0);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 		Product product =productDao.findById(productId).orElse(null);
 		if(Objects.nonNull(product)) {
-			List<Order>order =orderDao.getOrdersAfterDate(requiredSummaryDate,tillDate); 
+			List<Order>order =orderDao.getOrdersAfterDate(requiredSummaryDate.format(formatter),tillDate.format(formatter)); 
 			List<Integer>orderIdList=order.stream().map(mapper->mapper.getOrderId()).collect(Collectors.toList());
-			List<OrderProduct>orderProductList =orderProductDao.findAllByOrderId(orderIdList);
+			List<OrderProduct>orderProductList=order.isEmpty()?null:orderProductDao.findAllByOrderId(orderIdList);
 			List<IncomingShipment> allIncomingShipment = incomingShipmentDao.getIncomingOrdersAfterDate(); 
 			List<IncomingShipment> incomingShipment=incomingShipmentListBetweenDates(allIncomingShipment,requiredSummaryDate,tillDate);
 
@@ -154,13 +160,15 @@ public class ProductHistoryServiceImpl {
 		productSummaryDto.setObicNo(product.getObicNo());
 		productSummaryDto.setColor(product.getColor());
 		productSummaryDto.setCurrentQty(product.getQuantity());
-		List<OrderProduct>individualOrderProductsList=orderProductList.stream()
-				.filter(predicate->predicate.getProductId()==product.getProductId()).collect(Collectors.toList());
-		if(!individualOrderProductsList.isEmpty()) {
-			for(OrderProduct orderProduct:individualOrderProductsList) {
-				totalOutgoingQty+=orderProduct.getQuantity();
+		if(Objects.nonNull(orderProductList)) {
+			List<OrderProduct>individualOrderProductsList=orderProductList.stream()
+					.filter(predicate->predicate.getProductId()==product.getProductId()).collect(Collectors.toList());
+			if(!individualOrderProductsList.isEmpty()) {
+				for(OrderProduct orderProduct:individualOrderProductsList) {
+					totalOutgoingQty+=orderProduct.getQuantity();
+				}
+				productSummaryDto.setTotalOutgoingQty(totalOutgoingQty);
 			}
-			productSummaryDto.setTotalOutgoingQty(totalOutgoingQty);
 		}
 
 		updateArrivedShipmentsTotalQuantity(productSummaryDto,product,incomingShipmentList);
@@ -173,19 +181,21 @@ public class ProductHistoryServiceImpl {
 	private void updateArrivedShipmentsTotalQuantity(ProductSummaryDto productSummaryDto, Product product, List<IncomingShipment> incomingShipmentList) {
 
 		int totalIncomingQty=0;
-		List<IncomingShipment>individualIncomingShipmentList=incomingShipmentList.stream()
-				.filter(predicate->predicate.getProductId()==product.getProductId()).collect(Collectors.toList());
-		if(!individualIncomingShipmentList.isEmpty()) {
-			for(IncomingShipment incomingShipment:individualIncomingShipmentList) {
-				if(incomingShipment.isFixed()) {
-					totalIncomingQty+=incomingShipment.getConfirmedQty();
+		if(!incomingShipmentList.isEmpty()) {
+			List<IncomingShipment>individualIncomingShipmentList=incomingShipmentList.stream()
+					.filter(predicate->predicate.getProductId()==product.getProductId()).collect(Collectors.toList());
+			if(!individualIncomingShipmentList.isEmpty()) {
+				for(IncomingShipment incomingShipment:individualIncomingShipmentList) {
+					if(incomingShipment.isFixed()) {
+						totalIncomingQty+=incomingShipment.getConfirmedQty();
 
-				}else  {
-					totalIncomingQty+=incomingShipment.getPendingQty();
+					}else  {
+						totalIncomingQty+=incomingShipment.getPendingQty();
+					}
+					productSummaryDto.setTotalIncomingQty(totalIncomingQty);
 				}
-				productSummaryDto.setTotalIncomingQty(totalIncomingQty);
-			}
 
+			}
 		}
 	}
 
