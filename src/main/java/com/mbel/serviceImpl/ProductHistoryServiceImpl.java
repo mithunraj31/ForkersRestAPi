@@ -42,17 +42,14 @@ public class ProductHistoryServiceImpl {
 	IncomingShipmentDao incomingShipmentDao;
 	
 	@Autowired 
-	DateTimeUtil dateTimeUtil;
-	
-	@Autowired 
 	ProductServiceImpl productServiceImpl;
 
 
 	public List<Product> getProductHistory(@Valid int year, @Valid int month, @Valid int dayOfMonth) {
 		LocalDateTime tillDate = LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0));
 		LocalDateTime requiredHistoryDate=LocalDateTime.of(year, month, dayOfMonth, 0, 0);
-		tillDate =dateTimeUtil.toUtc(tillDate);
-		requiredHistoryDate=dateTimeUtil.toUtc(requiredHistoryDate);
+		tillDate =DateTimeUtil.toUtc(tillDate);
+		requiredHistoryDate=DateTimeUtil.toUtc(requiredHistoryDate);
 		if(requiredHistoryDate.isAfter(tillDate)) {
 			tillDate=requiredHistoryDate;
 		}
@@ -62,7 +59,7 @@ public class ProductHistoryServiceImpl {
 		List<Order>order =orderDao.getFulfilledOrdersBetweenDueDates(requiredHistoryDate.format(formatter),tillDate.format(formatter)); 
 		List<Integer>orderIdList=order.stream().map(mapper->mapper.getOrderId()).collect(Collectors.toList());
 		List<OrderProduct>orderProductList=order.isEmpty()?null:orderProductDao.findAllByOrderId(orderIdList);
-		List<IncomingShipment> allIncomingShipment = incomingShipmentDao.getIncomingOrdersAfterDate(); 
+		List<IncomingShipment> allIncomingShipment = incomingShipmentDao.getIncomingArrivedOrders(); 
 		List<IncomingShipment> incomingShipment=incomingShipmentListBetweenDates(allIncomingShipment,requiredHistoryDate,tillDate);
 
 		 List<Product> productsList= calculateCurrentQuantityInProduct(productList,orderProductList,incomingShipment);
@@ -149,15 +146,18 @@ public class ProductHistoryServiceImpl {
 		LocalDateTime requiredSummaryDate=LocalDateTime.of(year, month, 1, 0, 0);
 		LocalDateTime tillDate = LocalDateTime.of(year, month, initial.lengthOfMonth(), 0, 0);
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-		tillDate =dateTimeUtil.toUtc(tillDate);
-		requiredSummaryDate=dateTimeUtil.toUtc(requiredSummaryDate);
+		tillDate =DateTimeUtil.toUtc(tillDate);
+		requiredSummaryDate=DateTimeUtil.toUtc(requiredSummaryDate);
+		LocalDateTime tillUtcDate =DateTimeUtil.toUtc(tillDate);
+		LocalDateTime requiredSummaryUtcDate=DateTimeUtil.toUtc(requiredSummaryDate);
+
 
 		Product product =productDao.findById(productId).orElse(null);
 		if(Objects.nonNull(product)) {
-			List<Order>order =orderDao.getOrdersAfterDate(requiredSummaryDate.format(formatter),tillDate.format(formatter)); 
+			List<Order>order =orderDao.getFulfilledOrdersBetweenDueDates(requiredSummaryUtcDate.format(formatter),tillUtcDate.format(formatter)); 
 			List<Integer>orderIdList=order.stream().map(mapper->mapper.getOrderId()).collect(Collectors.toList());
 			List<OrderProduct>orderProductList=order.isEmpty()?null:orderProductDao.findAllByOrderId(orderIdList);
-			List<IncomingShipment> allIncomingShipment = incomingShipmentDao.getIncomingOrdersAfterDate(); 
+			List<IncomingShipment> allIncomingShipment = incomingShipmentDao.getIncomingArrivedOrders(); 
 			List<IncomingShipment> incomingShipment=incomingShipmentListBetweenDates(allIncomingShipment,requiredSummaryDate,tillDate);
 
 			return calculateQuantitySummaryInProduct(product,orderProductList,incomingShipment);
