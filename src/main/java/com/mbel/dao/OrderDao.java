@@ -10,21 +10,26 @@ import com.mbel.model.Order;
 
 @Repository
 public interface OrderDao extends JpaRepository<Order, Integer> {
-	
-	@Query(nativeQuery = true,value = "call GET_FULFILLED_ORDERS_AFTER_DATE(?1,?2)")
-	List<Order> getOrdersAfterDate(String requiredHistoryDate, String tillDate);
 
 	
-	@Query(nativeQuery = true,value = "call GET_ACTIVE_ORDER_BETWEEN_DELIVERY_DATES(?1,?2)")
+	@Query(nativeQuery = true,value = "SELECT *  FROM  `order` WHERE active =1 \n" + 
+			"  AND (delivery_date >= ?1 AND delivery_date <= ?2)")
 	List<Order> getActiveOrdersBetweenDeliveryDates(String dueDateStart, String dueDateEnd);
 
-	@Query(nativeQuery = true,value = "call GET_DISPLAYED_ACTIVE_ORDER_BETWEEN_DELIVERY_DATES(?1,?2)")
+	@Query(nativeQuery = true,value = " SELECT *  FROM  `order` WHERE active =1 AND display=1\n" + 
+			"  AND (delivery_date >= ?1 AND delivery_date <= ?2)")
 	List<Order> getActiveDisplayedOrdersBetweenDeliveryDates(String dueDateStart, String dueDateEnd);
 
-	@Query(nativeQuery = true,value = "call GET_ACTIVE_FIXED_ORDER_BETWEEN_DUE_DATES(?1,?2)")
+	@Query(nativeQuery = true,value = "SELECT *  FROM  `order` WHERE active =1 AND fixed=1\n" + 
+			"  AND (due_date >= ?1 AND due_date <= ?2)")
 	List<Order> getActiveFixedOrdersBetweenDueDates(String dueDateStart, String dueDateEnd);
 
-	@Query(nativeQuery = true,value = "call GET_FULFILLED_ORDER_BETWEEN_DUE_DATES(?1,?2)")
+	@Query(nativeQuery = true,value = "SELECT *  FROM  `order` WHERE fulfilled =1 \n" + 
+			"  AND (due_date >= ?1 AND due_date <= ?2)")
 	List<Order> getFulfilledOrdersBetweenDueDates(String dueDateStart, String dueDateEnd);
+
+	@Query(nativeQuery = true,value = "SELECT *  FROM  `order` WHERE fulfilled =0 \n" + 
+			" AND active=1 AND fixed=1 AND delivery_date<?1")
+	List<Order> getActiveFixedUnfulfilledOrdersAfterDeliveryDate(String today);
 }
 
