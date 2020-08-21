@@ -43,11 +43,14 @@ public class ProductHistoryServiceImpl {
 	
 	@Autowired 
 	DateTimeUtil dateTimeUtil;
+	
+	@Autowired 
+	ProductServiceImpl productServiceImpl;
 
 
 	public List<Product> getProductHistory(@Valid int year, @Valid int month, @Valid int dayOfMonth) {
 		LocalDateTime tillDate = LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0));
-		LocalDateTime requiredHistoryDate=LocalDateTime.of(year, month, dayOfMonth-1, 0, 0);
+		LocalDateTime requiredHistoryDate=LocalDateTime.of(year, month, dayOfMonth, 0, 0);
 		tillDate =dateTimeUtil.toUtc(tillDate);
 		requiredHistoryDate=dateTimeUtil.toUtc(requiredHistoryDate);
 		if(requiredHistoryDate.isAfter(tillDate)) {
@@ -62,7 +65,9 @@ public class ProductHistoryServiceImpl {
 		List<IncomingShipment> allIncomingShipment = incomingShipmentDao.getIncomingOrdersAfterDate(); 
 		List<IncomingShipment> incomingShipment=incomingShipmentListBetweenDates(allIncomingShipment,requiredHistoryDate,tillDate);
 
-		return calculateCurrentQuantityInProduct(productList,orderProductList,incomingShipment);
+		 List<Product> productsList= calculateCurrentQuantityInProduct(productList,orderProductList,incomingShipment);
+		 
+		return productServiceImpl.arrangeProductbySortField(productsList);
 
 	}
 
