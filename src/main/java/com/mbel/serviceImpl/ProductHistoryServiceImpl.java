@@ -55,7 +55,7 @@ public class ProductHistoryServiceImpl {
 		}
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-		List<Product>productList =productDao.findAll().stream().filter(predicate->!predicate.isSet()&&predicate.isActive()&&predicate.getProductId()==3089).collect(Collectors.toList());
+		List<Product>productList =productDao.findAll().stream().filter(predicate->!predicate.isSet()&&predicate.isActive()).collect(Collectors.toList());
 		List<Order>order =orderDao.getFulfilledOrdersBetweenDueDates(requiredHistoryDate.format(formatter),tillDate.format(formatter)); 
 		List<Integer>orderIdList=order.stream().map(mapper->mapper.getOrderId()).collect(Collectors.toList());
 		List<OrderProduct>orderProductList=order.isEmpty()?null:orderProductDao.findAllByOrderId(orderIdList);
@@ -144,6 +144,8 @@ public class ProductHistoryServiceImpl {
 		LocalDateTime requiredSummaryDate=LocalDateTime.of(year, month, 1, 0, 0);
 		LocalDateTime tillDate = LocalDateTime.of(year, month, initial.lengthOfMonth(), 0, 0);
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		tillDate =dateTimeUtil.toUtc(tillDate);
+		requiredSummaryDate=dateTimeUtil.toUtc(requiredSummaryDate);
 
 		Product product =productDao.findById(productId).orElse(null);
 		if(Objects.nonNull(product)) {
