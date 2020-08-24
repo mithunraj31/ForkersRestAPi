@@ -6,9 +6,11 @@ import java.util.Map;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mbel.model.OrderProduct;
 import com.mbel.model.ProductSet;
 
 @Repository
@@ -56,6 +58,10 @@ public interface ProductSetDao extends JpaRepository<ProductSet, Integer> {
 
 	@Query(value="SELECT * FROM `product_set` WHERE  set_id = ?1"  , nativeQuery = true)
 	public List<Map<Object, Object>> getAllBySetId(int integer);
+	
+	
+	@Query("FROM ProductSet o WHERE o.setId IN :ids")
+	public List<ProductSet> findBySetIds(@Param("ids") List<Integer> ids);
 	
 	
 

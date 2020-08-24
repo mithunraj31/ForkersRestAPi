@@ -12,6 +12,6 @@ import com.mbel.model.Product;
 public interface ProductDao extends JpaRepository<Product, Integer> {
 	
 	
-    @Query(nativeQuery=true,value ="call GET_ACTIVE_DISPLAYED_PRODUCT()")
-	List<Product> getActiveDisplayedProduct();
+    @Query(nativeQuery=true,value ="SELECT * FROM product where active=1")
+	List<Product> getActiveProducts();
 }

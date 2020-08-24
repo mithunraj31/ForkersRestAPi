@@ -25,7 +25,6 @@ import com.mbel.model.Order;
 import com.mbel.model.OrderProduct;
 import com.mbel.model.Product;
 import com.mbel.model.ProductSet;
-import com.mbel.model.ProductSetModel;
 
 @Service("ProductHistoryServiceImpl")
 public class ProductHistoryServiceImpl {
@@ -59,14 +58,19 @@ public class ProductHistoryServiceImpl {
 		}
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-		List<Product>productList =productDao.findAll().stream().filter(predicate->!predicate.isSet()&&predicate.isActive()).collect(Collectors.toList());
+		List<Product>allProductList =productDao.getActiveProducts();
 		List<Order>order =orderDao.getFulfilledOrdersBetweenDueDates(requiredHistoryDate.format(formatter),tillDate.format(formatter)); 
 		List<Integer>orderIdList=order.stream().map(Order::getOrderId).collect(Collectors.toList());
 		List<OrderProduct>orderProductList=order.isEmpty()?null:orderProductDao.findAllByOrderId(orderIdList);
+		List<Integer>productIdList=orderProductList==null?null:orderProductList.stream().map(OrderProduct::getProductId).collect(Collectors.toList());
 		List<IncomingShipment> allIncomingArrivedShipment = incomingShipmentDao.getIncomingArrivedOrders(); 
 		List<IncomingShipment> incomingShipment=incomingShipmentListBetweenDates(allIncomingArrivedShipment,requiredHistoryDate,tillDate);
+		List<Product>productList=productIdList==null?null:productDao.findAllById(productIdList);
+		List<Product>setProductList=productList==null||productList.isEmpty()?null:productList.stream().filter(predicate->predicate.isSet()).collect(Collectors.toList());
+		List<Integer>setIdList=setProductList==null||setProductList.isEmpty()?null:setProductList.stream().map(Product::getProductId).collect(Collectors.toList());
+		List<ProductSet>productSetList=setIdList==null||setIdList.isEmpty()?null:productSetDao.findBySetIds(setIdList);
 
-		List<Product> productsList= calculateCurrentQuantityInProduct(productList,orderProductList,incomingShipment);
+		List<Product> productsList= calculateCurrentQuantityInProduct(allProductList,orderProductList,incomingShipment,productSetList);
 
 		return productServiceImpl.arrangeProductbySortField(productsList);
 
@@ -102,22 +106,32 @@ public class ProductHistoryServiceImpl {
 	}
 
 
-	private List<Product> calculateCurrentQuantityInProduct(List<Product> productList,
-			List<OrderProduct> orderProductList, List<IncomingShipment> incomingShipmentList) {
-		int quantityFulfilledAfterRequestedDate=0;
-		for(Product product:productList) {
+	private List<Product> calculateCurrentQuantityInProduct(List<Product> allProductList,
+			List<OrderProduct> orderProductList, List<IncomingShipment> incomingShipmentList, List<ProductSet> productSetList) {
+		List<Product> productList=allProductList.stream().filter(predicate->!predicate.isSet()&&predicate.isActive()).collect(Collectors.toList());
+		for(Product individualProduct:productList) {
+			int quantityFulfilledAfterRequestedDate=0;
 			if(Objects.nonNull(orderProductList)) {
-				List<OrderProduct>individualOrderProductsList=orderProductList.stream()
-						.filter(predicate->predicate.getProductId()==product.getProductId()).collect(Collectors.toList());
-				if(!individualOrderProductsList.isEmpty()) {
-					for(OrderProduct orderProduct:individualOrderProductsList) {
+				for(OrderProduct orderProduct:orderProductList) {
+					if(individualProduct.getProductId()==orderProduct.getProductId()) {
 						quantityFulfilledAfterRequestedDate+=orderProduct.getQuantity();
 					}
-					product.setQuantity(product.getQuantity()+quantityFulfilledAfterRequestedDate);
+					else if(Objects.nonNull(productSetList)) {
+						List<ProductSet> setProducts=productSetList.stream()
+								.filter(predicate->predicate.getSetId()==orderProduct.getProductId()
+								&&predicate.getProductComponentId()==individualProduct.getProductId()).collect(Collectors.toList());
+						if(!setProducts.isEmpty()) {
+							for(ProductSet products:setProducts) {
+								quantityFulfilledAfterRequestedDate+=products.getQuantity()*orderProduct.getQuantity();
+							}
+						}
+					}
 				}
 			}
+			individualProduct.setQuantity(individualProduct.getQuantity()+quantityFulfilledAfterRequestedDate);
+			System.out.println(individualProduct.getProductId()+"--------"+individualProduct.getQuantity()+"tq"+quantityFulfilledAfterRequestedDate);
 
-			updateArrivedShipmentsToCurrentQuantity(product,incomingShipmentList);
+			updateArrivedShipmentsToCurrentQuantity(individualProduct,incomingShipmentList);
 
 		}
 
@@ -165,7 +179,9 @@ public class ProductHistoryServiceImpl {
 			List<Integer>productIdList=orderProductList==null?null:orderProductList.stream().map(OrderProduct::getProductId).collect(Collectors.toList());
 			List<IncomingShipment> allIncomingShipment = incomingShipmentDao.getIncomingOrdersArrivedOrdersOfProduct(productId); 
 			List<Product>productList=productIdList==null?null:productDao.findAllById(productIdList);
-			List<ProductSet>productSetList=productSetDao.findAll();
+			List<Product>setProductList=productList==null?null:productList.stream().filter(predicate->predicate.isSet()).collect(Collectors.toList());
+			List<Integer>setIdList=setProductList==null?null:setProductList.stream().map(Product::getProductId).collect(Collectors.toList());
+			List<ProductSet>productSetList=productSetDao.findBySetIds(setIdList);
 			List<IncomingShipment> incomingShipment=incomingShipmentListBetweenDates(allIncomingShipment,requiredSummaryDate,tillDate);
 
 			return calculateQuantitySummaryInProduct(product,orderProductList,incomingShipment,productSetList,productList);
@@ -196,19 +212,19 @@ public class ProductHistoryServiceImpl {
 				}));
 				if(individualProduct!=null&&!individualProduct.isSet()) {
 					if(individualProduct.getProductId()==product.getProductId()) {
-					totalOutgoingQty+=orderProduct.getQuantity();
+						totalOutgoingQty+=orderProduct.getQuantity();
 					}
-					
+
 				}else {
 					List<ProductSet> setProducts=productSetList.stream()
 							.filter(predicate->predicate.getSetId()==individualProduct.getProductId()
 							&&predicate.getProductComponentId()==product.getProductId()).collect(Collectors.toList());
 					if(!setProducts.isEmpty()) {
-					for(ProductSet products:setProducts) {
-						totalOutgoingQty+=products.getQuantity()*orderProduct.getQuantity();
+						for(ProductSet products:setProducts) {
+							totalOutgoingQty+=products.getQuantity()*orderProduct.getQuantity();
+						}
 					}
-					}
-					
+
 				}
 				productSummaryDto.setTotalOutgoingQty(totalOutgoingQty);
 
