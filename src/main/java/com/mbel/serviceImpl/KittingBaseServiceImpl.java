@@ -2,6 +2,7 @@ package com.mbel.serviceImpl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -66,17 +67,42 @@ public class KittingBaseServiceImpl {
 
 	@Autowired 
 	CustomerDao customerDao;
+	
 
 	public List<ProductPredictionDto> getProductPrediction(int year,int month) {
 		List<Product> allProduct = getAllSortedProducts();
 		List<ProductSet> allProductSet =productSetDao.findAll();
-		List<Order>order =orderDao.findAll(); 
-		List<OrderProduct>orderProduct =orderProductDao.findAll(); 
+		List<Order>order =getActiveDisplayedOrdersBetweenDeliveryDates(year,month);
+		List<OrderProduct>orderProduct=order.isEmpty()?null:getOrderedProductsBasedOnOrderId(order);
 		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll(); 
 		List<Customer> allCustomer = customerDao.findAll();
 		return predictProduct(allCustomer,allProduct,allProductSet, order,orderProduct,incomingShipment,year,month);
 
 	}
+	private List<OrderProduct> getOrderedProductsBasedOnOrderId(List<Order> order) {
+		List<Integer>orderIdList=order.stream().map(Order::getOrderId).collect(Collectors.toList());
+		return orderProductDao.findAllByOrderId(orderIdList);
+	}
+	private List<Order> getActiveDisplayedOrdersBetweenDeliveryDates(int year, int month) {
+		LocalDateTime today = LocalDateTime.now();
+		LocalDate initial = LocalDate.of(year, month, 1);
+		LocalDateTime dueDateStart =LocalDateTime.of(year, month, 1, 0, 0);
+					if(dueDateStart.getMonthValue()<=today.getMonthValue()&&
+						dueDateStart.getYear()==today.getYear()){
+					dueDateStart=dueDateStart.minusMonths(3);
+				}else if(dueDateStart.getMonthValue()>today.getMonthValue()&&
+						dueDateStart.getYear()==today.getYear()){
+					dueDateStart=LocalDateTime.of(year, today.getMonth().minus(3), 1, 0, 0);
+				}else if(dueDateStart.getYear()<today.getYear()||dueDateStart.getYear()>today.getYear()) {
+					dueDateStart=dueDateStart.minusMonths(3);
+				}
+		LocalDateTime dueDateEnd =LocalDateTime.of(year, month, initial.lengthOfMonth(), 0, 0).plusDays(1);
+		dueDateStart =DateTimeUtil.toUtc(dueDateStart).minusDays(1);
+		dueDateEnd=DateTimeUtil.toUtc(dueDateEnd);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		return orderDao.getActiveDisplayedOrdersBetweenDeliveryDates(dueDateStart.format(formatter), dueDateEnd.format(formatter));
+	}
+	
 	private List<Product> getAllSortedProducts() {
 		List<Product>product =productDao.findAll();
 		return productServiceImpl.arrangeProductbySortField(product);
