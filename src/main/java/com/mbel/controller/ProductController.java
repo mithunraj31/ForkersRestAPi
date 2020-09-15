@@ -1,11 +1,13 @@
 package com.mbel.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,7 +37,7 @@ public class  ProductController{
 
 	@PostMapping("/product/")	
 	@ResponseStatus(HttpStatus.CREATED)
-	public Product saveProduct(@Valid @RequestBody Product newProduct){
+	public ResponseEntity<Map<String, String>> saveProduct(@Valid @RequestBody Product newProduct){
 		return productServiceImpl.save(newProduct);
 	}
 
@@ -64,7 +66,7 @@ public class  ProductController{
 
 	}
 	@PostMapping("/productset/")
-	public Product saveProductSet(@Valid @RequestBody SaveProductSetDto newProductSet){
+	public ResponseEntity<Map<String, String>> saveProductSet(@Valid @RequestBody SaveProductSetDto newProductSet){
 		return productServiceImpl.saveProductSet(newProductSet);
 
 	}
