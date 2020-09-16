@@ -2,6 +2,7 @@ package com.mbel.serviceImpl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -67,15 +68,39 @@ public class ProductPredictionServiceImpl {
 	@Autowired 
 	CustomerDao customerDao;
 
+
 	public List<ProductPredictionDto> getProductPrediction(int year,int month) {
 		List<Product> allProduct = getAllSortedProducts();
 		List<ProductSet> allProductSet =productSetDao.findAll();
-		List<Order>order =orderDao.findAll(); 
-		List<OrderProduct>orderProduct =orderProductDao.findAll(); 
+		List<Order>order =getActiveOrdersBetweenDeliveryDates(year,month);
+		List<OrderProduct>orderProduct=order.isEmpty()?null: getOrderedProductsBasedOnOrderId(order);
 		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll(); 
 		List<Customer> allCustomer = customerDao.findAll();
 		return predictProduct(allCustomer,allProduct,allProductSet, order,orderProduct,incomingShipment,year,month);
 
+	}
+	private List<OrderProduct> getOrderedProductsBasedOnOrderId(List<Order> order) {
+		List<Integer>orderIdList=order.stream().map(Order::getOrderId).collect(Collectors.toList());
+		return orderProductDao.findAllByOrderId(orderIdList);
+	}
+	private List<Order> getActiveOrdersBetweenDeliveryDates(int year, int month) {
+		LocalDateTime today = LocalDateTime.now();
+		LocalDate initial = LocalDate.of(year, month, 1);
+		LocalDateTime dueDateStart =LocalDateTime.of(year, month, 1, 0, 0);
+		if(dueDateStart.getMonthValue()<=today.getMonthValue()&&
+				dueDateStart.getYear()==today.getYear()){
+			dueDateStart=dueDateStart.minusMonths(3);
+		}else if(dueDateStart.getMonthValue()>today.getMonthValue()&&
+				dueDateStart.getYear()==today.getYear()){
+			dueDateStart=LocalDateTime.of(year, today.getMonth().minus(3), 1, 0, 0);
+		}else if(dueDateStart.getYear()<today.getYear()||dueDateStart.getYear()>today.getYear()) {
+			dueDateStart=dueDateStart.minusMonths(3);
+		}
+		LocalDateTime dueDateEnd =LocalDateTime.of(year, month, initial.lengthOfMonth(), 0, 0).plusDays(1);
+		dueDateStart =DateTimeUtil.toUtc(dueDateStart).minusDays(1);
+		dueDateEnd=DateTimeUtil.toUtc(dueDateEnd);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		return orderDao.getActiveOrdersBetweenDeliveryDates(dueDateStart.format(formatter), dueDateEnd.format(formatter));
 	}
 	private List<Product> getAllSortedProducts() {
 		List<Product>product =productDao.findAll();
@@ -161,11 +186,11 @@ public class ProductPredictionServiceImpl {
 						return list.get(0);
 					}));
 			productList.add(component);
-			
+
 		}
 		productList.sort(Comparator.comparingInt(predicate->predicate.getSort()));
 		return productList;
-		
+
 	}
 	private String getCustomer(List<Customer> customerList, int customerId) {
 		return customerList.stream()
@@ -184,15 +209,15 @@ public class ProductPredictionServiceImpl {
 		LocalDateTime today = LocalDateTime.now();
 		LocalDate initial = LocalDate.of(year, month, 1);
 		LocalDateTime dueDateStart =LocalDateTime.of(year, month, 1, 0, 0);
-					if(dueDateStart.getMonthValue()<=today.getMonthValue()&&
-						dueDateStart.getYear()==today.getYear()){
-					dueDateStart=dueDateStart.minusMonths(3);
-				}else if(dueDateStart.getMonthValue()>today.getMonthValue()&&
-						dueDateStart.getYear()==today.getYear()){
-					dueDateStart=LocalDateTime.of(year, today.getMonth().minus(3), 1, 0, 0);
-				}else if(dueDateStart.getYear()<today.getYear()||dueDateStart.getYear()>today.getYear()) {
-					dueDateStart=dueDateStart.minusMonths(3);
-				}
+		if(dueDateStart.getMonthValue()<=today.getMonthValue()&&
+				dueDateStart.getYear()==today.getYear()){
+			dueDateStart=dueDateStart.minusMonths(3);
+		}else if(dueDateStart.getMonthValue()>today.getMonthValue()&&
+				dueDateStart.getYear()==today.getYear()){
+			dueDateStart=LocalDateTime.of(year, today.getMonth().minus(3), 1, 0, 0);
+		}else if(dueDateStart.getYear()<today.getYear()||dueDateStart.getYear()>today.getYear()) {
+			dueDateStart=dueDateStart.minusMonths(3);
+		}
 		LocalDateTime dueDateEnd =LocalDateTime.of(year, month, initial.lengthOfMonth(), 0, 0);
 		Map<Integer,Mappingfields>productQuantityMap=new HashMap<>();
 		for(LocalDateTime dueDate=dueDateStart;dueDate.isBefore(dueDateEnd)||
@@ -309,42 +334,42 @@ public class ProductPredictionServiceImpl {
 		int availableQuantity=productQuantityMap.get(individualProduct.getProduct().getProductId())!=null?
 				productQuantityMap.get(individualProduct.getProduct().getProductId()).getAvailableStockQuantity():
 					individualProduct.getProduct().getQuantity();
-		orderdQunatity=product.getQuantity()*individualProduct.getQuantity();
-		mappingFields.setProduct(individualProduct.getProduct());
-		mappingFields.setOrderdQuantity(individualProduct.getQuantity());
-		mappingFields.setRequiredQuantity(orderdQunatity);
-		mappingFields.setSet(true);
-		mappingFields.setIncomingQuantity(0);
-		mappingFields.setOutgoingFixed(individualOrder.isFixed());
-		mappingFields.setOrderId(individualOrder.getOrderId());
-		mappingFields.setCustomer(individualOrder.getCustomerId());
-		mappingFields.setOrderFixed(individualOrder.isFixed());
-		mappingFields.setProposalNo(individualOrder.getProposalNo());
-		mappingFields.setOutgoingFulfilment(true);
-		mappingFields.setAvailableStockQuantity(availableQuantity);
-		multipleProductOrder(productDetails,individualProduct.getProduct().getProductId(),mappingFields);
+				orderdQunatity=product.getQuantity()*individualProduct.getQuantity();
+				mappingFields.setProduct(individualProduct.getProduct());
+				mappingFields.setOrderdQuantity(individualProduct.getQuantity());
+				mappingFields.setRequiredQuantity(orderdQunatity);
+				mappingFields.setSet(true);
+				mappingFields.setIncomingQuantity(0);
+				mappingFields.setOutgoingFixed(individualOrder.isFixed());
+				mappingFields.setOrderId(individualOrder.getOrderId());
+				mappingFields.setCustomer(individualOrder.getCustomerId());
+				mappingFields.setOrderFixed(individualOrder.isFixed());
+				mappingFields.setProposalNo(individualOrder.getProposalNo());
+				mappingFields.setOutgoingFulfilment(true);
+				mappingFields.setAvailableStockQuantity(availableQuantity);
+				multipleProductOrder(productDetails,individualProduct.getProduct().getProductId(),mappingFields);
 
 	}
 	private void productfulfillmentUpdate(Map<Integer, List<Mappingfields>> productDetails, FetchOrderdProducts product, Map<Integer, Mappingfields> productQuantityMap,
-			  Order individualOrder) {
+			Order individualOrder) {
 		Mappingfields mappingFields =new Mappingfields();
 		Product productValue =product.getProduct();
 		int orderdQunatity=product.getQuantity();
 		int availableQuantity=productQuantityMap.get(productValue.getProductId())!=null?
 				productQuantityMap.get(productValue.getProductId()).getAvailableStockQuantity():
 					productValue.getQuantity();
-		mappingFields.setProduct(productValue);
-		mappingFields.setOrderdQuantity(orderdQunatity);
-		mappingFields.setRequiredQuantity(orderdQunatity);
-		mappingFields.setOutgoingFixed(individualOrder.isFixed());
-		mappingFields.setIncomingQuantity(0);
-		mappingFields.setOrderId(individualOrder.getOrderId());
-		mappingFields.setProposalNo(individualOrder.getProposalNo());
-		mappingFields.setCustomer(individualOrder.getCustomerId());
-		mappingFields.setOrderFixed(individualOrder.isFixed());
-		mappingFields.setAvailableStockQuantity(availableQuantity);
-		mappingFields.setOutgoingFulfilment(true);
-		multipleProductOrder(productDetails,product.getProduct().getProductId(),mappingFields);    
+				mappingFields.setProduct(productValue);
+				mappingFields.setOrderdQuantity(orderdQunatity);
+				mappingFields.setRequiredQuantity(orderdQunatity);
+				mappingFields.setOutgoingFixed(individualOrder.isFixed());
+				mappingFields.setIncomingQuantity(0);
+				mappingFields.setOrderId(individualOrder.getOrderId());
+				mappingFields.setProposalNo(individualOrder.getProposalNo());
+				mappingFields.setCustomer(individualOrder.getCustomerId());
+				mappingFields.setOrderFixed(individualOrder.isFixed());
+				mappingFields.setAvailableStockQuantity(availableQuantity);
+				mappingFields.setOutgoingFulfilment(true);
+				multipleProductOrder(productDetails,product.getProduct().getProductId(),mappingFields);    
 
 
 	}
@@ -524,7 +549,7 @@ public class ProductPredictionServiceImpl {
 			contains.setFulfilled(false);
 			contains.setFcst(false);
 			contains.setConfirmed(true);
-	}
+		}
 		outgoingShipmentValues.setContains(contains);
 		predictionData.setDate(dueDate);
 		outgoingShipmentValues.setOrders(orderDataList);
@@ -570,70 +595,70 @@ public class ProductPredictionServiceImpl {
 				fixedtList.add(incomingOrderList.get(i).isFulfilled()?null:incomingOrderList.get(i).isFixed());
 				fulfillmentList.add(incomingOrderList.get(i).isFulfilled());
 			}
-			
+
 			if(fixedtList.contains(false)){
 				incomingShipmentValues.setFixed(false);
 			}else {
 				incomingShipmentValues.setFixed(true);
 			}
-				if(fulfillmentList.contains(true)&&fulfillmentList.contains(false)) {
-					incomingShipmentValues.setFulfilled(2);
-				}else if(fulfillmentList.contains(true)&&!fulfillmentList.contains(false)) {
-					incomingShipmentValues.setFulfilled(1);	
-				}else if(fulfillmentList.contains(false)&&!fulfillmentList.contains(true)) {
-					incomingShipmentValues.setFulfilled(0);	
-				}
-				incomingColorUpdate(fulfillmentList,fixedtList,incomingShipmentValues);
+			if(fulfillmentList.contains(true)&&fulfillmentList.contains(false)) {
+				incomingShipmentValues.setFulfilled(2);
+			}else if(fulfillmentList.contains(true)&&!fulfillmentList.contains(false)) {
+				incomingShipmentValues.setFulfilled(1);	
+			}else if(fulfillmentList.contains(false)&&!fulfillmentList.contains(true)) {
+				incomingShipmentValues.setFulfilled(0);	
 			}
-		
-		
+			incomingColorUpdate(fulfillmentList,fixedtList,incomingShipmentValues);
+		}
+
+
 	}
 	private void incomingColorUpdate(List<Boolean> fulfillmentList, List<Boolean> fixedtList,
 			ProductIncomingShipmentModel incomingShipmentValues) {
 		ColourData contains = new ColourData();
 		if(fulfillmentList.size()>1) {
-		if(fulfillmentList.contains(true)&&!fulfillmentList.contains(false)) {
-			contains.setFulfilled(true);
-			contains.setFcst(false);
-			contains.setConfirmed(false);
-			
-		}else if((fixedtList.contains(true)&&fixedtList.contains(false)
-				&&fulfillmentList.contains(true))) {
-			contains.setFulfilled(true);
-			contains.setFcst(true);
-			contains.setConfirmed(true);
-			
-		}else if((fixedtList.contains(true)&&fixedtList.contains(false))
-				&&((fulfillmentList.contains(false)&&!fulfillmentList.contains(true)))) {
-			contains.setFulfilled(false);
-			contains.setFcst(true);
-			contains.setConfirmed(true);
-			
-		}else if((fixedtList.contains(false)&&!fixedtList.contains(true))
-				&&(fulfillmentList.contains(true))) {
-			contains.setFulfilled(true);
-			contains.setFcst(true);
-			contains.setConfirmed(false);
-			
-		}else if((fixedtList.contains(false)&&!fixedtList.contains(true))
-				&&(fulfillmentList.contains(false)&&!fulfillmentList.contains(true))) {
-			contains.setFulfilled(false);
-			contains.setFcst(true);
-			contains.setConfirmed(false);
-			
-		}else if((fixedtList.contains(true)&&!fixedtList.contains(false))
-				&&(fulfillmentList.contains(true))) {
-			contains.setFulfilled(true);
-			contains.setFcst(false);
-			contains.setConfirmed(true);
-			
-		}else if((fixedtList.contains(true)&&!fixedtList.contains(false))
-				&&(fulfillmentList.contains(false)&&!fulfillmentList.contains(true))) {
-			contains.setFulfilled(false);
-			contains.setFcst(false);
-			contains.setConfirmed(true);
-			
-		}
+			if(fulfillmentList.contains(true)&&!fulfillmentList.contains(false)) {
+				contains.setFulfilled(true);
+				contains.setFcst(false);
+				contains.setConfirmed(false);
+
+			}else if((fixedtList.contains(true)&&fixedtList.contains(false)
+					&&fulfillmentList.contains(true))) {
+				contains.setFulfilled(true);
+				contains.setFcst(true);
+				contains.setConfirmed(true);
+
+			}else if((fixedtList.contains(true)&&fixedtList.contains(false))
+					&&((fulfillmentList.contains(false)&&!fulfillmentList.contains(true)))) {
+				contains.setFulfilled(false);
+				contains.setFcst(true);
+				contains.setConfirmed(true);
+
+			}else if((fixedtList.contains(false)&&!fixedtList.contains(true))
+					&&(fulfillmentList.contains(true))) {
+				contains.setFulfilled(true);
+				contains.setFcst(true);
+				contains.setConfirmed(false);
+
+			}else if((fixedtList.contains(false)&&!fixedtList.contains(true))
+					&&(fulfillmentList.contains(false)&&!fulfillmentList.contains(true))) {
+				contains.setFulfilled(false);
+				contains.setFcst(true);
+				contains.setConfirmed(false);
+
+			}else if((fixedtList.contains(true)&&!fixedtList.contains(false))
+					&&(fulfillmentList.contains(true))) {
+				contains.setFulfilled(true);
+				contains.setFcst(false);
+				contains.setConfirmed(true);
+
+			}else if((fixedtList.contains(true)&&!fixedtList.contains(false))
+					&&(fulfillmentList.contains(false)&&!fulfillmentList.contains(true))) {
+				contains.setFulfilled(false);
+				contains.setFcst(false);
+				contains.setConfirmed(true);
+
+			}
 		}else {
 			if(fulfillmentList.contains(true)) {
 				contains.setFulfilled(true);
@@ -643,16 +668,16 @@ public class ProductPredictionServiceImpl {
 				contains.setFulfilled(false);
 				contains.setFcst(true);
 				contains.setConfirmed(false);
-				
+
 			}else if(!fixedtList.contains(false)&&fixedtList.contains(true)) {
 				contains.setFulfilled(false);
 				contains.setFcst(false);
 				contains.setConfirmed(true);
-				
+
 			}
 		}
 		incomingShipmentValues.setContains(contains);
-		
+
 	}
 	private void updateMultipleOrderStockValues(Map<Integer, List<Mappingfields>> productDetails,
 			PredictionData predictionData, 
@@ -725,13 +750,13 @@ public class ProductPredictionServiceImpl {
 			contains.setFulfilled(false);
 			contains.setFcst(true);
 			contains.setConfirmed(true);
-			
+
 		}else if((outgoingFixedList.contains(false)&&!outgoingFixedList.contains(true))
 				&&outgoingFulfilList.contains(true)) {
 			contains.setFulfilled(true);
 			contains.setFcst(true);
 			contains.setConfirmed(false);
-			
+
 		}else if((outgoingFixedList.contains(false)&&!outgoingFixedList.contains(true))
 				&&(outgoingFulfilList.contains(false)&&!outgoingFulfilList.contains(true))) {
 			contains.setFulfilled(false);
@@ -742,7 +767,7 @@ public class ProductPredictionServiceImpl {
 			contains.setFulfilled(true);
 			contains.setFcst(false);
 			contains.setConfirmed(true);
-			
+
 		}else if((outgoingFixedList.contains(true)&&!outgoingFixedList.contains(false))
 				&&(outgoingFulfilList.contains(false)&&!outgoingFulfilList.contains(true))) {
 			contains.setFulfilled(false);
@@ -1009,7 +1034,8 @@ public class ProductPredictionServiceImpl {
 			if(incomingShipmentDtoList.get(i).isFixed()&&!incomingShipmentDtoList.get(i).isArrived()
 					&&incomingShipmentDtoList.get(i).isActive()) {
 				if(incomingShipmentDtoList.get(i).getFixedDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()&&
-						incomingShipmentDtoList.get(i).getFixedDeliveryDate().getMonth()==dueDate.getMonth()) {
+						incomingShipmentDtoList.get(i).getFixedDeliveryDate().getMonth()==dueDate.getMonth()&&
+						incomingShipmentDtoList.get(i).getFixedDeliveryDate().getYear()==dueDate.getYear()) {
 					incomingShipmentFixedList.add(incomingShipmentDtoList.get(i));
 
 				}
@@ -1017,7 +1043,8 @@ public class ProductPredictionServiceImpl {
 			}else if(!incomingShipmentDtoList.get(i).isFixed()&&!incomingShipmentDtoList.get(i).isArrived()
 					&&incomingShipmentDtoList.get(i).isActive()) {
 				if(incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()&&
-						incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getMonth()==dueDate.getMonth()) {
+						incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getMonth()==dueDate.getMonth()&&
+						incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getYear()==dueDate.getYear()) {
 					incomingShipmentFixedList.add(incomingShipmentDtoList.get(i));
 
 				}
@@ -1128,7 +1155,8 @@ public class ProductPredictionServiceImpl {
 		return order.stream()
 				.filter(predicate->predicate.isActive() && !predicate.isFulfilled() 
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
-						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
+						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()
+						&& predicate.getDeliveryDate().getYear()==dueDate.getYear()))
 				.collect(Collectors.toList());
 
 	}
@@ -1137,7 +1165,8 @@ public class ProductPredictionServiceImpl {
 		return order.stream()
 				.filter(predicate->predicate.isFulfilled() 
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
-						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
+						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()
+						&& predicate.getDeliveryDate().getYear()==dueDate.getYear()))
 				.collect(Collectors.toList());
 	}
 
@@ -1145,7 +1174,8 @@ public class ProductPredictionServiceImpl {
 		return order.stream()
 				.filter(predicate->(predicate.isActive()||predicate.isFulfilled())
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
-						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
+						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()
+						&& predicate.getDeliveryDate().getYear()==dueDate.getYear()))
 				.collect(Collectors.toList());
 	}
 

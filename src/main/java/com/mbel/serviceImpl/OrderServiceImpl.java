@@ -1,6 +1,7 @@
 package com.mbel.serviceImpl;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -324,10 +325,14 @@ public class OrderServiceImpl  {
 	}
 
 	public Map<String, Integer> getDelayedOrderCount() {
-		List<Order> order = orderDao.findAll().stream()
-		.filter(predicate->predicate.isActive() && !predicate.isFulfilled() 
-				&&predicate.isFixed()&&! predicate.getDeliveryDate().isAfter(LocalDateTime.now())) 
-		.collect(Collectors.toList());
+		LocalDateTime today=LocalDateTime.now();
+		today=DateTimeUtil.toUtc(today);
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		List<Order> order = orderDao.getActiveFixedUnfulfilledOrdersAfterDeliveryDate(today.format(formatter));
+//		List<Order> order = orderDao.findAll().stream()
+//		.filter(predicate->predicate.isActive() && !predicate.isFulfilled() 
+//				&&predicate.isFixed()&&! predicate.getDeliveryDate().isAfter(LocalDateTime.now())) 
+//		.collect(Collectors.toList());
 		Map<String, Integer> response = new HashMap<>();
 		response.put(Constants.COUNT, order.size());
 		return response;
