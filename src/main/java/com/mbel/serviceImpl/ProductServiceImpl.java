@@ -617,6 +617,59 @@ public class ProductServiceImpl  {
 
 	}
 
+
+
+	public List<FetchProductSetDto> getAllProductsAndProductSets() {
+		List<FetchProductSetDto> fetchList =new ArrayList<>();
+		List<Product> allProducts = productDao.getActiveProducts();
+		List<ProductSet> allProductSet=productSetDao.findAll();
+		for(Product product:allProducts) {
+			List<ProductSetModel> productList = new ArrayList<>();
+			FetchProductSetDto componentSet= new FetchProductSetDto();
+			componentSet.setProductId(product.getProductId());
+			componentSet.setProductName(product.getProductName());
+			componentSet.setDescription(product.getDescription());
+			componentSet.setPrice(product.getPrice());
+			componentSet.setMoq(product.getMoq());
+			componentSet.setLeadTime(product.getLeadTime());
+			componentSet.setObicNo(product.getObicNo());
+			componentSet.setQuantity(product.getQuantity());
+			componentSet.setSet(product.isSet());
+			componentSet.setActive(product.isActive());
+			componentSet.setCreatedAt(product.getCreatedAt());
+			componentSet.setUpdatedAt(product.getUpdatedAt());
+			componentSet.setCurrency(product.getCurrency());
+			componentSet.setSort(product.getSort());
+			componentSet.setDisplay(product.isDisplay());
+			componentSet.setColor(product.getColor());
+			if(product.isSet()) {
+				List<ProductSet> productsetList= allProductSet.stream().filter(predicate->predicate.getSetId()==product.getProductId()).collect(Collectors.toList());
+				if(productsetList != null) {
+				for(int l=0;l< productsetList.size();l++ ) {
+					ProductSetModel productSetModel = new ProductSetModel();
+					int productComponentId=productsetList.get(l).getProductComponentId();
+					Product component =allProducts.stream().filter(predicate->predicate.getProductId()==productComponentId)
+							.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
+								if (list.size() != 1) {
+									return null;
+								}
+								return list.get(0);
+							}));
+					productSetModel.setProduct(component);
+					productSetModel.setQuantity(productsetList.get(l).getQuantity());
+					productList.add(productSetModel);
+				}
+				}
+			}
+
+
+			componentSet.setProducts(arrangebySortField(productList));
+			fetchList.add(componentSet);
+		}
+
+		return  arrangeProductSetBySortField(fetchList);
+	}
+
 	
 
 }

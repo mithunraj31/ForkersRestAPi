@@ -1,8 +1,10 @@
 package com.mbel.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mbel.constants.Constants;
 import com.mbel.dto.SchedulePatternDto;
 import com.mbel.serviceImpl.SchedulePatternServiceImpl;
+import com.mbel.serviceImpl.UtilityServiceImpl;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -31,14 +34,19 @@ public class  SchedulePatternController{
 
 	@Autowired
 	private SchedulePatternServiceImpl schedulePatternServiceImpl;  
+	
+	@Autowired
+	UtilityServiceImpl utilityServiceImpl;
 
 
-	@PostMapping("/schedule/pattern/")
-	@ResponseStatus(HttpStatus.CREATED)
-	public ResponseEntity<Map<String, Object>> savePattern(@Valid @RequestBody SchedulePatternDto schedulePatternDto) {
+	@PostMapping("/schedule/pattern")
+	public ResponseEntity<Map<String, Object>> savePattern(@RequestBody SchedulePatternDto schedulePatternDto,
+			HttpServletRequest request) {
+		String token = request.getHeader(Constants.HEADER_STRING);
+		int userId = this.utilityServiceImpl.getUserIdFromToken(token);
 		Map<String, Object> response = new HashMap<>();
 		try {
-			schedulePatternServiceImpl.save(schedulePatternDto);
+			schedulePatternServiceImpl.save(schedulePatternDto,userId);
 		} catch (Exception e) {
 			response.put(Constants.MESSAGE, "pattern cannot besaved");
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
@@ -47,6 +55,14 @@ public class  SchedulePatternController{
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
 	}
 
+	
+	@GetMapping("/schedule/pattern")
+	public List<SchedulePatternDto> gerAllpattern() {
+		return schedulePatternServiceImpl.getAllPatterns();
+
+	}
+	
+	
 	@GetMapping("/schedule/pattern/{patternId}")
 	public SchedulePatternDto patternById(@PathVariable (value="patternId") @Valid int patternId) {
 		return schedulePatternServiceImpl.getPatternById(patternId);
@@ -55,10 +71,12 @@ public class  SchedulePatternController{
 
 	@PutMapping("/schedule/pattern/{patternId}")
 	public ResponseEntity<Map<String, Object>> updatePatternById(@PathVariable (value="patternId")int patternId,
-			@Valid @RequestBody SchedulePatternDto schedulePatternDto)   {
+			@Valid @RequestBody SchedulePatternDto schedulePatternDto,HttpServletRequest request)   {
+		String token = request.getHeader(Constants.HEADER_STRING);
+		int userId = this.utilityServiceImpl.getUserIdFromToken(token);
 		Map<String, Object> response = new HashMap<>();
 		try {
-			schedulePatternServiceImpl.getUpdatePatternById(patternId,schedulePatternDto);
+			schedulePatternServiceImpl.getUpdatePatternById(patternId,schedulePatternDto,userId);
 		} catch (Exception e) {
 			response.put(Constants.MESSAGE, "pattern cannot be updated");
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);

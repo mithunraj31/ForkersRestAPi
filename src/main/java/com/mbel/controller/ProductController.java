@@ -77,6 +77,11 @@ public class  ProductController{
 		return productServiceImpl.getAllProductSet();
 	}
 	
+	@GetMapping("/productset/all")
+	public List<FetchProductSetDto> allProductsAndProductSets() {
+		return productServiceImpl.getAllProductsAndProductSets();
+	}
+	
 	@GetMapping("/productsetsql/")
 	public List<FetchProductSetDto> allProductSetSql() {
 		return productServiceImpl.getAllSqlProductSet();

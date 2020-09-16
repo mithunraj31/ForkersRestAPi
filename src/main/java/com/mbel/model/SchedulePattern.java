@@ -12,19 +12,34 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "SchedulePattern")
 public class SchedulePattern {
-	
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int schedulePatternId;
-    
-    private String schedulePatternName;
-    
-    private LocalDateTime createdAt;
-    
-    private LocalDateTime updatedAt;
-    
-    private int userId;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private int schedulePatternId;
+
+	private String schedulePatternName;
+
+	private String pattern;
+
+	private LocalDateTime createdAt;
+
+	private LocalDateTime updatedAt;
+
+	private int createdUserId;
+
+	private int updatedUserId;
+
+	private boolean isPrivate;
+
+
+	public boolean isPrivate() {
+		return isPrivate;
+	}
+
+	public void setPrivate(boolean isPrivate) {
+		this.isPrivate = isPrivate;
+	}
 
 	public int getSchedulePatternId() {
 		return schedulePatternId;
@@ -36,10 +51,6 @@ public class SchedulePattern {
 
 	public LocalDateTime getUpdatedAt() {
 		return updatedAt;
-	}
-
-	public int getUserId() {
-		return userId;
 	}
 
 	public void setSchedulePatternId(int schedulePatternId) {
@@ -54,10 +65,6 @@ public class SchedulePattern {
 		this.updatedAt = updatedAt;
 	}
 
-	public void setUserId(int userId) {
-		this.userId = userId;
-	}
-
 	public String getSchedulePatternName() {
 		return schedulePatternName;
 	}
@@ -65,5 +72,32 @@ public class SchedulePattern {
 	public void setSchedulePatternName(String schedulePatternName) {
 		this.schedulePatternName = schedulePatternName;
 	}
-  
+
+	public int getCreatedUserId() {
+		return createdUserId;
+	}
+
+	public int getUpdatedUserId() {
+		return updatedUserId;
+	}
+
+	public void setCreatedUserId(int createdUserId) {
+		this.createdUserId = createdUserId;
+	}
+
+	public void setUpdatedUserId(int updatedUserId) {
+		this.updatedUserId = updatedUserId;
+	}
+
+	public String getPattern() {
+		return pattern;
+	}
+
+	public void setPattern(String pattern) {
+		this.pattern = pattern;
+	}
+
+
+
+
 }
