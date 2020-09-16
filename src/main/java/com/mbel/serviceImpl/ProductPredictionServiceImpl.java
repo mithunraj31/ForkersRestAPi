@@ -1034,7 +1034,8 @@ public class ProductPredictionServiceImpl {
 			if(incomingShipmentDtoList.get(i).isFixed()&&!incomingShipmentDtoList.get(i).isArrived()
 					&&incomingShipmentDtoList.get(i).isActive()) {
 				if(incomingShipmentDtoList.get(i).getFixedDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()&&
-						incomingShipmentDtoList.get(i).getFixedDeliveryDate().getMonth()==dueDate.getMonth()) {
+						incomingShipmentDtoList.get(i).getFixedDeliveryDate().getMonth()==dueDate.getMonth()&&
+						incomingShipmentDtoList.get(i).getFixedDeliveryDate().getYear()==dueDate.getYear()) {
 					incomingShipmentFixedList.add(incomingShipmentDtoList.get(i));
 
 				}
@@ -1042,7 +1043,8 @@ public class ProductPredictionServiceImpl {
 			}else if(!incomingShipmentDtoList.get(i).isFixed()&&!incomingShipmentDtoList.get(i).isArrived()
 					&&incomingShipmentDtoList.get(i).isActive()) {
 				if(incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()&&
-						incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getMonth()==dueDate.getMonth()) {
+						incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getMonth()==dueDate.getMonth()&&
+						incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getYear()==dueDate.getYear()) {
 					incomingShipmentFixedList.add(incomingShipmentDtoList.get(i));
 
 				}
@@ -1153,7 +1155,8 @@ public class ProductPredictionServiceImpl {
 		return order.stream()
 				.filter(predicate->predicate.isActive() && !predicate.isFulfilled() 
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
-						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
+						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()
+						&& predicate.getDeliveryDate().getYear()==dueDate.getYear()))
 				.collect(Collectors.toList());
 
 	}
@@ -1162,7 +1165,8 @@ public class ProductPredictionServiceImpl {
 		return order.stream()
 				.filter(predicate->predicate.isFulfilled() 
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
-						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
+						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()
+						&& predicate.getDeliveryDate().getYear()==dueDate.getYear()))
 				.collect(Collectors.toList());
 	}
 
@@ -1170,7 +1174,8 @@ public class ProductPredictionServiceImpl {
 		return order.stream()
 				.filter(predicate->(predicate.isActive()||predicate.isFulfilled())
 						&&( predicate.getDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()
-						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()))
+						&& predicate.getDeliveryDate().getMonth()==dueDate.getMonth()
+						&& predicate.getDeliveryDate().getYear()==dueDate.getYear()))
 				.collect(Collectors.toList());
 	}
 

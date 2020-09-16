@@ -1053,7 +1053,8 @@ public class ShippingBaseServiceImpl {
 			if(incomingShipmentDtoList.get(i).isFixed()&&!incomingShipmentDtoList.get(i).isArrived()
 					&&incomingShipmentDtoList.get(i).isActive()) {
 				if(incomingShipmentDtoList.get(i).getFixedDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()&&
-						incomingShipmentDtoList.get(i).getFixedDeliveryDate().getMonth()==dueDate.getMonth()) {
+						incomingShipmentDtoList.get(i).getFixedDeliveryDate().getMonth()==dueDate.getMonth()&&
+						incomingShipmentDtoList.get(i).getFixedDeliveryDate().getYear()==dueDate.getYear()) {
 					incomingShipmentFixedList.add(incomingShipmentDtoList.get(i));
 
 				}
@@ -1061,7 +1062,8 @@ public class ShippingBaseServiceImpl {
 			}else if(!incomingShipmentDtoList.get(i).isFixed()&&!incomingShipmentDtoList.get(i).isArrived()
 					&&incomingShipmentDtoList.get(i).isActive()) {
 				if(incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()&&
-						incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getMonth()==dueDate.getMonth()) {
+						incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getMonth()==dueDate.getMonth()&&
+						incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getYear()==dueDate.getYear()) {
 					incomingShipmentFixedList.add(incomingShipmentDtoList.get(i));
 
 				}
@@ -1172,7 +1174,8 @@ public class ShippingBaseServiceImpl {
 		return order.stream()
 				.filter(predicate->predicate.isActive() && !predicate.isFulfilled() &&predicate.isFixed() 
 						&&( predicate.getDueDate().getDayOfMonth()==dueDate.getDayOfMonth()
-						&& predicate.getDueDate().getMonth()==dueDate.getMonth()))
+						&& predicate.getDueDate().getMonth()==dueDate.getMonth()
+						&& predicate.getDueDate().getYear()==dueDate.getYear()))
 				.collect(Collectors.toList());
 
 	}
@@ -1181,7 +1184,8 @@ public class ShippingBaseServiceImpl {
 		return order.stream()
 				.filter(predicate->predicate.isFulfilled() &&predicate.isFixed()
 						&&( predicate.getDueDate().getDayOfMonth()==dueDate.getDayOfMonth()
-						&& predicate.getDueDate().getMonth()==dueDate.getMonth()))
+						&& predicate.getDueDate().getMonth()==dueDate.getMonth()
+						&& predicate.getDueDate().getYear()==dueDate.getYear()))
 				.collect(Collectors.toList());
 	}
 
@@ -1190,7 +1194,8 @@ public class ShippingBaseServiceImpl {
 				.filter(predicate->((predicate.isActive() && !predicate.isFulfilled() &&predicate.isFixed())
 						||(predicate.isFulfilled() &&predicate.isFixed()))
 						&&( predicate.getDueDate().getDayOfMonth()==dueDate.getDayOfMonth()
-						&& predicate.getDueDate().getMonth()==dueDate.getMonth()))
+						&& predicate.getDueDate().getMonth()==dueDate.getMonth()
+						&& predicate.getDueDate().getYear()==dueDate.getYear()))
 				.collect(Collectors.toList());
 	}
 
@@ -1202,14 +1207,16 @@ public class ShippingBaseServiceImpl {
 		for(int i=0;i<incomingShipmentDtoList.size();i++) {
 			if(incomingShipmentDtoList.get(i).isFixed()&&incomingShipmentDtoList.get(i).isArrived()) {
 				if(incomingShipmentDtoList.get(i).getFixedDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()&&
-						incomingShipmentDtoList.get(i).getFixedDeliveryDate().getMonth()==dueDate.getMonth()) {
+						incomingShipmentDtoList.get(i).getFixedDeliveryDate().getMonth()==dueDate.getMonth()&&
+						incomingShipmentDtoList.get(i).getFixedDeliveryDate().getYear()==dueDate.getYear()) {
 					incomingShipmentFixedList.add(incomingShipmentDtoList.get(i));
 
 				}
 
 			}else if(!incomingShipmentDtoList.get(i).isFixed()&&incomingShipmentDtoList.get(i).isArrived()) {
 				if(incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getDayOfMonth()==dueDate.getDayOfMonth()&&
-						incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getMonth()==dueDate.getMonth()) {
+						incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getMonth()==dueDate.getMonth()&&
+						incomingShipmentDtoList.get(i).getDesiredDeliveryDate().getYear()==dueDate.getYear()) {
 					incomingShipmentFixedList.add(incomingShipmentDtoList.get(i));
 
 				}

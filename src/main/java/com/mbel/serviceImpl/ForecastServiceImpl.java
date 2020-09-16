@@ -453,6 +453,8 @@ class Mappingfields{
 	private List<String> branch;
 	
 	private boolean delayed;
+	
+	private LocalDateTime currentDate;
 
 	public int getCurrentQuantity() {
 		return currentQuantity;
@@ -637,6 +639,14 @@ class Mappingfields{
 
 	public void setDelayed(boolean delayed) {
 		this.delayed = delayed;
+	}
+
+	public LocalDateTime getCurrentDate() {
+		return currentDate;
+	}
+
+	public void setCurrentDate(LocalDateTime currentDate) {
+		this.currentDate = currentDate;
 	}
 
 
