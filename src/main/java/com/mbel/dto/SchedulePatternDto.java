@@ -58,7 +58,7 @@ public class SchedulePatternDto {
 		this.schedulePatternName = schedulePatternName;
 	}
 
-	public boolean isPrivate() {
+	public boolean getIsPrivate() {
 		return isPrivate;
 	}
 
