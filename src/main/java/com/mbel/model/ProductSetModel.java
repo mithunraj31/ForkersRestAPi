@@ -16,6 +16,14 @@ public class ProductSetModel {
 	
 	private LocalDateTime mod;
 
+	public ProductSetModel() {
+
+	}
+
+	public ProductSetModel(Product product) {
+		this.product = product;
+	}
+
 	public int getQuantity() {
 		return quantity;
 	}
