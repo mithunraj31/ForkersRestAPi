@@ -82,5 +82,12 @@ public class Constants {
 	public static final String INCOMING_REVERTED="9";
 	
 	public static final String EDITED = "10";
+
+	//Constants for Schedule Tab 
+	public static final String YEAR = "year";
+	
+	public static final String MONTH = "month";
+	
+	public static final String PATTERN = "pattern";
 	
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mbel.model.ProductSetModel;
-import com.mbel.model.UserEntity;
 
 public class FetchProductSetDto extends ProductDto {
 	
