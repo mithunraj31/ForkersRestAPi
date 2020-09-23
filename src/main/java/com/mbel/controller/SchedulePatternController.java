@@ -81,7 +81,7 @@ public class  SchedulePatternController{
 			return new ResponseEntity<Map<String, Object>>(response, HttpStatus.BAD_REQUEST);
 		}
 		response.put(Constants.MESSAGE, "pattern updated");
-		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
 	}
 
@@ -96,7 +96,7 @@ public class  SchedulePatternController{
 		}
 
 		response.put(Constants.MESSAGE, "pattern deleted");
-		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
+		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
 	}
 

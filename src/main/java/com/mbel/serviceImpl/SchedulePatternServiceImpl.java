@@ -37,7 +37,7 @@ public class SchedulePatternServiceImpl {
 		schedulePattern.setCreatedUserId(userId);
 		schedulePattern.setUpdatedUserId(userId);
 		schedulePattern.setPattern(schedulePatternDto.getPattern());
-		schedulePattern.setPrivate(schedulePatternDto.isPrivate());
+		schedulePattern.setPrivate(schedulePatternDto.getIsPrivate());
 		try {
 			schedulePatternDao.save(schedulePattern);
 		} catch (Exception ex) {
@@ -106,7 +106,7 @@ public class SchedulePatternServiceImpl {
 			schedulePattern.setUpdatedAt(LocalDateTime.now());
 			schedulePattern.setUpdatedUserId(userId);
 			schedulePattern.setPattern(schedulePatternDto.getPattern());
-			schedulePattern.setPrivate(schedulePatternDto.isPrivate());
+			schedulePattern.setPrivate(schedulePatternDto.getIsPrivate());
 			try {
 				schedulePatternDao.save(schedulePattern);
 			} catch (Exception ex) {

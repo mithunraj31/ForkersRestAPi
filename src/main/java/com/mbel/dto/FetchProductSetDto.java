@@ -10,6 +10,19 @@ public class FetchProductSetDto extends ProductDto {
 	private List<ProductSetModel> products =new ArrayList<>();
 	
 	
+	public FetchProductSetDto() {
+
+	}
+
+	public FetchProductSetDto(List<ProductSetModel> products) {
+		this.products = products;
+	}
+
+	public FetchProductSetDto(List<ProductSetModel> products, boolean isDisplay) {
+		this.products = products;
+		this.setDisplay(isDisplay);
+	}
+
 	public void pushProduct(ProductSetModel product) {
 		try {
 			this.products.add(product);
@@ -18,7 +31,6 @@ public class FetchProductSetDto extends ProductDto {
 		}
 		
 	}
-	
 	
 	public List<ProductSetModel> getProducts() {
 		return products;
