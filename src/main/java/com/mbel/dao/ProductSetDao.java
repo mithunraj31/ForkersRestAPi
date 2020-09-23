@@ -3,6 +3,8 @@ package com.mbel.dao;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -61,6 +63,9 @@ public interface ProductSetDao extends JpaRepository<ProductSet, Integer> {
 	
 	@Query("FROM ProductSet o WHERE o.setId IN :ids")
 	public List<ProductSet> findBySetIds(@Param("ids") List<Integer> ids);
+
+	@Query("FROM ProductSet o WHERE o.setId IN :id")
+	public  List<ProductSet> getBySetId(@Param("id") int id);
 	
 	
 
