@@ -10,6 +10,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,7 +38,7 @@ public class  SchedulePatternController{
 	@Autowired
 	UtilityServiceImpl utilityServiceImpl;
 
-
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PostMapping("/schedule/pattern")
 	public ResponseEntity<Map<String, Object>> savePattern(@RequestBody SchedulePatternDto schedulePatternDto,
 			HttpServletRequest request) {
@@ -67,7 +68,7 @@ public class  SchedulePatternController{
 		return schedulePatternServiceImpl.getPatternById(patternId);
 
 	}
-
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PutMapping("/schedule/pattern/{patternId}")
 	public ResponseEntity<Map<String, Object>> updatePatternById(@PathVariable (value="patternId")int patternId,
 			@Valid @RequestBody SchedulePatternDto schedulePatternDto,HttpServletRequest request)   {
@@ -84,7 +85,7 @@ public class  SchedulePatternController{
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
 	}
-
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@DeleteMapping("/schedule/pattern/{patternId}")
 	public ResponseEntity<Map<String, Object>> deletePatternById(@PathVariable (value="patternId")@Valid int patternId) {
 		Map<String, Object> response = new HashMap<>();

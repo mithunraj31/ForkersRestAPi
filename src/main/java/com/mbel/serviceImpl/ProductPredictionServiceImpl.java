@@ -198,7 +198,7 @@ public class ProductPredictionServiceImpl {
 	productPredictionDto.setProductName("Individual Product");
 	productPredictionDto.setColor("");
 	for(Product product:allProduct.stream()
-			.filter(predicate->predicate.isActive()&&!predicate.isSet()&&predicate.isDisplay())
+			.filter(predicate->predicate.isActive()&&!predicate.isSet())
 			.collect(Collectors.toList())) {
 		List<PredictionData> predictionDataList = new ArrayList<>();
 		ProductDataDto productDataDto =new ProductDataDto();
@@ -268,7 +268,7 @@ public class ProductPredictionServiceImpl {
 		List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
 		if(productIdList.get(0)!=0) {
 		for(Product product:allProduct.stream()
-				.filter(predicate->predicate.getProductId()==productIdList.get(0)&&predicate.isDisplay()).collect(Collectors.toList())) {
+				.filter(predicate->predicate.getProductId()==productIdList.get(0)).collect(Collectors.toList())) {
 				List<PredictionData> predictionDataList = new ArrayList<>();
 				ProductPredictionDto productPredictionDto =new ProductPredictionDto();
 				productPredictionDto.setObicNo(product.getObicNo());
