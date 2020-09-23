@@ -223,9 +223,9 @@ public class ShippedBaseServiceImpl {
 	
 	private List<ProductPredictionDto> PredictPatternProduct(List<Integer> productIdList, List<Customer> allCustomer, List<Product> allProduct, List<ProductSet> allProductSet, List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment, int year, int month) {
 		List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
+		if(productIdList.get(0)!=0) {
 		for(Product product:allProduct.stream()
 				.filter(predicate->predicate.getProductId()==productIdList.get(0)&&predicate.isDisplay()).collect(Collectors.toList())) {
-			if(product.isSet()) {
 				List<PredictionData> predictionDataList = new ArrayList<>();
 				ProductPredictionDto productPredictionDto =new ProductPredictionDto();
 				productPredictionDto.setObicNo(product.getObicNo());
@@ -251,15 +251,21 @@ public class ShippedBaseServiceImpl {
 				}
 				productPredictionDto.setProducts(productDataDtoList);
 				productPredictionDtoList.add(productPredictionDto);
-			}else {
-				List<Product>individualProduct=allProduct.stream()
-						.filter(predicate->predicate.getProductId()==productIdList.get(0)&&predicate.isDisplay()).collect(Collectors.toList());
-				getIndividualProductPrediction(productPredictionDtoList, allCustomer, individualProduct, allProductSet, order, orderProduct, incomingShipment, year, month);
 			}
-		}
+			}else {
+				productIdList.remove(0);
+				List<Product>individualProductList=getIndividualPatternProductList(allProduct,productIdList);
+				getIndividualProductPrediction(productPredictionDtoList, allCustomer, individualProductList, allProductSet, order, orderProduct, incomingShipment, year, month);
+			}
 		return productPredictionDtoList;
+		}
 
-
+	private List<Product> getIndividualPatternProductList(List<Product> allProduct, List<Integer> productIdList) {
+		List<Product>patternProductList=new ArrayList<Product>();
+		for(int productId:productIdList) {
+			patternProductList.addAll(allProduct.stream().filter(predicate->predicate.getProductId()==productId).collect(Collectors.toList()));
+		}
+		return patternProductList;
 	}
 
 	private List<Product> sortPatternProductSet(List<Integer> productIdList, List<Product> allProduct) {
