@@ -30,7 +30,7 @@ public class VerifyOrderController {
 	public ResponseEntity<Map<String, List<ProductSetModel>>> orderForecast(@PathVariable (value="productId") @Valid int productId,
 			@PathVariable (value="dueDate")  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) 
     LocalDateTime date,@PathVariable (value="amount") @Valid int amount) {
-		return verifyOrderServiceImpl.getForecastOrderStatus(productId,date,amount);
+		return verifyOrderServiceImpl.getForecastOrderStatus(productId,date,amount); 
 	}
 
 }
