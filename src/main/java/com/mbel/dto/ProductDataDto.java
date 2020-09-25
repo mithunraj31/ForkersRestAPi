@@ -3,9 +3,11 @@ package com.mbel.dto;
 import java.util.List;
 
 import com.mbel.model.PredictionData;
+import com.mbel.model.ProductIncomingShipmentModel;
+import com.mbel.model.ProductOutgoingShipmentModel;
 
 public class ProductDataDto {
-	
+
 	private int productId;
 
 	private String productName;
@@ -13,11 +15,11 @@ public class ProductDataDto {
 	private String description;
 
 	private String obicNo;
-	
+
 	private String color;
-	
-	List<PredictionData>values;
-	
+
+	List<PredictionData> values;
+
 	public int getProductId() {
 		return productId;
 	}
@@ -66,4 +68,58 @@ public class ProductDataDto {
 		this.color = color;
 	}
 
+	/**
+	 * @return sum of Fulfilled's incomming order's qty
+	 */
+	public long getTotalFulfilledIncomingQty() {
+		if (this.values == null || this.values.size() == 0) {
+			return 0;
+		}
+
+		long total =  this.values.stream().mapToLong(x -> {
+			ProductIncomingShipmentModel incoming = x.getIncoming();
+			if (incoming != null 
+				&& incoming.getIncomingOrders() != null
+				&& incoming.getIncomingOrders().size() > 0) {
+				
+				long sumOfIncomingOrders = incoming.getIncomingOrders()
+					.stream()
+					.mapToLong(i -> 
+						(i != null && i.isFulfilled()) ? i.getQuantity() : 0)
+					.sum();
+
+				return sumOfIncomingOrders;
+			}
+			return 0;
+		}).sum();
+
+		return total;
+	}
+
+	/**
+	 * @return sum of Fulfilled's outgoing order's qty
+	 */
+	public long getTotalFulfilledOutgoingQty() {
+		if (this.values == null || this.values.size() == 0) {
+			return 0;
+		}
+
+		long total =  this.values.stream().mapToLong(x -> {
+			ProductOutgoingShipmentModel outgoing = x.getOutgoing();
+			if (outgoing != null 
+				&& outgoing.getOrders() != null
+				&& outgoing.getOrders().size() > 0) {
+				long sumOfOutgoingOrders = outgoing.getOrders()
+					.stream()
+					.mapToLong(i -> 
+						(i != null && i.isFulfilled()) ? i.getQuantity() : 0)
+					.sum();
+
+				return sumOfOutgoingOrders;
+			}
+			return 0;
+		}).sum();
+
+		return total;
+	}
 }
