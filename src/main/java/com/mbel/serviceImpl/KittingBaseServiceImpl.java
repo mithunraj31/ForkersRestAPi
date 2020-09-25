@@ -8,17 +8,23 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.mbel.constants.Constants;
 import com.mbel.dao.CustomerDao;
 import com.mbel.dao.IncomingShipmentDao;
 import com.mbel.dao.OrderDao;
 import com.mbel.dao.OrderProductDao;
 import com.mbel.dao.ProductDao;
 import com.mbel.dao.ProductSetDao;
+import com.mbel.dao.SchedulePatternDao;
 import com.mbel.dto.FetchIncomingOrderdProducts;
 import com.mbel.dto.FetchOrderdProducts;
 import com.mbel.dto.FetchProductSetDto;
@@ -37,6 +43,7 @@ import com.mbel.model.ProductIncomingShipmentModel;
 import com.mbel.model.ProductOutgoingShipmentModel;
 import com.mbel.model.ProductSet;
 import com.mbel.model.ProductSetModel;
+import com.mbel.model.SchedulePattern;
 
 @Service("KittingBaseServiceImpl")
 public class KittingBaseServiceImpl {
@@ -67,16 +74,22 @@ public class KittingBaseServiceImpl {
 
 	@Autowired 
 	CustomerDao customerDao;
-	
 
-	public List<ProductPredictionDto> getProductPrediction(int year,int month) {
+	@Autowired 
+	SchedulePatternDao schedulePatternDao;
+
+	public List<ProductPredictionDto> getProductPrediction(Map<String, String> allParams) {
+		int year=Integer.parseInt(allParams.get(Constants.YEAR));
+		int month=Integer.parseInt(allParams.get(Constants.MONTH));
+		int patternId=allParams.containsKey(Constants.PATTERN)?Integer.parseInt(allParams.get(Constants.PATTERN)):0;
+		SchedulePattern schedulePattern=schedulePatternDao.findById(patternId).orElse(null);
 		List<Product> allProduct = getAllSortedProducts();
 		List<ProductSet> allProductSet =productSetDao.findAll();
 		List<Order>order =getActiveDisplayedOrdersBetweenDeliveryDates(year,month);
 		List<OrderProduct>orderProduct=order.isEmpty()?null:getOrderedProductsBasedOnOrderId(order);
 		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll(); 
 		List<Customer> allCustomer = customerDao.findAll();
-		return predictProduct(allCustomer,allProduct,allProductSet, order,orderProduct,incomingShipment,year,month);
+		return predictProduct(allCustomer,allProduct,allProductSet, order,orderProduct,incomingShipment,year,month,schedulePattern);
 
 	}
 	private List<OrderProduct> getOrderedProductsBasedOnOrderId(List<Order> order) {
@@ -87,94 +100,189 @@ public class KittingBaseServiceImpl {
 		LocalDateTime today = LocalDateTime.now();
 		LocalDate initial = LocalDate.of(year, month, 1);
 		LocalDateTime dueDateStart =LocalDateTime.of(year, month, 1, 0, 0);
-					if(dueDateStart.getMonthValue()<=today.getMonthValue()&&
-						dueDateStart.getYear()==today.getYear()){
-					dueDateStart=dueDateStart.minusMonths(3);
-				}else if(dueDateStart.getMonthValue()>today.getMonthValue()&&
-						dueDateStart.getYear()==today.getYear()){
-					dueDateStart=LocalDateTime.of(year, today.getMonth().minus(3), 1, 0, 0);
-				}else if(dueDateStart.getYear()<today.getYear()||dueDateStart.getYear()>today.getYear()) {
-					dueDateStart=dueDateStart.minusMonths(3);
-				}
+		if(dueDateStart.getMonthValue()<=today.getMonthValue()&&
+				dueDateStart.getYear()==today.getYear()){
+			dueDateStart=dueDateStart.minusMonths(3);
+		}else if(dueDateStart.getMonthValue()>today.getMonthValue()&&
+				dueDateStart.getYear()==today.getYear()){
+			dueDateStart=LocalDateTime.of(year, today.getMonth().minus(3), 1, 0, 0);
+		}else if(dueDateStart.getYear()<today.getYear()||dueDateStart.getYear()>today.getYear()) {
+			dueDateStart=dueDateStart.minusMonths(3);
+		}
 		LocalDateTime dueDateEnd =LocalDateTime.of(year, month, initial.lengthOfMonth(), 0, 0).plusDays(1);
 		dueDateStart =DateTimeUtil.toUtc(dueDateStart).minusDays(1);
 		dueDateEnd=DateTimeUtil.toUtc(dueDateEnd);
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		return orderDao.getActiveDisplayedOrdersBetweenDeliveryDates(dueDateStart.format(formatter), dueDateEnd.format(formatter));
 	}
-	
+
 	private List<Product> getAllSortedProducts() {
-		List<Product>product =productDao.findAll();
+		List<Product>product =productDao.getActiveProducts();
 		return productServiceImpl.arrangeProductbySortField(product);
 	}
 
 
 	private List<ProductPredictionDto> predictProduct(List<Customer> allCustomer, List<Product> allProduct, List<ProductSet> allProductSet,
 			List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment,
-			int year, int month) {
-		List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
-		for(Product product:allProduct.stream().filter(predicate->predicate.isActive()
-				&&predicate.isSet()&&predicate.isDisplay()).collect(Collectors.toList())) {
-			List<PredictionData> predictionDataList = new ArrayList<>();
-			ProductPredictionDto productPredictionDto =new ProductPredictionDto();
-			productPredictionDto.setObicNo(product.getObicNo());
-			productPredictionDto.setProductId(product.getProductId());
-			productPredictionDto.setProductName(product.getProductName());
-			productPredictionDto.setDescription(product.getDescription());
-			productPredictionDto.setColor(product.getColor());
-			List<ProductSet> productsetList= allProductSet.stream()
-					.filter(predicate->predicate.getSetId()==product.getProductId())
-					.collect(Collectors.toList());
-			List<Product> productList=sortProductInProductSet(productsetList,allProduct);
-			List<ProductDataDto>productDataDtoList=new ArrayList<>();
-			for(int l=0;l< productList.size();l++ ) {
-				ProductDataDto productDataDto =new ProductDataDto();
-				predictionDataList = new ArrayList<>();
-				Product component =productList.get(l);
-				productDataDto.setDescription(component.getDescription());
-				productDataDto.setProductId(component.getProductId());
-				productDataDto.setObicNo(component.getObicNo());
-				productDataDto.setProductName(component.getProductName());
-				productDataDto.setColor(component.getColor());
-				List<PredictionData> data =calculateAccordingToDate(component, year,month,predictionDataList,order,
-						incomingShipment,orderProduct,allProduct,allProductSet,allCustomer);
-				productDataDto.setValues(data);
-				productDataDtoList.add(productDataDto);
+			int year, int month, SchedulePattern schedulePattern) {
+		if(Objects.isNull(schedulePattern)) {
+			List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
+			for(Product product:allProduct.stream().filter(predicate->predicate.isActive()
+					&&predicate.isSet()&&predicate.isDisplay()).collect(Collectors.toList())) {
+				List<PredictionData> predictionDataList = new ArrayList<>();
+				ProductPredictionDto productPredictionDto =new ProductPredictionDto();
+				productPredictionDto.setObicNo(product.getObicNo());
+				productPredictionDto.setProductId(product.getProductId());
+				productPredictionDto.setProductName(product.getProductName());
+				productPredictionDto.setDescription(product.getDescription());
+				productPredictionDto.setColor(product.getColor());
+				List<ProductSet> productsetList= allProductSet.stream()
+						.filter(predicate->predicate.getSetId()==product.getProductId())
+						.collect(Collectors.toList());
+				List<Product> productList=sortProductInProductSet(productsetList,allProduct);
+				List<ProductDataDto>productDataDtoList=new ArrayList<>();
+				for(int l=0;l< productList.size();l++ ) {
+					ProductDataDto productDataDto =new ProductDataDto();
+					predictionDataList = new ArrayList<>();
+					Product component =productList.get(l);
+					productDataDto.setDescription(component.getDescription());
+					productDataDto.setProductId(component.getProductId());
+					productDataDto.setObicNo(component.getObicNo());
+					productDataDto.setProductName(component.getProductName());
+					productDataDto.setColor(component.getColor());
+					List<PredictionData> data =calculateAccordingToDate(component, year,month,predictionDataList,order,
+							incomingShipment,orderProduct,allProduct,allProductSet,allCustomer);
+					productDataDto.setValues(data);
+					productDataDtoList.add(productDataDto);
+				}
+				productPredictionDto.setProducts(productDataDtoList);
+				productPredictionDtoList.add(productPredictionDto);
 			}
-			productPredictionDto.setProducts(productDataDtoList);
-			productPredictionDtoList.add(productPredictionDto);
+
+
+			getIndividualProductPrediction(productPredictionDtoList,allCustomer,allProduct,allProductSet, order,orderProduct,incomingShipment,year,month);
+			return productPredictionDtoList;
+		}else {
+			return PatternProductPredictionData(schedulePattern,allCustomer,allProduct,allProductSet, order,orderProduct,incomingShipment,year,month);
 		}
 
 
-		ProductPredictionDto productPredictionDto =new ProductPredictionDto();
-		List<ProductDataDto>productDataDtoList=new ArrayList<>();
-		productPredictionDto.setProductId(0);
-		productPredictionDto.setDescription(" ");
-		productPredictionDto.setObicNo(" ");
-		productPredictionDto.setProductName("Individual Product");
-		productPredictionDto.setColor("");
-		for(Product product:allProduct.stream()
-				.filter(predicate->predicate.isActive()&&!predicate.isSet()&&predicate.isDisplay())
-				.collect(Collectors.toList())) {
-			List<PredictionData> predictionDataList = new ArrayList<>();
-			ProductDataDto productDataDto =new ProductDataDto();
-			productDataDto.setDescription(product.getDescription());
-			productDataDto.setProductId(product.getProductId());
-			productDataDto.setObicNo(product.getObicNo());
-			productDataDto.setProductName(product.getProductName());
-			productDataDto.setColor(product.getColor());
-			List<PredictionData> data  =calculateAccordingToDate(product, year,month
-					,predictionDataList,order,incomingShipment,orderProduct,allProduct,allProductSet, allCustomer);
-			productDataDto.setValues(data);
-			productDataDtoList.add(productDataDto);
-		}
-
-		productPredictionDto.setProducts(productDataDtoList);
-		productPredictionDtoList.add(productPredictionDto);
-
-		return productPredictionDtoList;
 	} 
+	
+	private void getIndividualProductPrediction(List<ProductPredictionDto> productPredictionDtoList, List<Customer> allCustomer, List<Product> allProduct, List<ProductSet> allProductSet, List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment, int year, int month) {	ProductPredictionDto productPredictionDto =new ProductPredictionDto();
+	List<ProductDataDto>productDataDtoList=new ArrayList<>();
+	productPredictionDto.setProductId(0);
+	productPredictionDto.setDescription(" ");
+	productPredictionDto.setObicNo(" ");
+	productPredictionDto.setProductName("Individual Product");
+	productPredictionDto.setColor("");
+	for(Product product:allProduct.stream()
+			.filter(predicate->predicate.isActive()&&!predicate.isSet()&&predicate.isDisplay())
+			.collect(Collectors.toList())) {
+		List<PredictionData> predictionDataList = new ArrayList<>();
+		ProductDataDto productDataDto =new ProductDataDto();
+		productDataDto.setDescription(product.getDescription());
+		productDataDto.setProductId(product.getProductId());
+		productDataDto.setObicNo(product.getObicNo());
+		productDataDto.setProductName(product.getProductName());
+		productDataDto.setColor(product.getColor());
+		List<PredictionData> data  =calculateAccordingToDate(product, year,month
+				,predictionDataList,order,incomingShipment,orderProduct,allProduct,allProductSet, allCustomer);
+		productDataDto.setValues(data);
+		productDataDtoList.add(productDataDto);
+	}
 
+	productPredictionDto.setProducts(productDataDtoList);
+	productPredictionDtoList.add(productPredictionDto);
+	}
+
+	private List<ProductPredictionDto> PatternProductPredictionData(SchedulePattern schedulePattern, List<Customer> allCustomer, List<Product> allProduct, List<ProductSet> allProductSet, List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment, int year, int month) {
+		List<Integer>productIdList=new ArrayList<>();
+		List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
+		if(Objects.nonNull(schedulePattern)) {
+			String pattern=schedulePattern.getPattern();
+			JsonArray convertedObject = new Gson().fromJson(pattern, JsonArray.class);
+			for(int i=0;i<convertedObject.size();i++) {
+				JsonObject explrObject = convertedObject.get(i).getAsJsonObject();
+				productIdList.add(explrObject.get("id").getAsInt());
+				JsonArray itemsArray=(explrObject.get("items").getAsJsonArray());
+				for(int j=0;j<itemsArray.size();j++) {
+					productIdList.add(itemsArray.get(j).getAsInt());
+				}
+				productPredictionDtoList.addAll(PredictPatternProduct(productIdList,allCustomer,allProduct,allProductSet,
+						order,orderProduct,incomingShipment,year,month));
+				productIdList.clear();
+			}
+
+		}	
+		return productPredictionDtoList;
+	}
+	
+	private List<ProductPredictionDto> PredictPatternProduct(List<Integer> productIdList, List<Customer> allCustomer, List<Product> allProduct, List<ProductSet> allProductSet, List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment, int year, int month) {
+		List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
+		if(productIdList.get(0)!=0) {
+		for(Product product:allProduct.stream()
+				.filter(predicate->predicate.getProductId()==productIdList.get(0)).collect(Collectors.toList())) {
+				List<PredictionData> predictionDataList = new ArrayList<>();
+				ProductPredictionDto productPredictionDto =new ProductPredictionDto();
+				productPredictionDto.setObicNo(product.getObicNo());
+				productPredictionDto.setProductId(product.getProductId());
+				productPredictionDto.setProductName(product.getProductName());
+				productPredictionDto.setDescription(product.getDescription());
+				productPredictionDto.setColor(product.getColor());
+				List<Product> productList=sortPatternProductSet(productIdList,allProduct);
+				List<ProductDataDto>productDataDtoList=new ArrayList<>();
+				for(int l=0;l< productList.size();l++ ) {
+					ProductDataDto productDataDto =new ProductDataDto();
+					predictionDataList = new ArrayList<>();
+					Product component =productList.get(l);
+					productDataDto.setDescription(component.getDescription());
+					productDataDto.setProductId(component.getProductId());
+					productDataDto.setObicNo(component.getObicNo());
+					productDataDto.setProductName(component.getProductName());
+					productDataDto.setColor(component.getColor());
+					List<PredictionData> data =calculateAccordingToDate(component, year,month,predictionDataList,order,
+							incomingShipment,orderProduct,allProduct,allProductSet,allCustomer);
+					productDataDto.setValues(data);
+					productDataDtoList.add(productDataDto);
+				}
+				productPredictionDto.setProducts(productDataDtoList);
+				productPredictionDtoList.add(productPredictionDto);
+		}
+			}else {
+				productIdList.remove(0);
+				List<Product>individualProductList=getIndividualPatternProductList(allProduct,productIdList);
+				individualProductList.forEach(action->action.setDisplay(true));
+				getIndividualProductPrediction(productPredictionDtoList, allCustomer, individualProductList, allProductSet, order, orderProduct, incomingShipment, year, month);
+			}
+		return productPredictionDtoList;
+
+
+	}
+
+	private List<Product> getIndividualPatternProductList(List<Product> allProduct, List<Integer> productIdList) {
+		List<Product>patternProductList=new ArrayList<Product>();
+		for(int productId:productIdList) {
+			patternProductList.addAll(allProduct.stream().filter(predicate->predicate.getProductId()==productId).collect(Collectors.toList()));
+		}
+		return patternProductList;
+	}
+	private List<Product> sortPatternProductSet(List<Integer> productIdList, List<Product> allProduct) {
+		List<Product> productList=new ArrayList<>();
+		for(int l=1;l< productIdList.size();l++ ) {
+			int productComponentId =productIdList.get(l);
+			Product component =allProduct.stream().filter(predicate->predicate.getProductId()==productComponentId)
+					.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
+						if (list.size() != 1) {
+							return null;
+						}
+						return list.get(0);
+					}));
+			productList.add(component);
+
+		}
+		return productList;
+	}
 	private List<Product> sortProductInProductSet(List<ProductSet> productsetList, List<Product> allProduct) {
 		List<Product> productList=new ArrayList<>();
 		for(int l=0;l< productsetList.size();l++ ) {
@@ -187,11 +295,11 @@ public class KittingBaseServiceImpl {
 						return list.get(0);
 					}));
 			productList.add(component);
-			
+
 		}
 		productList.sort(Comparator.comparingInt(predicate->predicate.getSort()));
 		return productList;
-		
+
 	}
 	private String getCustomer(List<Customer> customerList, int customerId) {
 		return customerList.stream()
@@ -210,15 +318,15 @@ public class KittingBaseServiceImpl {
 		LocalDateTime today = LocalDateTime.now();
 		LocalDate initial = LocalDate.of(year, month, 1);
 		LocalDateTime dueDateStart =LocalDateTime.of(year, month, 1, 0, 0);
-					if(dueDateStart.getMonthValue()<=today.getMonthValue()&&
-						dueDateStart.getYear()==today.getYear()){
-					dueDateStart=dueDateStart.minusMonths(3);
-				}else if(dueDateStart.getMonthValue()>today.getMonthValue()&&
-						dueDateStart.getYear()==today.getYear()){
-					dueDateStart=LocalDateTime.of(year, today.getMonth().minus(3), 1, 0, 0);
-				}else if(dueDateStart.getYear()<today.getYear()||dueDateStart.getYear()>today.getYear()) {
-					dueDateStart=dueDateStart.minusMonths(3);
-				}
+		if(dueDateStart.getMonthValue()<=today.getMonthValue()&&
+				dueDateStart.getYear()==today.getYear()){
+			dueDateStart=dueDateStart.minusMonths(3);
+		}else if(dueDateStart.getMonthValue()>today.getMonthValue()&&
+				dueDateStart.getYear()==today.getYear()){
+			dueDateStart=LocalDateTime.of(year, today.getMonth().minus(3), 1, 0, 0);
+		}else if(dueDateStart.getYear()<today.getYear()||dueDateStart.getYear()>today.getYear()) {
+			dueDateStart=dueDateStart.minusMonths(3);
+		}
 		LocalDateTime dueDateEnd =LocalDateTime.of(year, month, initial.lengthOfMonth(), 0, 0);
 		Map<Integer,Mappingfields>productQuantityMap=new HashMap<>();
 		for(LocalDateTime dueDate=dueDateStart;dueDate.isBefore(dueDateEnd)||
@@ -335,42 +443,42 @@ public class KittingBaseServiceImpl {
 		int availableQuantity=productQuantityMap.get(individualProduct.getProduct().getProductId())!=null?
 				productQuantityMap.get(individualProduct.getProduct().getProductId()).getAvailableStockQuantity():
 					individualProduct.getProduct().getQuantity();
-		orderdQunatity=product.getQuantity()*individualProduct.getQuantity();
-		mappingFields.setProduct(individualProduct.getProduct());
-		mappingFields.setOrderdQuantity(individualProduct.getQuantity());
-		mappingFields.setRequiredQuantity(orderdQunatity);
-		mappingFields.setSet(true);
-		mappingFields.setIncomingQuantity(0);
-		mappingFields.setOutgoingFixed(individualOrder.isFixed());
-		mappingFields.setOrderId(individualOrder.getOrderId());
-		mappingFields.setCustomer(individualOrder.getCustomerId());
-		mappingFields.setOrderFixed(individualOrder.isFixed());
-		mappingFields.setProposalNo(individualOrder.getProposalNo());
-		mappingFields.setOutgoingFulfilment(true);
-		mappingFields.setAvailableStockQuantity(availableQuantity);
-		multipleProductOrder(productDetails,individualProduct.getProduct().getProductId(),mappingFields);
+				orderdQunatity=product.getQuantity()*individualProduct.getQuantity();
+				mappingFields.setProduct(individualProduct.getProduct());
+				mappingFields.setOrderdQuantity(individualProduct.getQuantity());
+				mappingFields.setRequiredQuantity(orderdQunatity);
+				mappingFields.setSet(true);
+				mappingFields.setIncomingQuantity(0);
+				mappingFields.setOutgoingFixed(individualOrder.isFixed());
+				mappingFields.setOrderId(individualOrder.getOrderId());
+				mappingFields.setCustomer(individualOrder.getCustomerId());
+				mappingFields.setOrderFixed(individualOrder.isFixed());
+				mappingFields.setProposalNo(individualOrder.getProposalNo());
+				mappingFields.setOutgoingFulfilment(true);
+				mappingFields.setAvailableStockQuantity(availableQuantity);
+				multipleProductOrder(productDetails,individualProduct.getProduct().getProductId(),mappingFields);
 
 	}
 	private void productfulfillmentUpdate(Map<Integer, List<Mappingfields>> productDetails, FetchOrderdProducts product, Map<Integer, Mappingfields> productQuantityMap,
-			  Order individualOrder) {
+			Order individualOrder) {
 		Mappingfields mappingFields =new Mappingfields();
 		Product productValue =product.getProduct();
 		int orderdQunatity=product.getQuantity();
 		int availableQuantity=productQuantityMap.get(productValue.getProductId())!=null?
 				productQuantityMap.get(productValue.getProductId()).getAvailableStockQuantity():
 					productValue.getQuantity();
-		mappingFields.setProduct(productValue);
-		mappingFields.setOrderdQuantity(orderdQunatity);
-		mappingFields.setRequiredQuantity(orderdQunatity);
-		mappingFields.setOutgoingFixed(individualOrder.isFixed());
-		mappingFields.setIncomingQuantity(0);
-		mappingFields.setOrderId(individualOrder.getOrderId());
-		mappingFields.setProposalNo(individualOrder.getProposalNo());
-		mappingFields.setCustomer(individualOrder.getCustomerId());
-		mappingFields.setOrderFixed(individualOrder.isFixed());
-		mappingFields.setAvailableStockQuantity(availableQuantity);
-		mappingFields.setOutgoingFulfilment(true);
-		multipleProductOrder(productDetails,product.getProduct().getProductId(),mappingFields);    
+				mappingFields.setProduct(productValue);
+				mappingFields.setOrderdQuantity(orderdQunatity);
+				mappingFields.setRequiredQuantity(orderdQunatity);
+				mappingFields.setOutgoingFixed(individualOrder.isFixed());
+				mappingFields.setIncomingQuantity(0);
+				mappingFields.setOrderId(individualOrder.getOrderId());
+				mappingFields.setProposalNo(individualOrder.getProposalNo());
+				mappingFields.setCustomer(individualOrder.getCustomerId());
+				mappingFields.setOrderFixed(individualOrder.isFixed());
+				mappingFields.setAvailableStockQuantity(availableQuantity);
+				mappingFields.setOutgoingFulfilment(true);
+				multipleProductOrder(productDetails,product.getProduct().getProductId(),mappingFields);    
 
 
 	}
@@ -551,7 +659,7 @@ public class KittingBaseServiceImpl {
 			contains.setFulfilled(false);
 			contains.setFcst(false);
 			contains.setConfirmed(true);
-	}
+		}
 		outgoingShipmentValues.setContains(contains);
 		predictionData.setDate(dueDate);
 		outgoingShipmentValues.setOrders(orderDataList);
@@ -597,23 +705,23 @@ public class KittingBaseServiceImpl {
 				fixedtList.add(incomingOrderList.get(i).isFulfilled()?null:incomingOrderList.get(i).isFixed());
 				fulfillmentList.add(incomingOrderList.get(i).isFulfilled());
 			}
-			
+
 			if(fixedtList.contains(false)){
 				incomingShipmentValues.setFixed(false);
 			}else {
 				incomingShipmentValues.setFixed(true);
 			}
-				if(fulfillmentList.contains(true)&&fulfillmentList.contains(false)) {
-					incomingShipmentValues.setFulfilled(2);
-				}else if(fulfillmentList.contains(true)&&!fulfillmentList.contains(false)) {
-					incomingShipmentValues.setFulfilled(1);	
-				}else if(fulfillmentList.contains(false)&&!fulfillmentList.contains(true)) {
-					incomingShipmentValues.setFulfilled(0);	
-				}
-				incomingColorUpdate(fulfillmentList,fixedtList,incomingShipmentValues);
+			if(fulfillmentList.contains(true)&&fulfillmentList.contains(false)) {
+				incomingShipmentValues.setFulfilled(2);
+			}else if(fulfillmentList.contains(true)&&!fulfillmentList.contains(false)) {
+				incomingShipmentValues.setFulfilled(1);	
+			}else if(fulfillmentList.contains(false)&&!fulfillmentList.contains(true)) {
+				incomingShipmentValues.setFulfilled(0);	
 			}
-		
-		
+			incomingColorUpdate(fulfillmentList,fixedtList,incomingShipmentValues);
+		}
+
+
 	}
 	private void incomingColorUpdate(List<Boolean> fulfillmentList, List<Boolean> fixedtList,
 			ProductIncomingShipmentModel incomingShipmentValues) {
@@ -623,45 +731,45 @@ public class KittingBaseServiceImpl {
 				contains.setFulfilled(true);
 				contains.setFcst(false);
 				contains.setConfirmed(false);
-				
+
 			}else if((fixedtList.contains(true)&&fixedtList.contains(false)
 					&&fulfillmentList.contains(true))) {
 				contains.setFulfilled(true);
 				contains.setFcst(true);
 				contains.setConfirmed(true);
-				
+
 			}else if((fixedtList.contains(true)&&fixedtList.contains(false))
 					&&((fulfillmentList.contains(false)&&!fulfillmentList.contains(true)))) {
 				contains.setFulfilled(false);
 				contains.setFcst(true);
 				contains.setConfirmed(true);
-				
+
 			}else if((fixedtList.contains(false)&&!fixedtList.contains(true))
 					&&(fulfillmentList.contains(true))) {
 				contains.setFulfilled(true);
 				contains.setFcst(true);
 				contains.setConfirmed(false);
-				
+
 			}else if((fixedtList.contains(false)&&!fixedtList.contains(true))
 					&&(fulfillmentList.contains(false)&&!fulfillmentList.contains(true))) {
 				contains.setFulfilled(false);
 				contains.setFcst(true);
 				contains.setConfirmed(false);
-				
+
 			}else if((fixedtList.contains(true)&&!fixedtList.contains(false))
 					&&(fulfillmentList.contains(true))) {
 				contains.setFulfilled(true);
 				contains.setFcst(false);
 				contains.setConfirmed(true);
-				
+
 			}else if((fixedtList.contains(true)&&!fixedtList.contains(false))
 					&&(fulfillmentList.contains(false)&&!fulfillmentList.contains(true))) {
 				contains.setFulfilled(false);
 				contains.setFcst(false);
 				contains.setConfirmed(true);
-				
+
 			}
-			}else {
+		}else {
 			if(fulfillmentList.contains(true)) {
 				contains.setFulfilled(true);
 				contains.setFcst(false);
@@ -670,16 +778,16 @@ public class KittingBaseServiceImpl {
 				contains.setFulfilled(false);
 				contains.setFcst(true);
 				contains.setConfirmed(false);
-				
+
 			}else if(!fixedtList.contains(false)&&fixedtList.contains(true)) {
 				contains.setFulfilled(false);
 				contains.setFcst(false);
 				contains.setConfirmed(true);
-				
+
 			}
 		}
 		incomingShipmentValues.setContains(contains);
-		
+
 	}
 	private void updateMultipleOrderStockValues(Map<Integer, List<Mappingfields>> productDetails,
 			PredictionData predictionData, 
@@ -747,19 +855,19 @@ public class KittingBaseServiceImpl {
 			contains.setFulfilled(true);
 			contains.setFcst(true);
 			contains.setConfirmed(true);
-			
+
 		}else if((outgoingFixedList.contains(true)&&outgoingFixedList.contains(false))
 				&&((outgoingFulfilList.contains(false)&&!outgoingFulfilList.contains(true)))) {
 			contains.setFulfilled(false);
 			contains.setFcst(true);
 			contains.setConfirmed(true);
-			
+
 		}else if((outgoingFixedList.contains(false)&&!outgoingFixedList.contains(true))
 				&&outgoingFulfilList.contains(true)) {
 			contains.setFulfilled(true);
 			contains.setFcst(true);
 			contains.setConfirmed(false);
-			
+
 		}else if((outgoingFixedList.contains(false)&&!outgoingFixedList.contains(true))
 				&&(outgoingFulfilList.contains(false)&&!outgoingFulfilList.contains(true))) {
 			contains.setFulfilled(false);
@@ -770,7 +878,7 @@ public class KittingBaseServiceImpl {
 			contains.setFulfilled(true);
 			contains.setFcst(false);
 			contains.setConfirmed(true);
-			
+
 		}else if((outgoingFixedList.contains(true)&&!outgoingFixedList.contains(false))
 				&&(outgoingFulfilList.contains(false)&&!outgoingFulfilList.contains(true))) {
 			contains.setFulfilled(false);

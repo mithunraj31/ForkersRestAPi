@@ -37,7 +37,6 @@ public class  SchedulePatternController{
 	@Autowired
 	UtilityServiceImpl utilityServiceImpl;
 
-
 	@PostMapping("/schedule/pattern")
 	public ResponseEntity<Map<String, Object>> savePattern(@RequestBody SchedulePatternDto schedulePatternDto,
 			HttpServletRequest request) {
@@ -67,7 +66,6 @@ public class  SchedulePatternController{
 		return schedulePatternServiceImpl.getPatternById(patternId);
 
 	}
-
 	@PutMapping("/schedule/pattern/{patternId}")
 	public ResponseEntity<Map<String, Object>> updatePatternById(@PathVariable (value="patternId")int patternId,
 			@Valid @RequestBody SchedulePatternDto schedulePatternDto,HttpServletRequest request)   {
@@ -84,7 +82,6 @@ public class  SchedulePatternController{
 		return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
 
 	}
-
 	@DeleteMapping("/schedule/pattern/{patternId}")
 	public ResponseEntity<Map<String, Object>> deletePatternById(@PathVariable (value="patternId")@Valid int patternId) {
 		Map<String, Object> response = new HashMap<>();

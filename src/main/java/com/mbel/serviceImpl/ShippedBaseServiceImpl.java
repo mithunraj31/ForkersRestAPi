@@ -9,17 +9,23 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.mbel.constants.Constants;
 import com.mbel.dao.CustomerDao;
 import com.mbel.dao.IncomingShipmentDao;
 import com.mbel.dao.OrderDao;
 import com.mbel.dao.OrderProductDao;
 import com.mbel.dao.ProductDao;
 import com.mbel.dao.ProductSetDao;
+import com.mbel.dao.SchedulePatternDao;
 import com.mbel.dto.FetchIncomingOrderdProducts;
 import com.mbel.dto.FetchOrderdProducts;
 import com.mbel.dto.FetchProductSetDto;
@@ -37,6 +43,7 @@ import com.mbel.model.ProductIncomingShipmentModel;
 import com.mbel.model.ProductOutgoingShipmentModel;
 import com.mbel.model.ProductSet;
 import com.mbel.model.ProductSetModel;
+import com.mbel.model.SchedulePattern;
 
 @Service("ShippedBaseServiceImpl")
 public class ShippedBaseServiceImpl {
@@ -68,15 +75,21 @@ public class ShippedBaseServiceImpl {
 	@Autowired 
 	CustomerDao customerDao;
 	
+	@Autowired 
+	SchedulePatternDao schedulePatternDao;
 
-	public List<ProductPredictionDto> getProductPrediction(int year,int month) {
+	public List<ProductPredictionDto> getProductPrediction(Map<String, String> allParams) {
+		int year=Integer.parseInt(allParams.get(Constants.YEAR));
+		int month=Integer.parseInt(allParams.get(Constants.MONTH));
+		int patternId=allParams.containsKey(Constants.PATTERN)?Integer.parseInt(allParams.get(Constants.PATTERN)):0;
+		SchedulePattern schedulePattern=schedulePatternDao.findById(patternId).orElse(null);
 		List<Product> allProduct = getAllSortedProducts();
 		List<ProductSet> allProductSet =productSetDao.findAll();
 		List<Order>order =getFulfilledOrdersBetweenDueDates(year,month);
 		List<OrderProduct>orderProduct=order.isEmpty()?null: getOrderedProductsBasedOnOrderId(order);
 		List<IncomingShipment> incomingShipment = incomingShipmentDao.findAll(); 
 		List<Customer> allCustomer = customerDao.findAll();
-		return predictProduct(allCustomer,allProduct,allProductSet, order,orderProduct,incomingShipment,year,month);
+		return predictProduct(allCustomer,allProduct,allProductSet, order,orderProduct,incomingShipment,year,month,schedulePattern);
 
 	}
 
@@ -106,14 +119,15 @@ public class ShippedBaseServiceImpl {
 	}
 
 	private List<Product> getAllSortedProducts() {
-		List<Product>product =productDao.findAll();
+		List<Product>product =productDao.getActiveProducts();
 		return productServiceImpl.arrangeProductbySortField(product);
 	}
 
 
 	private List<ProductPredictionDto> predictProduct(List<Customer> allCustomer, List<Product> allProduct, List<ProductSet> allProductSet,
 			List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment,
-			int year, int month) {
+			int year, int month, SchedulePattern schedulePattern) {
+		if(Objects.isNull(schedulePattern)) {
 		List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
 		for(Product product:allProduct.stream().filter(predicate->predicate.isActive()
 				&&predicate.isSet()&&predicate.isDisplay()).collect(Collectors.toList())) {
@@ -148,7 +162,16 @@ public class ShippedBaseServiceImpl {
 		}
 
 
-		ProductPredictionDto productPredictionDto =new ProductPredictionDto();
+			getIndividualProductPrediction(productPredictionDtoList,allCustomer,allProduct,allProductSet, order,orderProduct,incomingShipment,year,month);
+			return productPredictionDtoList;
+		}else {
+			return PatternProductPredictionData(schedulePattern,allCustomer,allProduct,allProductSet, order,orderProduct,incomingShipment,year,month);
+		}
+
+
+	} 
+	
+	private void getIndividualProductPrediction(List<ProductPredictionDto> productPredictionDtoList, List<Customer> allCustomer, List<Product> allProduct, List<ProductSet> allProductSet, List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment, int year, int month) {	ProductPredictionDto productPredictionDto =new ProductPredictionDto();
 		List<ProductDataDto>productDataDtoList=new ArrayList<>();
 		productPredictionDto.setProductId(0);
 		productPredictionDto.setDescription(" ");
@@ -174,8 +197,95 @@ public class ShippedBaseServiceImpl {
 		productPredictionDto.setProducts(productDataDtoList);
 		productPredictionDtoList.add(productPredictionDto);
 
-		return productPredictionDtoList;
 	} 
+	
+	private List<ProductPredictionDto> PatternProductPredictionData(SchedulePattern schedulePattern, List<Customer> allCustomer, List<Product> allProduct, List<ProductSet> allProductSet, List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment, int year, int month) {
+		List<Integer>productIdList=new ArrayList<>();
+		List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
+		if(Objects.nonNull(schedulePattern)) {
+			String pattern=schedulePattern.getPattern();
+			JsonArray convertedObject = new Gson().fromJson(pattern, JsonArray.class);
+			for(int i=0;i<convertedObject.size();i++) {
+				JsonObject explrObject = convertedObject.get(i).getAsJsonObject();
+				productIdList.add(explrObject.get("id").getAsInt());
+				JsonArray itemsArray=(explrObject.get("items").getAsJsonArray());
+				for(int j=0;j<itemsArray.size();j++) {
+					productIdList.add(itemsArray.get(j).getAsInt());
+				}
+				productPredictionDtoList.addAll(PredictPatternProduct(productIdList,allCustomer,allProduct,allProductSet,
+						order,orderProduct,incomingShipment,year,month));
+				productIdList.clear();
+			}
+
+		}	
+		return productPredictionDtoList;
+	}
+	
+	private List<ProductPredictionDto> PredictPatternProduct(List<Integer> productIdList, List<Customer> allCustomer, List<Product> allProduct, List<ProductSet> allProductSet, List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment, int year, int month) {
+		List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
+		if(productIdList.get(0)!=0) {
+		for(Product product:allProduct.stream()
+				.filter(predicate->predicate.getProductId()==productIdList.get(0)).collect(Collectors.toList())) {
+				List<PredictionData> predictionDataList = new ArrayList<>();
+				ProductPredictionDto productPredictionDto =new ProductPredictionDto();
+				productPredictionDto.setObicNo(product.getObicNo());
+				productPredictionDto.setProductId(product.getProductId());
+				productPredictionDto.setProductName(product.getProductName());
+				productPredictionDto.setDescription(product.getDescription());
+				productPredictionDto.setColor(product.getColor());
+				List<Product> productList=sortPatternProductSet(productIdList,allProduct);
+				List<ProductDataDto>productDataDtoList=new ArrayList<>();
+				for(int l=0;l< productList.size();l++ ) {
+					ProductDataDto productDataDto =new ProductDataDto();
+					predictionDataList = new ArrayList<>();
+					Product component =productList.get(l);
+					productDataDto.setDescription(component.getDescription());
+					productDataDto.setProductId(component.getProductId());
+					productDataDto.setObicNo(component.getObicNo());
+					productDataDto.setProductName(component.getProductName());
+					productDataDto.setColor(component.getColor());
+					List<PredictionData> data =calculateAccordingToDate(component, year,month,predictionDataList,order,
+							incomingShipment,orderProduct,allProduct,allProductSet,allCustomer);
+					productDataDto.setValues(data);
+					productDataDtoList.add(productDataDto);
+				}
+				productPredictionDto.setProducts(productDataDtoList);
+				productPredictionDtoList.add(productPredictionDto);
+			}
+			}else {
+				productIdList.remove(0);
+				List<Product>individualProductList=getIndividualPatternProductList(allProduct,productIdList);
+				individualProductList.forEach(action->action.setDisplay(true));
+				getIndividualProductPrediction(productPredictionDtoList, allCustomer, individualProductList, allProductSet, order, orderProduct, incomingShipment, year, month);
+			}
+		return productPredictionDtoList;
+		}
+
+	private List<Product> getIndividualPatternProductList(List<Product> allProduct, List<Integer> productIdList) {
+		List<Product>patternProductList=new ArrayList<Product>();
+		for(int productId:productIdList) {
+			patternProductList.addAll(allProduct.stream().filter(predicate->predicate.getProductId()==productId).collect(Collectors.toList()));
+		}
+		return patternProductList;
+	}
+
+	private List<Product> sortPatternProductSet(List<Integer> productIdList, List<Product> allProduct) {
+		List<Product> productList=new ArrayList<>();
+		for(int l=1;l< productIdList.size();l++ ) {
+			int productComponentId =productIdList.get(l);
+			Product component =allProduct.stream().filter(predicate->predicate.getProductId()==productComponentId)
+					.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
+						if (list.size() != 1) {
+							return null;
+						}
+						return list.get(0);
+					}));
+			productList.add(component);
+
+		}
+		return productList;
+	}
+
 
 	private List<Product> sortProductInProductSet(List<ProductSet> productsetList, List<Product> allProduct) {
 		List<Product> productList=new ArrayList<>();
