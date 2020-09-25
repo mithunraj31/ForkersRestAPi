@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -93,26 +92,26 @@ public class ProductPredictionServiceImpl {
 		return predictProduct(allCustomer,allProduct,allProductSet, order,orderProduct,incomingShipment,year,month,schedulePattern);
 
 	}
-	private List<Product> getAllPatternProducts(SchedulePattern schedulePattern) {
-		List<Integer>productIdList=new ArrayList<>();
-		if(Objects.nonNull(schedulePattern)) {
-			String pattern=schedulePattern.getPattern();
-			String[] patternArray=pattern.split("&&");
-			for(String idString:patternArray) {
-				String[] idArray=idString.split("[\"\",:{}id items\\[\\]]");
-				List<String> idList=Arrays.asList(idArray);
-				for(String id:idList) {
-					if(!id.isEmpty()) {
-						productIdList.add(Integer.parseInt(id));
-					}
-
-				}
-			}
-			return productDao.findAllById(productIdList);
-		}else {
-			return getAllSortedProducts();
-		}
-	}
+//	private List<Product> getAllPatternProducts(SchedulePattern schedulePattern) {
+//		List<Integer>productIdList=new ArrayList<>();
+//		if(Objects.nonNull(schedulePattern)) {
+//			String pattern=schedulePattern.getPattern();
+//			String[] patternArray=pattern.split("&&");
+//			for(String idString:patternArray) {
+//				String[] idArray=idString.split("[\"\",:{}id items\\[\\]]");
+//				List<String> idList=Arrays.asList(idArray);
+//				for(String id:idList) {
+//					if(!id.isEmpty()) {
+//						productIdList.add(Integer.parseInt(id));
+//					}
+//
+//				}
+//			}
+//			return productDao.findAllById(productIdList);
+//		}else {
+//			return getAllSortedProducts();
+//		}
+//	}
 
 	private List<OrderProduct> getOrderedProductsBasedOnOrderId(List<Order> order) {
 		List<Integer>orderIdList=order.stream().map(Order::getOrderId).collect(Collectors.toList());
@@ -198,7 +197,7 @@ public class ProductPredictionServiceImpl {
 	productPredictionDto.setProductName("Individual Product");
 	productPredictionDto.setColor("");
 	for(Product product:allProduct.stream()
-			.filter(predicate->predicate.isActive()&&!predicate.isSet())
+			.filter(predicate->predicate.isActive()&&!predicate.isSet()&&predicate.isDisplay())
 			.collect(Collectors.toList())) {
 		List<PredictionData> predictionDataList = new ArrayList<>();
 		ProductDataDto productDataDto =new ProductDataDto();
@@ -298,6 +297,7 @@ public class ProductPredictionServiceImpl {
 			}else {
 				productIdList.remove(0);
 				List<Product>individualProductList=getIndividualPatternProductList(allProduct,productIdList);
+				individualProductList.forEach(action->action.setDisplay(true));
 				getIndividualProductPrediction(productPredictionDtoList, allCustomer, individualProductList, allProductSet, order, orderProduct, incomingShipment, year, month);
 			}
 		return productPredictionDtoList;

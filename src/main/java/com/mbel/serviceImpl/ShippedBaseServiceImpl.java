@@ -179,7 +179,7 @@ public class ShippedBaseServiceImpl {
 		productPredictionDto.setProductName("Individual Product");
 		productPredictionDto.setColor("");
 		for(Product product:allProduct.stream()
-				.filter(predicate->predicate.isActive()&&!predicate.isSet())
+				.filter(predicate->predicate.isActive()&&!predicate.isSet()&&predicate.isDisplay())
 				.collect(Collectors.toList())) {
 			List<PredictionData> predictionDataList = new ArrayList<>();
 			ProductDataDto productDataDto =new ProductDataDto();
@@ -255,6 +255,7 @@ public class ShippedBaseServiceImpl {
 			}else {
 				productIdList.remove(0);
 				List<Product>individualProductList=getIndividualPatternProductList(allProduct,productIdList);
+				individualProductList.forEach(action->action.setDisplay(true));
 				getIndividualProductPrediction(productPredictionDtoList, allCustomer, individualProductList, allProductSet, order, orderProduct, incomingShipment, year, month);
 			}
 		return productPredictionDtoList;
