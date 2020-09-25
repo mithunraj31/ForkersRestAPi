@@ -191,7 +191,7 @@ public class ProductHistoryServiceImpl {
 	}
 
 
-	private ProductSummaryDto calculateQuantitySummaryInProduct(Product product,
+	public ProductSummaryDto calculateQuantitySummaryInProduct(Product product,
 			List<OrderProduct> orderProductList, List<IncomingShipment> incomingShipmentList, List<ProductSet> productSetList, List<Product> productList) {
 		ProductSummaryDto productSummaryDto= new ProductSummaryDto();
 		int totalOutgoingQty=0;
@@ -237,7 +237,7 @@ public class ProductHistoryServiceImpl {
 
 	}
 
-	private void updateArrivedShipmentsTotalQuantity(ProductSummaryDto productSummaryDto, Product product, List<IncomingShipment> incomingShipmentList) {
+	public void updateArrivedShipmentsTotalQuantity(ProductSummaryDto productSummaryDto, Product product, List<IncomingShipment> incomingShipmentList) {
 
 		int totalIncomingQty=0;
 		if(!incomingShipmentList.isEmpty()) {
