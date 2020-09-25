@@ -116,7 +116,7 @@ public class ProductSetHistoryServiceImpl {
 			ProductSummaryDto productSummaryDto=calculateQuantitySummaryInProduct(productSet, incomingShipment, allProduct,orderProductList);
 			productSummaryDtoList.add(productSummaryDto);
 		}
-		productSetSummaryDto.setProductSummaryDto(productSummaryDtoList);
+		productSetSummaryDto.setProduct(productSummaryDtoList);
 		return productSetSummaryDto;
 
 	}

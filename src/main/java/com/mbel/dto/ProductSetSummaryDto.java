@@ -16,7 +16,7 @@ public class ProductSetSummaryDto {
 	
 	private int totalOutgoingQty;
 	
-	private List<ProductSummaryDto> productSummaryDto;
+	private List<ProductSummaryDto> product;
 
 	
 
@@ -68,12 +68,13 @@ public class ProductSetSummaryDto {
 		this.totalOutgoingQty = totalOutgoingQty;
 	}
 
-	public List<ProductSummaryDto> getProductSummaryDto() {
-		return productSummaryDto;
+	public List<ProductSummaryDto> getProduct() {
+		return product;
 	}
 
-	public void setProductSummaryDto(List<ProductSummaryDto> productSummaryDto) {
-		this.productSummaryDto = productSummaryDto;
+	public void setProduct(List<ProductSummaryDto> product) {
+		this.product = product;
 	}
+
 
 }
