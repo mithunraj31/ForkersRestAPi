@@ -1,7 +1,5 @@
 package com.mbel.controller;
 
-import java.util.List;
-
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mbel.dto.ProductSetSummaryDto;
-import com.mbel.dto.ProductSummaryDto;
-import com.mbel.model.Product;
-import com.mbel.serviceImpl.ProductHistoryServiceImpl;
 import com.mbel.serviceImpl.ProductSetHistoryServiceImpl;
 
 

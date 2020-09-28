@@ -76,14 +76,6 @@ public class ProductSetHistoryServiceImpl {
 
 	}
 
-	private List<Product> getOrderedProductList(List<Product> allProduct, List<Integer> productIdList) {
-		List<Product>orderedProductList=new ArrayList<Product>();
-		for(int productId:productIdList) {
-			orderedProductList.addAll(allProduct.stream().filter(predicate->predicate.getProductId()==productId).collect(Collectors.toList()));
-		}
-		return orderedProductList;
-	}
-
 	private Product getProductById(List<Product> allProduct, @Valid int productId) {
 		return allProduct.stream().filter(predicate->predicate.getProductId()==productId).collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
 			if (list.size() != 1) {
