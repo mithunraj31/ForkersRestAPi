@@ -66,14 +66,14 @@ public class ProductServiceImpl  {
 				isSortValueAlreadyPresent(allproduct,product.getSort())) {
 			return reArrangeProductDataBySort(allproduct,product,response);
 		}else {
-		productDao.save(product);
-		response.put(Constants.MESSAGE, "Product saved");
-		response.put("product",product.getProductName());
-		return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
+			productDao.save(product);
+			response.put(Constants.MESSAGE, "Product saved");
+			response.put("product",product.getProductName());
+			return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
 		}
 	}
 
-	
+
 
 	private boolean isObicNoDuplicated(List<Product> allproduct, String obicNo) {
 		List<Product>obicProduct=allproduct.stream()
@@ -146,24 +146,24 @@ public class ProductServiceImpl  {
 		ProductDto productDto =new ProductDto();
 		Product product= productDao.findById(productId).orElse(null);
 		if(Objects.nonNull(product)) {
-		productDto.setProductName(product.getProductName());
-		productDto.setDescription(product.getDescription());
-		productDto.setPrice(product.getPrice());
-		productDto.setMoq(product.getMoq());
-		productDto.setLeadTime(product.getLeadTime());
-		productDto.setObicNo(product.getObicNo());
-		productDto.setQuantity(product.getQuantity());
-		productDto.setSet(product.isSet());
-		productDto.setActive(product.isActive());
-		productDto.setCreatedAt(product.getCreatedAt());
-		productDto.setUpdatedAt(product.getUpdatedAt());
-		productDto.setUserId(jwt.getUserdetails().getUserId());
-		productDto.setCurrency(product.getCurrency());
-		productDto.setSort(product.getSort());
-		productDto.setColor(product.getColor());
-		productDto.setDisplay(product.isDisplay());
-		productDto.setUser(jwt.getUserdetails());
-		
+			productDto.setProductName(product.getProductName());
+			productDto.setDescription(product.getDescription());
+			productDto.setPrice(product.getPrice());
+			productDto.setMoq(product.getMoq());
+			productDto.setLeadTime(product.getLeadTime());
+			productDto.setObicNo(product.getObicNo());
+			productDto.setQuantity(product.getQuantity());
+			productDto.setSet(product.isSet());
+			productDto.setActive(product.isActive());
+			productDto.setCreatedAt(product.getCreatedAt());
+			productDto.setUpdatedAt(product.getUpdatedAt());
+			productDto.setUserId(jwt.getUserdetails().getUserId());
+			productDto.setCurrency(product.getCurrency());
+			productDto.setSort(product.getSort());
+			productDto.setColor(product.getColor());
+			productDto.setDisplay(product.isDisplay());
+			productDto.setUser(jwt.getUserdetails());
+
 		}
 		return productDto;
 	}
@@ -198,11 +198,11 @@ public class ProductServiceImpl  {
 		}
 		if(!allproduct.isEmpty()&&
 				isSortValueAlreadyPresent(allproduct,productSet.getSort())) {
-			 reArrangeProductDataBySort(allproduct,product, response);
+			reArrangeProductDataBySort(allproduct,product, response);
 		}else {
-		productDao.save(product);
+			productDao.save(product);
 		}
-		
+
 		int id  = product.getProductId();
 		if(productSet.getProducts() != null) {
 			int setValue  =productSet.getProducts().size();
@@ -339,7 +339,8 @@ public class ProductServiceImpl  {
 		return fetchList;
 	}
 
-	public Product getupdateById(int productId, @Valid Product productionDetails) {
+	public ResponseEntity<Map<String, String>> getupdateById(int productId, @Valid Product productionDetails) {
+		Map<String, String> response = new HashMap<>();
 		List<Product>allproduct =productDao.findAll();
 		if(productionDetails.getSort()==0) {
 			assignSortValue(productionDetails,allproduct);
@@ -351,14 +352,46 @@ public class ProductServiceImpl  {
 			productionDetails.setUpdatedAt(LocalDateTime.now());
 			return reArrangeProductDataBySort(allproduct,productionDetails,productId);
 		}else {
-			productionDetails.setProductId(productId);
-			productionDetails.setActive(true);
-			productionDetails.setSet(false);
-			productionDetails.setUpdatedAt(LocalDateTime.now());
-			return productDao.save(productionDetails);
+			if(isObicNoEdited(productionDetails,allproduct)) {
+				if(isObicNoDuplicated(allproduct,productionDetails.getObicNo())) {
+					response.put(Constants.MESSAGE, "ObicNo Already Present");
+					response.put("ObicNo",productionDetails.getObicNo());
+					return new ResponseEntity<Map<String,String>>(response, HttpStatus.BAD_REQUEST);
+				}
+				else {
+				productionDetails.setProductId(productId);
+				productionDetails.setActive(true);
+				productionDetails.setSet(false);
+				productionDetails.setUpdatedAt(LocalDateTime.now());
+				try {
+				productDao.save(productionDetails);
+				response.put(Constants.MESSAGE, "product updated");
+				response.put("product",productionDetails.getProductName());
+				return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
+				}catch(Exception ex) {
+					response.put(Constants.MESSAGE, "product updation failed");
+					response.put("error",ex.getMessage());
+					return new ResponseEntity<Map<String,String>>(response, HttpStatus.BAD_REQUEST);
+				}
+				}
+			}
 		}
+		return null;
 
 	}
+
+	private boolean isObicNoEdited(@Valid Product productionDetails, List<Product> allproduct) {
+		return allproduct.stream().filter(predicate->predicate.getProductId()==productionDetails.getProductId()&&
+				predicate.getObicNo().equals(productionDetails.getObicNo()))
+				.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
+					if (list.size() != 1) {
+						return true;
+					}
+					return false;
+				}));
+	}
+
+
 
 	private boolean isSortValueEditted(int productId, List<Product> allproduct, @Valid Product productionDetails) {
 		Product previouslySavedProduct =allproduct.stream().filter(predicate->predicate.getProductId()==productId)
@@ -372,8 +405,9 @@ public class ProductServiceImpl  {
 		return previouslySavedProduct.getSort()==productionDetails.getSort()?false:true;
 	}
 
-	private Product reArrangeProductDataBySort(List<Product> allproduct, @Valid Product productionDetails,
+	private ResponseEntity<Map<String, String>> reArrangeProductDataBySort(List<Product> allproduct, @Valid Product productionDetails,
 			int productId) {
+		Map<String, String> response = new HashMap<>();
 		List<Product>saveProductsList=new ArrayList<>();
 		Product previouslySavedProduct =allproduct.stream().filter(predicate->predicate.getProductId()==productId)
 				.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
@@ -384,18 +418,20 @@ public class ProductServiceImpl  {
 				}));
 		List<Product>productListAfterSortValue=new ArrayList<>();
 		if(previouslySavedProduct.getSort()>productionDetails.getSort()) {
-		productListAfterSortValue=allproduct.stream()
-				.filter(predicate->predicate.getSort()>=productionDetails.getSort()
-						&& predicate.getSort()<previouslySavedProduct.getSort())
-				.collect(Collectors.toList());
-		List<Product>sortedProductList=arrangeProductbySortField(productListAfterSortValue);
-		saveProductsList.add(productionDetails);
-		for(int i=0;i<sortedProductList.size();i++) {
-			sortedProductList.get(i).setSort(sortedProductList.get(i).getSort()+1);
-			saveProductsList.add(sortedProductList.get(i));
-		}
-		productDao.saveAll(saveProductsList);
-		return productionDetails;
+			productListAfterSortValue=allproduct.stream()
+					.filter(predicate->predicate.getSort()>=productionDetails.getSort()
+					&& predicate.getSort()<previouslySavedProduct.getSort())
+					.collect(Collectors.toList());
+			List<Product>sortedProductList=arrangeProductbySortField(productListAfterSortValue);
+			saveProductsList.add(productionDetails);
+			for(int i=0;i<sortedProductList.size();i++) {
+				sortedProductList.get(i).setSort(sortedProductList.get(i).getSort()+1);
+				saveProductsList.add(sortedProductList.get(i));
+			}
+			productDao.saveAll(saveProductsList);
+			response.put(Constants.MESSAGE, "product updated");
+			response.put("product",productionDetails.getProductName());
+			return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
 		}else {
 			productListAfterSortValue=allproduct.stream()
 					.filter(predicate->predicate.getSort()>previouslySavedProduct.getSort()
@@ -408,10 +444,11 @@ public class ProductServiceImpl  {
 				saveProductsList.add(sortedProductList.get(i));
 			}
 			productDao.saveAll(saveProductsList);
-			return productionDetails;
-			
+			response.put(Constants.MESSAGE, "product updated");
+			response.put("product",productionDetails.getProductName());
+			return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
 		}
-		
+
 
 	}
 
@@ -424,8 +461,16 @@ public class ProductServiceImpl  {
 		return product;
 	}
 
-	public Product getupdateProductSetById(int productId, @Valid SaveProductSetDto productSetDetails) {
-		List<Product> allproduct = productDao.findAll();
+	public ResponseEntity<Map<String, String>> getupdateProductSetById(int productId, @Valid SaveProductSetDto productSetDetails) {
+		Map<String, String> response = new HashMap<>();
+		List<Product> allproduct = productDao.getActiveProducts();
+		if(isObicNoEdited(productSetDetails, allproduct)) {
+			if(isObicNoDuplicated(allproduct,productSetDetails.getObicNo())) {
+				response.put(Constants.MESSAGE, "ObicNo Already Present");
+				response.put("ObicNo",productSetDetails.getObicNo());
+				return new ResponseEntity<Map<String,String>>(response, HttpStatus.BAD_REQUEST);
+			}
+		}
 		Product product=allproduct.stream().filter(predicate->predicate.getProductId()==productId)
 				.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
 					if (list.size() != 1) {
@@ -433,16 +478,15 @@ public class ProductServiceImpl  {
 					}
 					return list.get(0);
 				}));
-		if(productSetDetails.getSort()==0) {
-			assignSortValue(product,allproduct);
-		}
+				if(productSetDetails.getSort()==0) {
+					assignSortValue(product,allproduct);
+				}
 		if(product!=null) {
 			product.setProductName(productSetDetails.getProductName());
 			product.setDescription(productSetDetails.getDescription());
 			product.setPrice(productSetDetails.getPrice());
 			product.setMoq(productSetDetails.getMoq());
 			product.setLeadTime(productSetDetails.getLeadTime());
-			product.setObicNo(productSetDetails.getObicNo());
 			product.setQuantity(productSetDetails.getQuantity());
 			product.setSet(true);
 			product.setActive(true);
@@ -451,11 +495,12 @@ public class ProductServiceImpl  {
 			product.setCurrency(productSetDetails.getCurrency());
 			product.setColor(productSetDetails.getColor());
 			product.setDisplay(productSetDetails.isDisplay());
+			product.setObicNo(productSetDetails.getObicNo());
 			if(product.getSort()!=productSetDetails.getSort()) {
-				 reArrangeProductSetDataBySort(allproduct,productSetDetails.getSort(),productId,product);
-			}else {
-			productDao.save(product);
+				reArrangeProductSetDataBySort(allproduct,productSetDetails.getSort(),productId,product);
 			}
+				productDao.save(product);
+		
 			int setValue  =productSetDetails.getProducts().size();
 			productSetDao.deleteBySet(productId);
 			List<ProductSet> productSetList =new ArrayList<>();
@@ -467,11 +512,14 @@ public class ProductServiceImpl  {
 				productSetList.add(productSet);
 			}
 			productSetDao.saveAll(productSetList);
+			response.put(Constants.MESSAGE, "product updated");
+			response.put("product",product.getProductName());
+			return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
 
-			return product;
 		}
-		return product;
-
+		response.put(Constants.MESSAGE, "product not found");
+		response.put("product",productSetDetails.getProductName());
+		return new ResponseEntity<Map<String,String>>(response, HttpStatus.BAD_REQUEST);
 	}
 
 	private void reArrangeProductSetDataBySort(List<Product> allproduct, int sort, int productId, Product product) {
@@ -485,18 +533,18 @@ public class ProductServiceImpl  {
 				}));
 		List<Product>productListAfterSortValue=new ArrayList<>();
 		if(previouslySavedProduct.getSort()>sort) {
-		productListAfterSortValue=allproduct.stream()
-				.filter(predicate->predicate.getSort()>=sort
-						&& predicate.getSort()<previouslySavedProduct.getSort())
-				.collect(Collectors.toList());
-		List<Product>sortedProductList=arrangeProductbySortField(productListAfterSortValue);
-		product.setSort(sort);
-		saveProductsList.add(product);
-		for(int i=0;i<sortedProductList.size();i++) {
-			sortedProductList.get(i).setSort(sortedProductList.get(i).getSort()+1);
-			saveProductsList.add(sortedProductList.get(i));
-		}
-		productDao.saveAll(saveProductsList);
+			productListAfterSortValue=allproduct.stream()
+					.filter(predicate->predicate.getSort()>=sort
+					&& predicate.getSort()<previouslySavedProduct.getSort())
+					.collect(Collectors.toList());
+			List<Product>sortedProductList=arrangeProductbySortField(productListAfterSortValue);
+			product.setSort(sort);
+			saveProductsList.add(product);
+			for(int i=0;i<sortedProductList.size();i++) {
+				sortedProductList.get(i).setSort(sortedProductList.get(i).getSort()+1);
+				saveProductsList.add(sortedProductList.get(i));
+			}
+			productDao.saveAll(saveProductsList);
 		}else {
 			productListAfterSortValue=allproduct.stream()
 					.filter(predicate->predicate.getSort()>previouslySavedProduct.getSort()
@@ -510,12 +558,12 @@ public class ProductServiceImpl  {
 				saveProductsList.add(sortedProductList.get(i));
 			}
 			productDao.saveAll(saveProductsList);
-			
+
 		}
-		
+
 
 	}
-		
+
 
 	public Product deleteProductSetById(int productId) {
 		return deleteProductById(productId);
@@ -628,30 +676,30 @@ public class ProductServiceImpl  {
 		List<ProductSet> allProductSet = productSetDao.findAll();
 
 		List<FetchProductSetDto> fetchList =  allProducts.stream()
-			.filter(x -> x.isSet()) // get only Product set
-			.map(x -> {
-				// map DAO to DTO
-				FetchProductSetDto componentSet = this.modelMapper.map(x, FetchProductSetDto.class);
-				// get only product in set with componentSet.productId
-				List<ProductSetModel> productsetList = allProductSet.stream()
-					.filter(predicate-> predicate.getSetId()== componentSet.getProductId())
-					.map(predicate -> {
-						// map product set object
-						Product product = allProducts.stream()
-							.filter(p -> p.getProductId() == predicate.getProductComponentId())
-							.findFirst()
-							.get();
-						return new ProductSetModel(product);
-					})
-					.collect(Collectors.toList());
+				.filter(x -> x.isSet()) // get only Product set
+				.map(x -> {
+					// map DAO to DTO
+					FetchProductSetDto componentSet = this.modelMapper.map(x, FetchProductSetDto.class);
+					// get only product in set with componentSet.productId
+					List<ProductSetModel> productsetList = allProductSet.stream()
+							.filter(predicate-> predicate.getSetId()== componentSet.getProductId())
+							.map(predicate -> {
+								// map product set object
+								Product product = allProducts.stream()
+										.filter(p -> p.getProductId() == predicate.getProductComponentId())
+										.findFirst()
+										.get();
+								return new ProductSetModel(product);
+							})
+							.collect(Collectors.toList());
 
-				componentSet.setProducts(productsetList);
-				return componentSet;
-			}).collect(Collectors.toList());
+					componentSet.setProducts(productsetList);
+					return componentSet;
+				}).collect(Collectors.toList());
 
 		// map individual set with not assigned products
 		List<ProductSetModel> individualProducts = allProducts.stream()
-			.filter(x -> 
+				.filter(x -> 
 				!x.isSet() && !allProductSet.stream().anyMatch(s -> s.getProductComponentId() == x.getProductId()))
 				.map(p -> new ProductSetModel(p))
 				.collect(Collectors.toList());

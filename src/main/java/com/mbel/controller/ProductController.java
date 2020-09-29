@@ -53,7 +53,7 @@ public class  ProductController{
 	}
 
 	@PutMapping("/product/{productId}")
-	public Product updateProductById(@PathVariable (value="productId")@NonNull int productId,
+	public ResponseEntity<Map<String, String>> updateProductById(@PathVariable (value="productId")@NonNull int productId,
 			@Valid @RequestBody Product productDetails) {
 		return productServiceImpl.getupdateById(productId,productDetails);
 
@@ -101,7 +101,7 @@ public class  ProductController{
 	
 	
 	@PutMapping("/productset/{productId}")
-	public Product updateProductSetById(@PathVariable (value="productId")@NonNull int productId,
+	public ResponseEntity<Map<String, String>> updateProductSetById(@PathVariable (value="productId")@NonNull int productId,
 			@Valid @RequestBody SaveProductSetDto productSetDetails) {
 		return  productServiceImpl.getupdateProductSetById(productId, productSetDetails);
 
