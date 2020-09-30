@@ -63,17 +63,22 @@ public class ProductSetHistoryServiceImpl {
 
 		Product product =getProductById(allProduct,productId);
 		if(Objects.nonNull(product)) {
-			List<ProductSet> productSetList=productSetDao.getBySetId(productId);
+			List<ProductSet> allProductSetList=productSetDao.findAll();
+			List<ProductSet> productSetList=getBySetId(allProductSetList,productId);
 			List<Order>order =orderDao.getFulfilledOrdersBetweenDueDates(requiredSummaryUtcDate.format(formatter),tillUtcDate.format(formatter)); 
 			List<Integer>orderIdList=order.stream().map(Order::getOrderId).collect(Collectors.toList());
 			List<OrderProduct>orderProductList=order.isEmpty()?null:orderProductDao.findAllByOrderId(orderIdList);
 			List<Integer>productIdList=orderProductList==null?null:productSetList.stream().map(ProductSet::getProductComponentId).collect(Collectors.toList());
 			List<IncomingShipment> allIncomingShipment = incomingShipmentDao.getIncomingArrivedOrdersByProductIds(productIdList);
 			List<IncomingShipment> incomingShipment=incomingShipmentListBetweenDates(allIncomingShipment,requiredSummaryDate,tillDate);
-			return calculateQuantitySummaryInProductSet(product,orderProductList,incomingShipment,productSetList,allProduct, year,month,allProduct);
+			return calculateQuantitySummaryInProductSet(product,orderProductList,incomingShipment,productSetList,allProduct,allProductSetList);
 		}
 		return null;
 
+	}
+
+	private List<ProductSet> getBySetId(List<ProductSet> allProductSetList, @Valid int productId) {
+		return allProductSetList.stream().filter(predicate->predicate.getSetId()==productId).collect(Collectors.toList());
 	}
 
 	private Product getProductById(List<Product> allProduct, @Valid int productId) {
@@ -86,7 +91,7 @@ public class ProductSetHistoryServiceImpl {
 	}
 
 	private ProductSetSummaryDto calculateQuantitySummaryInProductSet(Product product, List<OrderProduct> orderProductList,
-			List<IncomingShipment> incomingShipment, List<ProductSet> productSetList, List<Product> productList, @Valid int year, @Valid int month, List<Product> allProduct) {
+			List<IncomingShipment> incomingShipment, List<ProductSet> productSetList, List<Product> allProduct, List<ProductSet> allProductSetList) {
 		ProductSetSummaryDto productSetSummaryDto= new ProductSetSummaryDto();
 		productSetSummaryDto.setProductId(product.getProductId());
 		productSetSummaryDto.setProductName(product.getProductName());
@@ -95,7 +100,9 @@ public class ProductSetHistoryServiceImpl {
 		productSetSummaryDto.setColor(product.getColor());
 		List<ProductSummaryDto> productSummaryDtoList =new ArrayList<>();
 		for(ProductSet productSet:productSetList) {
-			ProductSummaryDto productSummaryDto=calculateQuantitySummaryInProduct(productSet, incomingShipment, allProduct,orderProductList);
+			Product indProduct =getProductById(allProduct,productSet.getProductComponentId());
+			ProductSummaryDto productSummaryDto=productHistoryServiceImpl.calculateQuantitySummaryInProduct(indProduct, 
+					orderProductList, incomingShipment, allProductSetList, allProduct);
 			productSummaryDtoList.add(productSummaryDto);
 		}
 		productSetSummaryDto.setProduct(productSummaryDtoList);
@@ -131,44 +138,7 @@ public class ProductSetHistoryServiceImpl {
 		return incomingShipmentsList;
 	}
 
-	public ProductSummaryDto calculateQuantitySummaryInProduct(ProductSet nonSetProduct,
-			 List<IncomingShipment> incomingShipmentList, List<Product> allProduct, List<OrderProduct> orderProductList) {
-		ProductSummaryDto productSummaryDto= new ProductSummaryDto();
-		int totalOutgoingQty=0;
-Product product= getProductById(allProduct, nonSetProduct.getProductComponentId());
-		productSummaryDto.setProductId(product.getProductId());
-		productSummaryDto.setProductName(product.getProductName());
-		productSummaryDto.setDescription(product.getDescription());
-		productSummaryDto.setObicNo(product.getObicNo());
-		productSummaryDto.setColor(product.getColor());
-		productSummaryDto.setCurrentQty(product.getQuantity());
-		if(Objects.nonNull(orderProductList)) {
-			for(OrderProduct orderProduct:orderProductList) {
-				Product individualProduct=allProduct.stream().filter(predicate->predicate.getProductId()==orderProduct.getProductId()).collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
-					if (list.size() != 1) {
-						return null;
-					}
-					return list.get(0);
-				}));
-				if(individualProduct!=null&&!individualProduct.isSet()) {
-					if(individualProduct.getProductId()==product.getProductId()) {
-						totalOutgoingQty+=orderProduct.getQuantity();
-					}
 
-				}else {
-							totalOutgoingQty+=nonSetProduct.getQuantity()*orderProduct.getQuantity();
-					}
-
-				}
-				productSummaryDto.setTotalOutgoingQty(totalOutgoingQty);
-
-			}
-		productHistoryServiceImpl.updateArrivedShipmentsTotalQuantity(productSummaryDto,product,incomingShipmentList);
-
-
-		return productSummaryDto;
-
-	}
 
 
 }

@@ -129,8 +129,6 @@ public class ProductHistoryServiceImpl {
 				}
 			}
 			individualProduct.setQuantity(individualProduct.getQuantity()+quantityFulfilledAfterRequestedDate);
-			System.out.println(individualProduct.getProductId()+"--------"+individualProduct.getQuantity()+"tq"+quantityFulfilledAfterRequestedDate);
-
 			updateArrivedShipmentsToCurrentQuantity(individualProduct,incomingShipmentList);
 
 		}
