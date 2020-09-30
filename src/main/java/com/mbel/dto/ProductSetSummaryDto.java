@@ -14,8 +14,6 @@ public class ProductSetSummaryDto {
 	
 	private String color;
 	
-	private int totalOutgoingQty;
-	
 	private List<ProductSummaryDto> product;
 
 	
@@ -58,14 +56,6 @@ public class ProductSetSummaryDto {
 
 	public void setColor(String color) {
 		this.color = color;
-	}
-
-	public int getTotalOutgoingQty() {
-		return totalOutgoingQty;
-	}
-
-	public void setTotalOutgoingQty(int totalOutgoingQty) {
-		this.totalOutgoingQty = totalOutgoingQty;
 	}
 
 	public List<ProductSummaryDto> getProduct() {

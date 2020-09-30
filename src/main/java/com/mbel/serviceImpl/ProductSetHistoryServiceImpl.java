@@ -88,21 +88,11 @@ public class ProductSetHistoryServiceImpl {
 	private ProductSetSummaryDto calculateQuantitySummaryInProductSet(Product product, List<OrderProduct> orderProductList,
 			List<IncomingShipment> incomingShipment, List<ProductSet> productSetList, List<Product> productList, @Valid int year, @Valid int month, List<Product> allProduct) {
 		ProductSetSummaryDto productSetSummaryDto= new ProductSetSummaryDto();
-		int totalOutgoingQty=0;
 		productSetSummaryDto.setProductId(product.getProductId());
 		productSetSummaryDto.setProductName(product.getProductName());
 		productSetSummaryDto.setDescription(product.getDescription());
 		productSetSummaryDto.setObicNo(product.getObicNo());
 		productSetSummaryDto.setColor(product.getColor());
-		if(Objects.nonNull(orderProductList)) {
-			List<OrderProduct> setOrderedList=	getOrderedProductDetails(orderProductList,product.getProductId());
-			if(!setOrderedList.isEmpty()) {
-			for(OrderProduct orderedsetProduct:setOrderedList)		{
-				totalOutgoingQty+=orderedsetProduct.getQuantity();
-			}
-			}
-			productSetSummaryDto.setTotalOutgoingQty(totalOutgoingQty);
-		}
 		List<ProductSummaryDto> productSummaryDtoList =new ArrayList<>();
 		for(ProductSet productSet:productSetList) {
 			ProductSummaryDto productSummaryDto=calculateQuantitySummaryInProduct(productSet, incomingShipment, allProduct,orderProductList);
@@ -110,12 +100,6 @@ public class ProductSetHistoryServiceImpl {
 		}
 		productSetSummaryDto.setProduct(productSummaryDtoList);
 		return productSetSummaryDto;
-
-	}
-
-	private List<OrderProduct> getOrderedProductDetails(List<OrderProduct> orderProductList, int productId) {
-		return orderProductList.stream()
-				.filter(predicate->predicate.getProductId()==productId).collect(Collectors.toList());
 
 	}
 

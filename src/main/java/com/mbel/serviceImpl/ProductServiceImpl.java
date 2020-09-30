@@ -341,42 +341,39 @@ public class ProductServiceImpl  {
 
 	public ResponseEntity<Map<String, String>> getupdateById(int productId, @Valid Product productionDetails) {
 		Map<String, String> response = new HashMap<>();
-		List<Product>allproduct =productDao.findAll();
+		List<Product>allproduct =productDao.getActiveProducts();
+		if(isObicNoEdited(productionDetails,allproduct)) {
+			if(isObicNoDuplicated(allproduct,productionDetails.getObicNo())) {
+				response.put(Constants.MESSAGE, "ObicNo Already Present");
+				response.put("ObicNo",productionDetails.getObicNo());
+				return new ResponseEntity<Map<String,String>>(response, HttpStatus.BAD_REQUEST);
+			}
+		}
 		if(productionDetails.getSort()==0) {
 			assignSortValue(productionDetails,allproduct);
-		}
-		if(isSortValueEditted(productId,allproduct,productionDetails)) {
-			productionDetails.setProductId(productId);
-			productionDetails.setActive(true);
-			productionDetails.setSet(false);
-			productionDetails.setUpdatedAt(LocalDateTime.now());
-			return reArrangeProductDataBySort(allproduct,productionDetails,productId);
 		}else {
-			if(isObicNoEdited(productionDetails,allproduct)) {
-				if(isObicNoDuplicated(allproduct,productionDetails.getObicNo())) {
-					response.put(Constants.MESSAGE, "ObicNo Already Present");
-					response.put("ObicNo",productionDetails.getObicNo());
-					return new ResponseEntity<Map<String,String>>(response, HttpStatus.BAD_REQUEST);
-				}
-				else {
+			if(isSortValueEditted(productId,allproduct,productionDetails)) {
 				productionDetails.setProductId(productId);
 				productionDetails.setActive(true);
 				productionDetails.setSet(false);
 				productionDetails.setUpdatedAt(LocalDateTime.now());
-				try {
-				productDao.save(productionDetails);
-				response.put(Constants.MESSAGE, "product updated");
-				response.put("product",productionDetails.getProductName());
-				return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
-				}catch(Exception ex) {
-					response.put(Constants.MESSAGE, "product updation failed");
-					response.put("error",ex.getMessage());
-					return new ResponseEntity<Map<String,String>>(response, HttpStatus.BAD_REQUEST);
-				}
-				}
+				return reArrangeProductDataBySort(allproduct,productionDetails,productId);
 			}
 		}
-		return null;
+		productionDetails.setProductId(productId);
+		productionDetails.setActive(true);
+		productionDetails.setSet(false);
+		productionDetails.setUpdatedAt(LocalDateTime.now());
+		try {
+			productDao.save(productionDetails);
+			response.put(Constants.MESSAGE, "product updated");
+			response.put("product",productionDetails.getProductName());
+			return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
+		}catch(Exception ex) {
+			response.put(Constants.MESSAGE, "product updation failed");
+			response.put("error",ex.getMessage());
+			return new ResponseEntity<Map<String,String>>(response, HttpStatus.BAD_REQUEST);
+		}
 
 	}
 
@@ -478,9 +475,9 @@ public class ProductServiceImpl  {
 					}
 					return list.get(0);
 				}));
-				if(productSetDetails.getSort()==0) {
-					assignSortValue(product,allproduct);
-				}
+		if(productSetDetails.getSort()==0) {
+			assignSortValue(product,allproduct);
+		}
 		if(product!=null) {
 			product.setProductName(productSetDetails.getProductName());
 			product.setDescription(productSetDetails.getDescription());
@@ -499,8 +496,8 @@ public class ProductServiceImpl  {
 			if(product.getSort()!=productSetDetails.getSort()) {
 				reArrangeProductSetDataBySort(allproduct,productSetDetails.getSort(),productId,product);
 			}
-				productDao.save(product);
-		
+			productDao.save(product);
+
 			int setValue  =productSetDetails.getProducts().size();
 			productSetDao.deleteBySet(productId);
 			List<ProductSet> productSetList =new ArrayList<>();
