@@ -5,9 +5,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -24,6 +26,7 @@ import com.mbel.dao.ProductDao;
 import com.mbel.dao.ProductSetDao;
 import com.mbel.dto.FetchProductSetDto;
 import com.mbel.dto.ProductDto;
+import com.mbel.dto.SaveComponentDto;
 import com.mbel.dto.SaveProductSetDto;
 import com.mbel.model.Product;
 import com.mbel.model.ProductSet;
@@ -170,10 +173,9 @@ public class ProductServiceImpl  {
 
 	public ResponseEntity<Map<String, String>> saveProductSet(SaveProductSetDto productSet) {
 		Map<String, String> response = new HashMap<>();
-		List<Product>allproduct =productDao.findAll();
-		if(productSet.getSort()==0) {
-			assignSortValue(productSet,allproduct);
-		}
+		List<Product>allproduct =productDao.getActiveProducts();
+		ResponseEntity<Map<String, String>> isProductSetValid=validateIncomingProductSet(allproduct,productSet);
+		if(isProductSetValid.getStatusCode()==HttpStatus.OK) {
 		Product product = new Product();
 		product.setProductName(productSet.getProductName());
 		product.setDescription(productSet.getDescription());
@@ -191,11 +193,6 @@ public class ProductServiceImpl  {
 		product.setSort(productSet.getSort());
 		product.setColor(productSet.getColor());
 		product.setDisplay(false);
-		if(isObicNoDuplicated(allproduct,product.getObicNo())) {
-			response.put(Constants.MESSAGE, "ObicNo Already Present");
-			response.put("ObicNo",product.getObicNo());
-			return new ResponseEntity<Map<String,String>>(response, HttpStatus.BAD_REQUEST);
-		}
 		if(!allproduct.isEmpty()&&
 				isSortValueAlreadyPresent(allproduct,productSet.getSort())) {
 			reArrangeProductDataBySort(allproduct,product, response);
@@ -221,6 +218,61 @@ public class ProductServiceImpl  {
 		response.put("product",product.getProductName());
 		return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
 	}
+		return isProductSetValid;
+	}
+
+	private ResponseEntity<Map<String, String>> validateIncomingProductSet(List<Product> allproduct, SaveProductSetDto productSet) {
+		Map<String, String> response = new HashMap<>();
+		if(isObicNoEdited(productSet,allproduct)) {
+		if(isObicNoDuplicated(allproduct,productSet.getObicNo())) {
+			response.put(Constants.MESSAGE, "ObicNo Already Present");
+			response.put("ObicNo",productSet.getObicNo());
+			return new ResponseEntity<Map<String,String>>(response, HttpStatus.BAD_REQUEST);
+		}
+		}
+		if(productsDuplicated(productSet.getProducts())) {
+			response.put(Constants.MESSAGE, "products Duplicated in ProductSet");
+			response.put("products",productSet.getProductName());
+			return new ResponseEntity<Map<String,String>>(response, HttpStatus.BAD_REQUEST);
+		}
+		if(productsOrderedIsPresent(allproduct,productSet.getProducts())) {
+			response.put(Constants.MESSAGE, "products orderd are not present");
+			response.put("products",productSet.getProductName());
+			return new ResponseEntity<Map<String,String>>(response, HttpStatus.BAD_REQUEST);
+		}
+		if(productSet.getSort()==0) {
+			assignSortValue(productSet,allproduct);
+		}
+		response.put(Constants.MESSAGE, "ok");
+		response.put("products",productSet.getProductName());
+		return new ResponseEntity<Map<String,String>>(response, HttpStatus.OK);
+		
+	}
+
+
+
+	private boolean productsOrderedIsPresent(List<Product> allproduct, List<SaveComponentDto> products) {
+		List<Product>productsList=new ArrayList<Product>();
+		for(SaveComponentDto product:products) {
+			productsList.addAll(allproduct.stream()
+					.filter(predicate->predicate.getProductId()==product.getProductId()).collect(Collectors.toList()));
+			
+		}
+		return productsList.size()<products.size();
+	}
+
+
+
+	private boolean productsDuplicated(List<SaveComponentDto> productsList) {
+		List<Integer>productIdList=productsList.stream().map(mapper->mapper.getProductId()).collect(Collectors.toList());
+		final Set<Integer> set = new HashSet<Integer>();
+		for(int productId:productIdList) {
+			set.add(productId);
+		}
+		return set.size()<productsList.size();
+	}
+
+
 
 	public List<FetchProductSetDto> getAllProductSet() {
 		List<FetchProductSetDto> fetchList =new ArrayList<>();
@@ -461,13 +513,8 @@ public class ProductServiceImpl  {
 	public ResponseEntity<Map<String, String>> getupdateProductSetById(int productId, @Valid SaveProductSetDto productSetDetails) {
 		Map<String, String> response = new HashMap<>();
 		List<Product> allproduct = productDao.getActiveProducts();
-		if(isObicNoEdited(productSetDetails, allproduct)) {
-			if(isObicNoDuplicated(allproduct,productSetDetails.getObicNo())) {
-				response.put(Constants.MESSAGE, "ObicNo Already Present");
-				response.put("ObicNo",productSetDetails.getObicNo());
-				return new ResponseEntity<Map<String,String>>(response, HttpStatus.BAD_REQUEST);
-			}
-		}
+		ResponseEntity<Map<String, String>> isProductSetValid=validateIncomingProductSet(allproduct,productSetDetails);
+		if(isProductSetValid.getStatusCode()==HttpStatus.OK) {
 		Product product=allproduct.stream().filter(predicate->predicate.getProductId()==productId)
 				.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
 					if (list.size() != 1) {
@@ -517,6 +564,8 @@ public class ProductServiceImpl  {
 		response.put(Constants.MESSAGE, "product not found");
 		response.put("product",productSetDetails.getProductName());
 		return new ResponseEntity<Map<String,String>>(response, HttpStatus.BAD_REQUEST);
+	}
+		return isProductSetValid;
 	}
 
 	private void reArrangeProductSetDataBySort(List<Product> allproduct, int sort, int productId, Product product) {
