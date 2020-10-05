@@ -252,24 +252,21 @@ public class ProductServiceImpl  {
 
 
 	private boolean productsOrderedIsPresent(List<Product> allproduct, List<SaveComponentDto> products) {
-		List<Product>productsList=new ArrayList<Product>();
 		for(SaveComponentDto product:products) {
-			productsList.addAll(allproduct.stream()
-					.filter(predicate->predicate.getProductId()==product.getProductId()).collect(Collectors.toList()));
-			
+			if (!allproduct.stream().anyMatch(x -> x.getProductId() == product.getProductId())) {
+				return true;
+			}
 		}
-		return productsList.size()<products.size();
+		return false;
 	}
 
 
 
 	private boolean productsDuplicated(List<SaveComponentDto> productsList) {
-		List<Integer>productIdList=productsList.stream().map(mapper->mapper.getProductId()).collect(Collectors.toList());
-		final Set<Integer> set = new HashSet<Integer>();
-		for(int productId:productIdList) {
-			set.add(productId);
-		}
-		return set.size()<productsList.size();
+		final Set<Integer> set = productsList.stream()
+			.map(SaveComponentDto::getProductId)
+			.collect(Collectors.toCollection(HashSet::new));
+		return set.size() < productsList.size();
 	}
 
 
