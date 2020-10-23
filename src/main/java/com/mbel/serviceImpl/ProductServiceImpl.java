@@ -609,6 +609,7 @@ public class ProductServiceImpl  {
 
 
 	public Product deleteProductSetById(int productId) {
+		productSetDao.deleteBySet(productId);
 		return deleteProductById(productId);
 	}
 
@@ -743,7 +744,7 @@ public class ProductServiceImpl  {
 		// map individual set with not assigned products
 		List<ProductSetModel> individualProducts = allProducts.stream()
 				.filter(x -> 
-				!x.isSet() && !allProductSet.stream().anyMatch(s -> s.getProductComponentId() == x.getProductId()))
+				!x.isSet())
 				.map(p -> new ProductSetModel(p))
 				.collect(Collectors.toList());
 
