@@ -196,9 +196,34 @@ public class ShippedBaseServiceImpl {
 
 		productPredictionDto.setProducts(productDataDtoList);
 		productPredictionDtoList.add(productPredictionDto);
+	}
 
-	} 
-	
+	private void getIndividualScheduleProductPrediction(List<ProductPredictionDto> productPredictionDtoList, List<Customer> allCustomer,
+			List<Product> individualProductList, List<Product> allProduct, List<ProductSet> allProductSet, List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment, int year, int month) {	ProductPredictionDto productPredictionDto =new ProductPredictionDto();
+	List<ProductDataDto>productDataDtoList=new ArrayList<>();
+	productPredictionDto.setProductId(0);
+	productPredictionDto.setDescription(" ");
+	productPredictionDto.setObicNo(" ");
+	productPredictionDto.setProductName("Individual Product");
+	productPredictionDto.setColor("");
+	for(Product product:individualProductList) {
+		List<PredictionData> predictionDataList = new ArrayList<>();
+		ProductDataDto productDataDto =new ProductDataDto();
+		productDataDto.setDescription(product.getDescription());
+		productDataDto.setProductId(product.getProductId());
+		productDataDto.setObicNo(product.getObicNo());
+		productDataDto.setProductName(product.getProductName());
+		productDataDto.setColor(product.getColor());
+		List<PredictionData> data  =calculateAccordingToDate(product, year,month
+				,predictionDataList,order,incomingShipment,orderProduct,allProduct,allProductSet, allCustomer);
+		productDataDto.setValues(data);
+		productDataDtoList.add(productDataDto);
+	}
+
+	productPredictionDto.setProducts(productDataDtoList);
+	productPredictionDtoList.add(productPredictionDto);
+	}
+
 	private List<ProductPredictionDto> PatternProductPredictionData(SchedulePattern schedulePattern, List<Customer> allCustomer, List<Product> allProduct, List<ProductSet> allProductSet, List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment, int year, int month) {
 		List<Integer>productIdList=new ArrayList<>();
 		List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
@@ -256,7 +281,7 @@ public class ShippedBaseServiceImpl {
 				productIdList.remove(0);
 				List<Product>individualProductList=getIndividualPatternProductList(allProduct,productIdList);
 				individualProductList.forEach(action->action.setDisplay(true));
-				getIndividualProductPrediction(productPredictionDtoList, allCustomer, individualProductList, allProductSet, order, orderProduct, incomingShipment, year, month);
+				getIndividualScheduleProductPrediction(productPredictionDtoList, allCustomer, individualProductList, allProduct,allProductSet, order, orderProduct, incomingShipment, year, month);
 			}
 		return productPredictionDtoList;
 		}
