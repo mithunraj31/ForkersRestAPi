@@ -105,7 +105,8 @@ public class KittingBaseServiceImpl {
 			dueDateStart=dueDateStart.minusMonths(3);
 		}else if(dueDateStart.getMonthValue()>today.getMonthValue()&&
 				dueDateStart.getYear()==today.getYear()){
-			dueDateStart=LocalDateTime.of(year, today.getMonth().minus(3), 1, 0, 0);
+			LocalDateTime start=today.minusMonths(3);
+			dueDateStart=LocalDateTime.of(start.getYear(), start.getMonth(), 1, 0, 0);
 		}else if(dueDateStart.getYear()<today.getYear()||dueDateStart.getYear()>today.getYear()) {
 			dueDateStart=dueDateStart.minusMonths(3);
 		}
@@ -349,7 +350,8 @@ public class KittingBaseServiceImpl {
 			dueDateStart=dueDateStart.minusMonths(3);
 		}else if(dueDateStart.getMonthValue()>today.getMonthValue()&&
 				dueDateStart.getYear()==today.getYear()){
-			dueDateStart=LocalDateTime.of(year, today.getMonth().minus(3), 1, 0, 0);
+			LocalDateTime start=today.minusMonths(3);
+			dueDateStart=LocalDateTime.of(start.getYear(), start.getMonth(), 1, 0, 0);
 		}else if(dueDateStart.getYear()<today.getYear()||dueDateStart.getYear()>today.getYear()) {
 			dueDateStart=dueDateStart.minusMonths(3);
 		}
