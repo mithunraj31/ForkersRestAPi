@@ -90,4 +90,6 @@ public class Constants {
 	
 	public static final String PATTERN = "pattern";
 	
+	public static final int MONTHS = 3;
+	
 }

@@ -103,13 +103,13 @@ public class ShippingBaseServiceImpl {
 		LocalDateTime dueDateStart =LocalDateTime.of(year, month, 1, 0, 0);
 		if(dueDateStart.getMonthValue()<=today.getMonthValue()&&
 				dueDateStart.getYear()==today.getYear()){
-			dueDateStart=dueDateStart.minusMonths(3);
+			dueDateStart=dueDateStart.minusMonths(Constants.MONTHS);
 		}else if(dueDateStart.getMonthValue()>today.getMonthValue()&&
 				dueDateStart.getYear()==today.getYear()){
-			LocalDateTime start=today.minusMonths(3);
+			LocalDateTime start=today.minusMonths(Constants.MONTHS);
 			dueDateStart=LocalDateTime.of(start.getYear(), start.getMonth(), 1, 0, 0);
 		}else if(dueDateStart.getYear()<today.getYear()||dueDateStart.getYear()>today.getYear()) {
-			dueDateStart=dueDateStart.minusMonths(3);
+			dueDateStart=dueDateStart.minusMonths(Constants.MONTHS);
 		}
 		LocalDateTime dueDateEnd =LocalDateTime.of(year, month, initial.lengthOfMonth(), 0, 0).plusDays(1);
 		dueDateStart =DateTimeUtil.toUtc(dueDateStart).minusDays(1);
@@ -345,13 +345,13 @@ public class ShippingBaseServiceImpl {
 		LocalDateTime dueDateStart =LocalDateTime.of(year, month, 1, 0, 0);
 		if(dueDateStart.getMonthValue()<=today.getMonthValue()&&
 				dueDateStart.getYear()==today.getYear()){
-			dueDateStart=dueDateStart.minusMonths(3);
+			dueDateStart=dueDateStart.minusMonths(Constants.MONTHS);
 		}else if(dueDateStart.getMonthValue()>today.getMonthValue()&&
 				dueDateStart.getYear()==today.getYear()){
-			LocalDateTime start=today.minusMonths(3);
+			LocalDateTime start=today.minusMonths(Constants.MONTHS);
 			dueDateStart=LocalDateTime.of(start.getYear(), start.getMonth(), 1, 0, 0);
 		}else if(dueDateStart.getYear()<today.getYear()||dueDateStart.getYear()>today.getYear()) {
-			dueDateStart=dueDateStart.minusMonths(3);
+			dueDateStart=dueDateStart.minusMonths(Constants.MONTHS);
 		}
 		LocalDateTime dueDateEnd =LocalDateTime.of(year, month, initial.lengthOfMonth(), 0, 0);
 		Map<Integer,Mappingfields>productQuantityMap=new HashMap<>();
