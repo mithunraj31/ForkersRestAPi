@@ -425,7 +425,7 @@ public class ShippedBaseServiceImpl {
 		if(incomingQuantity!=0) {
 			Mappingfields mapping=productQuantityMap.get(product.getProductId());
 			if(mapping!=null) {
-				int availableQunatity=mapping.getAvailableStockQuantity()==0?mapping.getCurrentQuantity():mapping.getAvailableStockQuantity();
+				int availableQunatity=mapping.getAvailableStockQuantity();
 				mapping.setAvailableStockQuantity(availableQunatity-incomingQuantity);
 				mapping.setCurrentQuantity(availableQunatity);
 				mapping.setIncomingQuantity(incomingQuantity);
