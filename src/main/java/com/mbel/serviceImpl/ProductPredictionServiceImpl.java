@@ -77,7 +77,18 @@ public class ProductPredictionServiceImpl {
 
 	@Autowired 
 	SchedulePatternDao schedulePatternDao;
-
+	
+	
+/*
+ * From params receive the year, month,pattern details
+ * if pattern is present get the associated products of the pattern to be displayed
+ * else get all active product and productSet by sorted order (sort column in product)
+ * Get the Active orders between the delivery data
+ * Get the Ordered Products from the orders  received before.
+ * Get All the Incoming Shipment.
+ * Get All the customers List
+ *   
+ * */
 	public List<ProductPredictionDto> getProductPrediction(Map<String, String> allParams) {
 		int year=Integer.parseInt(allParams.get(Constants.YEAR));
 		int month=Integer.parseInt(allParams.get(Constants.MONTH));
@@ -92,31 +103,13 @@ public class ProductPredictionServiceImpl {
 		return predictProduct(allCustomer,allProduct,allProductSet, order,orderProduct,incomingShipment,year,month,schedulePattern);
 
 	}
-//	private List<Product> getAllPatternProducts(SchedulePattern schedulePattern) {
-//		List<Integer>productIdList=new ArrayList<>();
-//		if(Objects.nonNull(schedulePattern)) {
-//			String pattern=schedulePattern.getPattern();
-//			String[] patternArray=pattern.split("&&");
-//			for(String idString:patternArray) {
-//				String[] idArray=idString.split("[\"\",:{}id items\\[\\]]");
-//				List<String> idList=Arrays.asList(idArray);
-//				for(String id:idList) {
-//					if(!id.isEmpty()) {
-//						productIdList.add(Integer.parseInt(id));
-//					}
-//
-//				}
-//			}
-//			return productDao.findAllById(productIdList);
-//		}else {
-//			return getAllSortedProducts();
-//		}
-//	}
-
+//Getting Ordered Products Based on the Order Placed between the date
 	private List<OrderProduct> getOrderedProductsBasedOnOrderId(List<Order> order) {
 		List<Integer>orderIdList=order.stream().map(Order::getOrderId).collect(Collectors.toList());
 		return orderProductDao.findAllByOrderId(orderIdList);
 	}
+	
+	//Getting the Active orders between the date requested
 	private List<Order> getActiveOrdersBetweenDeliveryDates(int year, int month) {
 		LocalDateTime today = LocalDateTime.now();
 		LocalDate initial = LocalDate.of(year, month, 1);
@@ -137,17 +130,23 @@ public class ProductPredictionServiceImpl {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 		return orderDao.getActiveOrdersBetweenDeliveryDates(dueDateStart.format(formatter), dueDateEnd.format(formatter));
 	}
+	
+	//Getting All Products sorted by sort column
 	private List<Product> getAllSortedProducts() {
 		List<Product>product =productDao.getActiveProducts();
 		return productServiceImpl.arrangeProductbySortField(product);
 	}
 
-
+//Method for predicting the quantities for the requested date
 	private List<ProductPredictionDto> predictProduct(List<Customer> allCustomer, List<Product> allProduct, List<ProductSet> allProductSet,
 			List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment,
 			int year, int month, SchedulePattern schedulePattern) {
+		
+		//If Schedule Pattern is null predict the quantities for product where display is true 
 		if(Objects.isNull(schedulePattern)) {
 			List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
+			
+			//Calculating for the productSet
 			for(Product product:allProduct.stream().filter(predicate->predicate.isActive()
 					&&predicate.isSet()&&predicate.isDisplay()).collect(Collectors.toList())) {
 				List<PredictionData> predictionDataList = new ArrayList<>();
@@ -157,11 +156,14 @@ public class ProductPredictionServiceImpl {
 				productPredictionDto.setProductName(product.getProductName());
 				productPredictionDto.setDescription(product.getDescription());
 				productPredictionDto.setColor(product.getColor());
+				//Get All products inside the productSet
 				List<ProductSet> productsetList= allProductSet.stream()
 						.filter(predicate->predicate.getSetId()==product.getProductId())
 						.collect(Collectors.toList());
+				//Sort the products inside the productSet according to sort column 
 				List<Product> productList=sortProductInProductSet(productsetList,allProduct);
 				List<ProductDataDto>productDataDtoList=new ArrayList<>();
+				//Predict quantities for each product inside the product set
 				for(int l=0;l< productList.size();l++ ) {
 					ProductDataDto productDataDto =new ProductDataDto();
 					predictionDataList = new ArrayList<>();
@@ -171,6 +173,7 @@ public class ProductPredictionServiceImpl {
 					productDataDto.setObicNo(component.getObicNo());
 					productDataDto.setProductName(component.getProductName());
 					productDataDto.setColor(component.getColor());
+					//calculateAccordingToDate Method is called to predict the quantities for each day for a single product
 					List<PredictionData> data =calculateAccordingToDate(component, year,month,predictionDataList,order,
 							incomingShipment,orderProduct,allProduct,allProductSet,allCustomer);
 					productDataDto.setValues(data);
@@ -180,16 +183,18 @@ public class ProductPredictionServiceImpl {
 				productPredictionDtoList.add(productPredictionDto);
 			}
 
-
+			//After Calculating Set product calling the getIndividualProductPrediction Method to calculate for individual product
 			getIndividualProductPrediction(productPredictionDtoList,allCustomer,allProduct,allProductSet, order,orderProduct,incomingShipment,year,month);
 			return productPredictionDtoList;
 		}else {
+			//Predict the products in the  requested schedule pattern
 			return PatternProductPredictionData(schedulePattern,allCustomer,allProduct,allProductSet, order,orderProduct,incomingShipment,year,month);
 		}
 
 
 	} 
 
+	//Calculating Individual Product where display is equal to true
 	private void getIndividualProductPrediction(List<ProductPredictionDto> productPredictionDtoList, List<Customer> allCustomer, List<Product> allProduct, List<ProductSet> allProductSet, List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment, int year, int month) {	ProductPredictionDto productPredictionDto =new ProductPredictionDto();
 	List<ProductDataDto>productDataDtoList=new ArrayList<>();
 	productPredictionDto.setProductId(0);
@@ -217,6 +222,7 @@ public class ProductPredictionServiceImpl {
 	productPredictionDtoList.add(productPredictionDto);
 	}
 	
+	//Calculating Individual Product listed in the schedule pattern
 	private void getIndividualScheduleProductPrediction(List<ProductPredictionDto> productPredictionDtoList, List<Customer> allCustomer,
 			List<Product> individualProductList, List<Product> allProduct, List<ProductSet> allProductSet, List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment, int year, int month) {	ProductPredictionDto productPredictionDto =new ProductPredictionDto();
 	List<ProductDataDto>productDataDtoList=new ArrayList<>();
@@ -233,6 +239,7 @@ public class ProductPredictionServiceImpl {
 		productDataDto.setObicNo(product.getObicNo());
 		productDataDto.setProductName(product.getProductName());
 		productDataDto.setColor(product.getColor());
+		//calculateAccordingToDate Method is called to predict the quantities for each day for a single product
 		List<PredictionData> data  =calculateAccordingToDate(product, year,month
 				,predictionDataList,order,incomingShipment,orderProduct,allProduct,allProductSet, allCustomer);
 		productDataDto.setValues(data);
@@ -243,45 +250,26 @@ public class ProductPredictionServiceImpl {
 	productPredictionDtoList.add(productPredictionDto);
 	}
 
-
-	//	private List<ProductPredictionDto> PatternProductPredictionData(SchedulePattern schedulePattern, List<Customer> allCustomer, List<Product> allProduct, List<ProductSet> allProductSet, List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment, int year, int month, int patternId) {
-	//		List<Integer>productIdList=new ArrayList<>();
-	//		List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
-	//		if(Objects.nonNull(schedulePattern)) {
-	//			String pattern=schedulePattern.getPattern();
-	//			JsonArray convertedObject = new Gson().fromJson(pattern, JsonArray.class);
-	//			String[] patternArray=pattern.split("&&");
-	//			for(String idString:patternArray) {
-	//				String[] idArray=idString.split("[\"\",:{}id items\\[\\]]");
-	//				List<String> idList=Arrays.asList(idArray);
-	//				for(String id:idList) {
-	//					if(!id.isEmpty()) {
-	//						productIdList.add(Integer.parseInt(id));
-	//					}
-	//				}
-	//				productPredictionDtoList.addAll(PredictPatternProduct(productIdList,allCustomer,allProduct,allProductSet,
-	//						order,orderProduct,incomingShipment,year,month));
-	//				productIdList.clear();
-	//			}	
-	//		}
-	//		return productPredictionDtoList;
-	//	}
-
+//Getting the Products inside the schedule pattern
 	private List<ProductPredictionDto> PatternProductPredictionData(SchedulePattern schedulePattern, List<Customer> allCustomer, List<Product> allProduct, List<ProductSet> allProductSet, List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment, int year, int month) {
 		List<Integer>productIdList=new ArrayList<>();
 		List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
 		if(Objects.nonNull(schedulePattern)) {
 			String pattern=schedulePattern.getPattern();
+			//converting the string format  to Json
 			JsonArray convertedObject = new Gson().fromJson(pattern, JsonArray.class);
 			for(int i=0;i<convertedObject.size();i++) {
 				JsonObject explrObject = convertedObject.get(i).getAsJsonObject();
+				//getting the products from the json Array
 				productIdList.add(explrObject.get("id").getAsInt());
 				JsonArray itemsArray=(explrObject.get("items").getAsJsonArray());
 				for(int j=0;j<itemsArray.size();j++) {
 					productIdList.add(itemsArray.get(j).getAsInt());
 				}
+				//call PredictPatternProduct Method to predict the quantity of products inside the pattern
 				productPredictionDtoList.addAll(PredictPatternProduct(productIdList,allCustomer,allProduct,allProductSet,
 						order,orderProduct,incomingShipment,year,month));
+				//clearing the list for the next iteration
 				productIdList.clear();
 			}
 
@@ -289,9 +277,10 @@ public class ProductPredictionServiceImpl {
 		return productPredictionDtoList;
 	}
 
-
+//Method for calculating the product inside the schedule pattern List
 	private List<ProductPredictionDto> PredictPatternProduct(List<Integer> productIdList, List<Customer> allCustomer, List<Product> allProduct, List<ProductSet> allProductSet, List<Order> order, List<OrderProduct> orderProduct, List<IncomingShipment> incomingShipment, int year, int month) {
 		List<ProductPredictionDto> productPredictionDtoList = new ArrayList<>();
+		//check the product is set or not if set then (productIdList.get(0)!=0) 
 		if(productIdList.get(0)!=0) {
 		for(Product product:allProduct.stream()
 				.filter(predicate->predicate.getProductId()==productIdList.get(0)).collect(Collectors.toList())) {
@@ -322,9 +311,11 @@ public class ProductPredictionServiceImpl {
 				productPredictionDtoList.add(productPredictionDto);
 		}
 			}else {
+				//Remove the id zero meaning to create a individual product set we will give manually the set name as Individual Product Set  
 				productIdList.remove(0);
+				//Get All the individual products in the pattern list
 				List<Product>individualProductList=getIndividualPatternProductList(allProduct,productIdList);
-				individualProductList.forEach(action->action.setDisplay(true));
+				//call getIndividualScheduleProductPrediction to calculate the individual products in schedule pattern
 				getIndividualScheduleProductPrediction(productPredictionDtoList, allCustomer, individualProductList, allProduct,allProductSet, order, orderProduct, incomingShipment, year, month);
 			}
 		return productPredictionDtoList;
@@ -332,6 +323,7 @@ public class ProductPredictionServiceImpl {
 
 	}
 	
+	//Get the product details of the id in the schedulePattern 
 	private List<Product> getIndividualPatternProductList(List<Product> allProduct, List<Integer> productIdList) {
 		List<Product>patternProductList=new ArrayList<Product>();
 		for(int productId:productIdList) {
@@ -339,6 +331,8 @@ public class ProductPredictionServiceImpl {
 		}
 		return patternProductList;
 	}
+	
+	//Get the products details inside the product set 
 	private List<Product> sortPatternProductSet(List<Integer> productIdList, List<Product> allProduct) {
 		List<Product> productList=new ArrayList<>();
 		for(int l=1;l< productIdList.size();l++ ) {
@@ -355,6 +349,8 @@ public class ProductPredictionServiceImpl {
 		}
 		return productList;
 	}
+	
+	//Sort the products in product set according to sort column
 	private List<Product> sortProductInProductSet(List<ProductSet> productsetList, List<Product> allProduct) {
 		List<Product> productList=new ArrayList<>();
 		for(int l=0;l< productsetList.size();l++ ) {
@@ -373,6 +369,8 @@ public class ProductPredictionServiceImpl {
 		return productList;
 
 	}
+	
+	//Get the customer according to the customerId
 	private String getCustomer(List<Customer> customerList, int customerId) {
 		return customerList.stream()
 				.filter(predicate->predicate.getCustomerId()==customerId)
@@ -384,9 +382,11 @@ public class ProductPredictionServiceImpl {
 				}));
 	}
 
+	//calculateAccordingToDate method calculates all products quantity predictions 
 	private List<PredictionData> calculateAccordingToDate(Product product, int year, int month, List<PredictionData> predictionDataList, 
 			List<Order> order, List<IncomingShipment> incomingShipment, List<OrderProduct> orderProduct, List<Product> allProduct, 
 			List<ProductSet> allProductSet, List<Customer> allCustomer) {
+		//Calculation dates are decided according to the received date.
 		LocalDateTime today = LocalDateTime.now();
 		LocalDate initial = LocalDate.of(year, month, 1);
 		LocalDateTime dueDateStart =LocalDateTime.of(year, month, 1, 0, 0);
@@ -402,9 +402,11 @@ public class ProductPredictionServiceImpl {
 		}
 		LocalDateTime dueDateEnd =LocalDateTime.of(year, month, initial.lengthOfMonth(), 0, 0);
 		Map<Integer,Mappingfields>productQuantityMap=new HashMap<>();
+		//Quantity prediction is calculated for each day
 		for(LocalDateTime dueDate=dueDateStart;dueDate.isBefore(dueDateEnd)||
 				dueDate.isEqual(dueDateEnd);dueDate=dueDate.plusDays(1)) {
 			boolean fixed=true;
+			//getUnfulfilledActiveOrder between the dates received
 			List<Order> unfulfilledorder =getUnfulfilledActiveOrder(order,dueDate);
 			List<Integer>productIdList =new ArrayList<>();
 			PredictionData predictionData=new PredictionData();
@@ -412,10 +414,13 @@ public class ProductPredictionServiceImpl {
 			Map<Integer,List<Mappingfields>>productDetails=new HashMap<>();
 			Map<Integer,Mappingfields>arrivedIncomingDetails=new HashMap<>();
 			Map<Integer,List<Integer>>incomingShipmentMap=new HashMap<>();
+			// if unfulfilledorder is not empty calculate the order 
 			if(!unfulfilledorder.isEmpty()) {
 				for(Order individualOrder:unfulfilledorder) {
+					//get the all the products in the order
 					List<FetchOrderdProducts> orderdProducts= getAllProducts(individualOrder,orderProduct,allProduct,allProductSet);
 					for(FetchOrderdProducts productCheck:orderdProducts) {
+						//iterating all the products in the orders
 						checkProductStatus(productDetails,productCheck, dueDate,
 								productQuantityMap, incomingShipmentMap,incomingShipment,
 								allProduct,allProductSet,individualOrder,productIdList);
@@ -423,15 +428,20 @@ public class ProductPredictionServiceImpl {
 					}
 				}
 			}
+			//if unfulfilled order is empty or the particular product is not present in the ordered product calculate updateUnArrivedIncomingOrder
 			if(unfulfilledorder.isEmpty()||!productIdList.contains(product.getProductId())) {
 				updateUnArrivedIncomingOrder(incomingQuantity,product,productQuantityMap,incomingShipment,dueDate,allProduct);
 			}
 			List<Order> fulfilledorder =getFulfilledOrder(order,dueDate);
+			//calculate fulfilloeder 
 			if(!fulfilledorder.isEmpty()) {
 				updatefullfillOrder(productDetails,fulfilledorder,productQuantityMap,orderProduct,allProduct,allProductSet);
 			}
+			//calculate Arrived Incoming Order
 			updateArrivedIncomingOrder(incomingQuantity,product,incomingShipment,dueDate,allProduct,arrivedIncomingDetails);
+			//calculating the number of outgoing quantinty per day for a product
 			int numOrdered=productNumOrdered(order,product,orderProduct,allProduct,allProductSet,dueDate);
+			//generating the display list  of prediction quantity of requested month
 			if(dueDate.getMonth()==initial.getMonth()) {
 				updateDailyStockValues(numOrdered,productDetails,predictionData,allCustomer,
 						dueDate,productQuantityMap,product,
@@ -441,6 +451,7 @@ public class ProductPredictionServiceImpl {
 		return predictionDataList;
 	}
 
+	//updateArrivedIncomingOrder 
 	private void updateArrivedIncomingOrder(int incomingQuantity, Product product,
 			List<IncomingShipment> incomingShipment,
 			LocalDateTime dueDate, List<Product> allProduct, Map<Integer, Mappingfields> arrivedIncomingDetails) {
@@ -468,6 +479,7 @@ public class ProductPredictionServiceImpl {
 				}
 			}
 		}
+		//updating display list when incomingOrderIdList is not empty
 		if(!incomingOrderIdList.isEmpty()) {
 			Mappingfields mapping=new Mappingfields();
 			mapping.setAvailableStockQuantity(incomingQuantity);
@@ -482,7 +494,7 @@ public class ProductPredictionServiceImpl {
 		}
 	}
 
-
+//updating fullfillorder list 
 	private void updatefullfillOrder(Map<Integer, List<Mappingfields>> productDetails, List<Order> fulfilledorderList, Map<Integer, Mappingfields> productQuantityMap,
 			List<OrderProduct> orderProduct, List<Product> allProduct, List<ProductSet> allProductSet) {
 		for(Order individualOrder:fulfilledorderList) {
@@ -507,6 +519,7 @@ public class ProductPredictionServiceImpl {
 		}
 
 	}
+	//Outgoing  product set fulfillment order 
 	private void productSetFulfillmentUpdate(Map<Integer, List<Mappingfields>> productDetails,
 			FetchOrderdProducts product, ProductSetModel individualProduct,
 			Map<Integer, Mappingfields> productQuantityMap,
@@ -532,6 +545,8 @@ public class ProductPredictionServiceImpl {
 				multipleProductOrder(productDetails,individualProduct.getProduct().getProductId(),mappingFields);
 
 	}
+	
+	//Outgoing  product  fulfillment order 
 	private void productfulfillmentUpdate(Map<Integer, List<Mappingfields>> productDetails, FetchOrderdProducts product, Map<Integer, Mappingfields> productQuantityMap,
 			Order individualOrder) {
 		Mappingfields mappingFields =new Mappingfields();
@@ -555,6 +570,8 @@ public class ProductPredictionServiceImpl {
 
 
 	}
+	
+	//updateUnArrivedIncomingOrder
 	private void updateUnArrivedIncomingOrder(int incomingQuantity, Product product, 
 			Map<Integer, Mappingfields> productQuantityMap, List<IncomingShipment> incomingShipment, 
 			LocalDateTime dueDate, List<Product> allProduct) {
@@ -582,8 +599,10 @@ public class ProductPredictionServiceImpl {
 				}
 			}
 		}
+		//updateList if incomingOrderIdList is not empty
 		if(!incomingOrderIdList.isEmpty()) {
 			Mappingfields mapping=productQuantityMap.get(product.getProductId());
+			//if there is any previous order for particular product else update else method
 			if(mapping!=null) {
 				int availableQunatity=mapping.getAvailableStockQuantity();
 				mapping.setAvailableStockQuantity(availableQunatity+incomingQuantity);
@@ -620,6 +639,7 @@ public class ProductPredictionServiceImpl {
 
 
 	}
+	//updateDailyStockValues for the product
 	public void updateDailyStockValues(int numOrdered,
 			Map<Integer, List<Mappingfields>> productDetails, PredictionData predictionData, List<Customer> allCustomer, LocalDateTime dueDate, 
 			Map<Integer, Mappingfields> productQuantityMap, Product product,
@@ -628,6 +648,7 @@ public class ProductPredictionServiceImpl {
 		int incomingFinalQuantity=0;
 		if(productQuantityMap!=null&&productQuantityMap.get(product.getProductId())!=null) {
 			List<Integer>incomingOrderIdList=productQuantityMap.get(product.getProductId()).getIncomingOrderId();
+			//initially updating incoming order list
 			if(incomingOrderIdList!=null) {
 				for(int i=0;i<incomingOrderIdList.size();i++) {
 					IncomingOrderData incomingOrderData =new IncomingOrderData();
@@ -655,15 +676,22 @@ public class ProductPredictionServiceImpl {
 				incomingOrderList.add(incomingOrderData);
 			}
 		}
+		//if the product ordered more than once on same day
 		if(numOrdered > 1) {
 			updateMultipleOrderStockValues(productDetails,predictionData,product,allCustomer,dueDate,incomingOrderList,incomingFinalQuantity);
-		}else if(numOrdered==0&&productQuantityMap!=null&&productQuantityMap.containsKey(product.getProductId())) {
+		}
+		//if the product not ordered on that day
+		else if(numOrdered==0&&productQuantityMap!=null&&productQuantityMap.containsKey(product.getProductId())) {
 			updateNoOrderStockValue(predictionData,productQuantityMap,dueDate,product,incomingOrderList,incomingFinalQuantity);
-		}else if((productQuantityMap!=null&&productQuantityMap.containsKey(product.getProductId()))
+		}
+		//if the product ordered once on that day
+		else if((productQuantityMap!=null&&productQuantityMap.containsKey(product.getProductId()))
 				||(productDetails!=null&&productDetails.containsKey(product.getProductId()))){
 			updateSingleOrderStockValue(predictionData,productQuantityMap,dueDate,product,allCustomer,
 					incomingOrderList,incomingFinalQuantity,productDetails);
-		}else {
+		}
+		//This method is never called 
+		else {
 			ProductIncomingShipmentModel incomingShipmentValues =new ProductIncomingShipmentModel();
 			ProductOutgoingShipmentModel outgoingShipmentValues =new ProductOutgoingShipmentModel();
 			predictionData.setDate(dueDate);
@@ -684,6 +712,7 @@ public class ProductPredictionServiceImpl {
 		predictionDataList.add(predictionData);
 	}
 
+	//if the product ordered once on that day
 	private void updateSingleOrderStockValue(PredictionData predictionData, Map<Integer, Mappingfields> productQuantityMap, LocalDateTime dueDate, Product product,
 			List<Customer> allCustomer, List<IncomingOrderData> incomingOrderList, int incomingFinalQuantity, Map<Integer, List<Mappingfields>> productDetails) {
 
@@ -746,6 +775,8 @@ public class ProductPredictionServiceImpl {
 
 
 	}
+	
+	//if the product not ordered on that day
 	private void updateNoOrderStockValue(PredictionData predictionData, Map<Integer, Mappingfields> productQuantityMap, LocalDateTime dueDate, 
 			Product product, List<IncomingOrderData> incomingOrderList, int incomingFinalQuantity) {
 		ProductIncomingShipmentModel incomingShipmentValues =new ProductIncomingShipmentModel();
@@ -767,6 +798,8 @@ public class ProductPredictionServiceImpl {
 
 
 	}
+	
+	//incomingQuantityUpdate
 	private void incomingQuantityUpdate(int incomingFinalQuantity, ProductIncomingShipmentModel incomingShipmentValues, List<IncomingOrderData> incomingOrderList) {
 		if(!incomingOrderList.isEmpty()) {
 			incomingShipmentValues.setQuantity(incomingFinalQuantity);
@@ -795,6 +828,7 @@ public class ProductPredictionServiceImpl {
 
 
 	}
+	
 	private void incomingColorUpdate(List<Boolean> fulfillmentList, List<Boolean> fixedtList,
 			ProductIncomingShipmentModel incomingShipmentValues) {
 		ColourData contains = new ColourData();
@@ -861,6 +895,8 @@ public class ProductPredictionServiceImpl {
 		incomingShipmentValues.setContains(contains);
 
 	}
+	
+	//if the product ordered more than once on same day
 	private void updateMultipleOrderStockValues(Map<Integer, List<Mappingfields>> productDetails,
 			PredictionData predictionData, 
 			Product product, List<Customer> allCustomer, LocalDateTime dueDate, List<IncomingOrderData> incomingOrderList, int incomingFinalQuantity) {
@@ -915,6 +951,7 @@ public class ProductPredictionServiceImpl {
 		predictionData.setIncoming(incomingShipmentValues);
 
 	}
+	//color update method to decide the color to be shown in the front end
 	private void colorUpdate(ProductOutgoingShipmentModel outgoingShipmentValues, List<Boolean> outgoingFulfilList,
 			List<Boolean> outgoingFixedList) {
 		ColourData contains =new ColourData();
@@ -958,6 +995,7 @@ public class ProductPredictionServiceImpl {
 		}
 		outgoingShipmentValues.setContains(contains);
 	}
+	//To check how much time a particular product is ordered in a day 
 	private int productNumOrdered(List<Order> order, Product product, List<OrderProduct> orderProduct, List<Product> allProduct, List<ProductSet> allProductSet, LocalDateTime dueDate) {
 		List<FetchOrderdProducts> filteredProductSet=new ArrayList<>();
 		List<ProductSetModel> filteredProduct=new ArrayList<>();
@@ -982,7 +1020,7 @@ public class ProductPredictionServiceImpl {
 		return filteredProduct.size()+filteredProductSet.size();
 
 	}
-
+//get all product inside the productset
 	public List<FetchOrderdProducts> getAllProducts(Order individualOrder,
 			List<OrderProduct> orderProduct, List<Product> allProduct, List<ProductSet> allProductSet) {
 		List<FetchOrderdProducts> orderProductList = new ArrayList<>();
@@ -999,7 +1037,8 @@ public class ProductPredictionServiceImpl {
 
 		return orderProductList;
 	}
-
+	
+	//getProductSetById to get the product details by setId
 	public FetchProductSetDto getProductSetById(int productId, List<Product> allProduct,
 			List<ProductSet> allProductSet) {
 		Product proCheck = allProduct.stream().filter(predicate->predicate.getProductId()==productId)
@@ -1051,7 +1090,7 @@ public class ProductPredictionServiceImpl {
 
 
 	}
-
+	//get the product by Id
 	public FetchProductSetDto getProductById(int productId, List<Product> allProduct) {
 		Product proCheck = allProduct.stream().filter(predicate->predicate.getProductId()==productId)
 				.collect(Collectors.collectingAndThen(Collectors.toList(), list-> {
@@ -1087,6 +1126,7 @@ public class ProductPredictionServiceImpl {
 
 	}
 
+	//checkProductStatus is to calculate the product incoming and outgoing quantity
 	public void checkProductStatus(Map<Integer, List<Mappingfields>> productDetails, FetchOrderdProducts productCheck, LocalDateTime dueDate,
 			Map<Integer, Mappingfields> productQuantityMap,
 			Map<Integer, List<Integer>> incomingShipmentMap, List<IncomingShipment> incomingShipment,
@@ -1109,7 +1149,7 @@ public class ProductPredictionServiceImpl {
 			productQuantityMap.put(productId,mappingPackage);
 		}
 	}
-
+//if the product ordered is set this method is called
 	public void productSetStockCaluculate(Map<Integer, List<Mappingfields>> productDetails, FetchOrderdProducts product,
 			ProductSetModel individualProduct,LocalDateTime dueDate, 
 			Map<Integer, Mappingfields> productQuantityMap, 
@@ -1135,7 +1175,7 @@ public class ProductPredictionServiceImpl {
 				dueDate,mappingFields,productQuantityMap,incomingShipmentMap,incomingShipment,allProduct,allProductSet);
 		multipleProductOrder(productDetails,individualProduct.getProduct().getProductId(),mappingFields);
 	}
-
+//if the individual product is ordered this method is called
 	private void productStockCaluculate(Map<Integer, List<Mappingfields>> productDetails, FetchOrderdProducts productCheck,
 			LocalDateTime dueDate, Map<Integer, Mappingfields> productQuantityMap, Map<Integer, List<Integer>> incomingShipmentMap,
 			List<IncomingShipment> incomingShipment, List<Product> allProduct, List<ProductSet> allProductSet, Order individualOrder) {
@@ -1159,7 +1199,7 @@ public class ProductPredictionServiceImpl {
 				productQuantityMap,incomingShipmentMap,incomingShipment, allProduct, allProductSet);
 		multipleProductOrder(productDetails,productCheck.getProduct().getProductId(),mappingFields);    
 	}
-
+//if the products ordered multiple time then it is ordered in the same list
 	private void multipleProductOrder(Map<Integer, List<Mappingfields>> productDetails, int productId, Mappingfields mappingFields) {
 		List<Mappingfields>productMappingList =new ArrayList<>();
 		if(!productDetails.containsKey(productId)) {
@@ -1171,7 +1211,7 @@ public class ProductPredictionServiceImpl {
 			productDetails.put(productId,productMappingList);
 		}
 	}
-
+//update stock values updates the predicted incoming outgoing quantity
 	public void updateStockValues(Product product, int stockQuantity, int orderdQunatity, LocalDateTime dueDate,
 			Mappingfields mappingFields, Map<Integer, Mappingfields> productQuantityMap, 
 			Map<Integer, List<Integer>> incomingShipmentMap, List<IncomingShipment> incomingShipment,
@@ -1191,7 +1231,7 @@ public class ProductPredictionServiceImpl {
 
 		}
 	}
-
+//get the current quantity on the particular date
 	public int getTillDateQuantity(Product newproduct, int stockQuantity, LocalDateTime dueDate, 
 			Map<Integer, List<Integer>> incomingShipmentMap, List<IncomingShipment> incomingShipment,
 			List<Product> allProduct, Mappingfields mappingFields) {
@@ -1206,7 +1246,7 @@ public class ProductPredictionServiceImpl {
 		return tillDateQuantity;
 
 	}
-
+//get All un Arrived Incoming shipment
 	public List<FetchIncomingOrderdProducts> getAllUnarrivedDueDateIncomingShipment(
 			List<IncomingShipment> incomingShipment, 
 			LocalDateTime dueDate, List<Product> allProduct) {
@@ -1237,7 +1277,7 @@ public class ProductPredictionServiceImpl {
 		return incomingShipmentFixedList;
 
 	}
-
+//getting All Incoming Shipment
 	public List<FetchIncomingOrderdProducts> getAllIncomingShipment(List<IncomingShipment> incomingShipment,
 			List<Product> allProduct) {
 		List<FetchIncomingOrderdProducts> incomingShipmentDtoList = new ArrayList<>(); 
@@ -1265,7 +1305,7 @@ public class ProductPredictionServiceImpl {
 
 		return incomingShipmentDtoList;
 	}
-
+//getting All Incoming Product
 	public FetchProductSetDto getAllIncomingProduct(IncomingShipment incoming, 
 			List<Product> allProduct) {
 		FetchProductSetDto fetchProducts = new FetchProductSetDto(); 
@@ -1274,7 +1314,7 @@ public class ProductPredictionServiceImpl {
 		fetchProducts.setPrice(incoming.getPrice());
 		return fetchProducts;
 	}
-
+//Adding the arrived quantity
 	private int addArrivedQuantity(int tillDateQuantity, Map<Integer, List<Integer>> incomingShipmentMap, 
 			Product newproduct, FetchIncomingOrderdProducts arrivedOrder, List<Integer> incomingOrderList, Mappingfields mappingFields) {
 		List<Integer>incomingOrderIdList=new ArrayList<>();
